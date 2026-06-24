@@ -1,1 +1,27 @@
 @import "tailwindcss";
+
+/* ---- Brilliance Care animations & helpers ---- */
+@keyframes bc-fade-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes bc-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes bc-pop { 0% { opacity: 0; transform: scale(.85); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes bc-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+@keyframes bc-toast-in { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes bc-shimmer { 100% { transform: translateX(100%); } }
+
+.bc-fade-up   { animation: bc-fade-up .55s cubic-bezier(.2,.7,.2,1) both; }
+.bc-fade-in   { animation: bc-fade-in .4s ease both; }
+.bc-pop       { animation: bc-pop .3s cubic-bezier(.2,.8,.2,1) both; }
+.bc-float     { animation: bc-float 3.5s ease-in-out infinite; }
+.bc-toast-in  { animation: bc-toast-in .35s cubic-bezier(.2,.8,.2,1) both; }
+
+/* shimmer skeleton used while products load */
+.bc-skeleton { position: relative; overflow: hidden; background: #e5e7eb; }
+.bc-skeleton::after {
+  content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
+  animation: bc-shimmer 1.3s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bc-fade-up, .bc-fade-in, .bc-pop, .bc-float, .bc-toast-in { animation: none; }
+}
