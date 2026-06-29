@@ -1,6 +1,6 @@
 import { useCart } from '../../context/CartContext.jsx';
 
-export default function CartDrawer({ open, onClose, onCheckout, submitting }) {
+export default function CartDrawer({ open, onClose, onCheckout, submitting, slot = null, onChooseSlot }) {
   const { items, setQty, remove, total, count } = useCart();
 
   return (
@@ -70,16 +70,44 @@ export default function CartDrawer({ open, onClose, onCheckout, submitting }) {
 
         {items.length > 0 && (
           <footer className="border-t border-gray-200 bg-white px-6 py-5">
+            {/* Delivery slot */}
+            {slot ? (
+              <div className="mb-3 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5">
+                <span className="text-lg leading-none">🚚</span>
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-emerald-700">Delivery booked</p>
+                  <p className="text-xs text-emerald-600">
+                    {slot.dateLabel} · {slot.label} ({slot.time})
+                  </p>
+                </div>
+                <button onClick={onChooseSlot} className="text-xs font-semibold text-emerald-600 transition hover:text-emerald-800">
+                  Change
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={onChooseSlot}
+                className="mb-3 flex w-full items-center gap-2 rounded-xl border border-dashed border-violet-300 bg-violet-50 px-3 py-2.5 text-left transition hover:bg-violet-100"
+              >
+                <span className="text-lg">🚚</span>
+                <div className="flex-1">
+                  <p className="text-xs font-bold text-violet-700">Choose a delivery slot</p>
+                  <p className="text-xs text-violet-500">Required — tap to pick a day &amp; time.</p>
+                </div>
+                <span className="text-violet-400">→</span>
+              </button>
+            )}
+
             <div className="mb-4 flex items-center justify-between">
               <span className="text-sm text-gray-500">Total</span>
               <span className="text-2xl font-extrabold text-gray-900">${total.toFixed(2)}</span>
             </div>
             <button
               onClick={onCheckout}
-              disabled={submitting}
-              className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 py-3.5 font-semibold text-white shadow-lg transition hover:shadow-xl active:scale-[.98] disabled:opacity-60"
+              disabled={submitting || !slot}
+              className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 py-3.5 font-semibold text-white shadow-lg transition hover:shadow-xl active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {submitting ? 'Processing…' : 'Checkout'}
+              {submitting ? 'Processing…' : slot ? 'Checkout' : 'Select a delivery slot first'}
             </button>
           </footer>
         )}

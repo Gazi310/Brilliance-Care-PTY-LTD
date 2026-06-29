@@ -1,7 +1,31 @@
 import config from '../config/index.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
+import DeliverySlot from '../models/DeliverySlot.js';
 import { products as productSeed } from '../data/seedData.js';
+import { dayFromToday, dayMeta } from './delivery.js';
+
+/**
+ * Opens a sensible starter set of delivery slots so the calendar isn't empty
+ * on first run: morning + afternoon on the next 3 upcoming weekdays. Admins can
+ * adjust everything from the dropdown; slots are otherwise occupied by default.
+ */
+async function seedDeliverySlots(force = false) {
+  if (force) await DeliverySlot.deleteMany({});
+  if (!force && (await DeliverySlot.countDocuments()) > 0) return;
+
+  const open = [];
+  for (let i = 1; i <= 14 && open.length < 6; i += 1) {
+    const m = dayMeta(dayFromToday(i));
+    if (m.isWeekend) continue; // weekdays only for the demo set
+    open.push({ date: m.date, window: 'morning', available: true });
+    open.push({ date: m.date, window: 'afternoon', available: true });
+  }
+  if (open.length) {
+    await DeliverySlot.insertMany(open);
+    console.log(`🚚 Seeded ${open.length} open delivery slots`);
+  }
+}
 
 /**
  * Ensures the admin account and product catalog exist.
@@ -27,6 +51,9 @@ export async function seedDatabase({ force = false } = {}) {
     await Product.insertMany(productSeed);
     console.log(`📦 Seeded ${productSeed.length} products`);
   }
+
+  // --- Delivery slots ---
+  await seedDeliverySlots(force);
 }
 
 // Allow running directly:  npm run seed   (force-reseeds the configured database)

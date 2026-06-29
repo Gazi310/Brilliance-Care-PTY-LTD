@@ -1,6 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { getToken } from '../services/api.js';
-import { login as loginSvc, logout as logoutSvc, fetchMe } from '../services/authService.js';
+import {
+  login as loginSvc,
+  register as registerSvc,
+  logout as logoutSvc,
+  fetchMe,
+} from '../services/authService.js';
 
 const AuthContext = createContext(null);
 
@@ -28,12 +33,18 @@ export function AuthProvider({ children }) {
     return u;
   };
 
+  const register = async (name, email, password) => {
+    const u = await registerSvc(name, email, password);
+    setUser(u);
+    return u;
+  };
+
   const logout = () => {
     logoutSvc();
     setUser(null);
   };
 
-  const value = { user, isAdmin: !!user?.isAdmin, loading, login, logout };
+  const value = { user, isAdmin: !!user?.isAdmin, loading, login, register, logout };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

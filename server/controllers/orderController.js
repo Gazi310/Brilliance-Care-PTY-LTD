@@ -1,14 +1,18 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
+import { resolveOpenSlot } from './deliveryController.js';
 
 // POST /api/orders — checkout: validate stock, then decrement it.
 export const createOrder = asyncHandler(async (req, res) => {
-  const { items } = req.body; // [{ productId, qty }]
+  const { items, deliverySlot } = req.body; // items: [{ productId, qty }]
   if (!Array.isArray(items) || items.length === 0) {
     res.status(400);
     throw new Error('Your cart is empty');
   }
+
+  // If a delivery slot was chosen, confirm it is still open and snapshot it.
+  const bookedSlot = deliverySlot ? await resolveOpenSlot(res, deliverySlot) : null;
 
   const lineItems = [];
   let total = 0;
@@ -37,6 +41,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   const order = await Order.create({
     user: req.user?._id || null,
     items: lineItems,
+    deliverySlot: bookedSlot,
     total: Math.round(total * 100) / 100,
     status: 'paid',
   });
