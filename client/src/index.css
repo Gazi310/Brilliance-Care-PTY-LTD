@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+/* ---- Brilliance Care design tokens — "Fresh Aqua & Navy" ---- */
+@theme {
+  --color-navy: #0E4D8B;
+  --color-navy-d: #0B3A66;
+  --color-aqua: #16B4C4;
+  --color-aqua-d: #0EA5B7;
+  --color-mint: #7FE3D6;
+  --color-teal: #12A5A8;
+  --color-teal-d: #0E7C7B;
+  --color-ink: #0F2436;
+  --color-muted: #5A6B7B;
+  --color-faint: #93A4B3;
+  --color-line: #E2E9F0;
+  --color-surface: #EDF3F8;
+
+  --shadow-soft: 0 1px 2px rgba(11, 58, 102, .06), 0 8px 24px rgba(11, 58, 102, .07);
+  --shadow-cta: 0 14px 40px rgba(14, 77, 139, .24);
+}
+
 /* ---- Brilliance Care animations & helpers ---- */
 @keyframes bc-fade-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes bc-fade-in { from { opacity: 0; } to { opacity: 1; } }

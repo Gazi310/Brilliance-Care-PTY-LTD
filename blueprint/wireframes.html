@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Brilliance Care — Mobile Wireframes</title>
+<style>
+  :root{
+    --navy:#0E4D8B; --navy-d:#0B3A66; --aqua:#16B4C4; --aqua-d:#0EA5B7; --mint:#7FE3D6;
+    --brand1:#0E4D8B; --brand2:#16B4C4;
+    --grad:linear-gradient(135deg,#0E4D8B,#16B4C4);
+    --grad-emerald:linear-gradient(135deg,#12A5A8,#0E7C7B);
+    --ink:#0F2436; --muted:#5A6B7B; --faint:#93A4B3;
+    --line:#E2E9F0; --bg:#EDF3F8; --card:#ffffff;
+    --amber:#f59e0b; --emerald:#10b981; --red:#ef4444; --blue:#2E86C4;
+    --r:18px; --rs:12px;
+    --shadow:0 1px 2px rgba(11,58,102,.06),0 8px 24px rgba(11,58,102,.07);
+    --shadow-lg:0 14px 40px rgba(14,77,139,.24);
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--font);color:var(--ink);
+    background:radial-gradient(1200px 600px at 15% -10%,#dceaf6 0,transparent 60%),
+               radial-gradient(1200px 700px at 100% 0,#d3f1f4 0,transparent 55%),#f2f6fa;}
+
+  /* ---------- layout ---------- */
+  .wrap{display:flex;gap:26px;align-items:flex-start;padding:26px;max-width:1240px;margin:0 auto}
+  .rail{width:290px;flex:none;position:sticky;top:26px}
+  .brandbar{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+  .logo{width:42px;height:42px;border-radius:13px;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:var(--shadow-lg)}
+  .brandbar h1{font-size:16px;margin:0;letter-spacing:-.2px}
+  .brandbar p{margin:2px 0 0;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600}
+  .rail .note{font-size:12.5px;color:var(--muted);line-height:1.5;margin:0 2px 14px}
+  .legend{display:flex;gap:6px;margin:0 2px 16px;flex-wrap:wrap}
+  .tag{font-size:10px;font-weight:800;letter-spacing:.03em;padding:3px 8px;border-radius:999px;text-transform:uppercase}
+  .tag.keep{background:#dcfce7;color:#15803d}
+  .tag.change{background:#fef3c7;color:#b45309}
+  .tag.add{background:#dbeafe;color:#1d4ed8}
+  .railgroup{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin:16px 6px 7px}
+  .navlist{display:flex;flex-direction:column;gap:3px}
+  .navitem{display:flex;align-items:center;gap:9px;width:100%;text-align:left;border:0;background:none;cursor:pointer;
+    padding:9px 11px;border-radius:11px;font-size:13.5px;color:#334155;font-weight:600;transition:.15s}
+  .navitem:hover{background:#fff}
+  .navitem.active{background:#fff;box-shadow:var(--shadow);color:var(--brand1)}
+  .navitem .dot{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:none}
+  .navitem.active .dot{background:var(--brand1)}
+  .navitem .mtag{margin-left:auto;font-size:9px;font-weight:800;padding:2px 6px;border-radius:999px;text-transform:uppercase}
+  .mtag.keep{background:#dcfce7;color:#15803d}.mtag.change{background:#fef3c7;color:#b45309}.mtag.add{background:#dbeafe;color:#1d4ed8}
+
+  /* ---------- stage + phone ---------- */
+  .stage{flex:1;display:flex;flex-direction:column;align-items:center;min-height:80vh;padding-top:6px}
+  .stage .caption{font-size:13px;color:var(--muted);margin-bottom:16px;text-align:center;max-width:420px}
+  .stage .caption b{color:var(--ink)}
+  .phone{width:392px;height:812px;background:#0b1220;border-radius:52px;padding:13px;
+    box-shadow:0 40px 80px -20px rgba(15,23,42,.45),0 0 0 2px #1f2937, inset 0 0 0 2px #000;position:relative}
+  .screenframe{width:100%;height:100%;background:var(--bg);border-radius:40px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+  .notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:26px;background:#0b1220;border-radius:0 0 18px 18px;z-index:60}
+
+  .statusbar{height:44px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 24px 6px;font-size:12.5px;font-weight:700;color:var(--ink);z-index:40;background:transparent}
+  .statusbar.onbrand{color:#fff}
+  .statusbar .sig{display:flex;gap:4px;align-items:center}
+  .statusbar .sig span{width:15px;height:9px;border-radius:2px;background:currentColor;opacity:.9}
+
+  /* scroll area holds screens */
+  .viewport{flex:1;position:relative;overflow:hidden}
+  .screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:none;-webkit-overflow-scrolling:touch}
+  .screen.active{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .screen::-webkit-scrollbar{width:0}
+  .pad{padding:14px 16px 30px}
+  .haspad{padding-bottom:96px}      /* leave room for bottom tab bar */
+
+  /* ---------- app bar ---------- */
+  .appbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:10px;padding:8px 14px 12px;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .appbar.plain{background:transparent;border:0}
+  .iconbtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#334155;flex:none}
+  .appbar h2{font-size:16px;margin:0;font-weight:800;letter-spacing:-.2px}
+  .appbar .spacer{flex:1}
+
+  /* ---------- generic ui kit ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:14px}
+  .card+.card{margin-top:12px}
+  .muted{color:var(--muted)} .faint{color:var(--faint)}
+  .h{font-weight:800;letter-spacing:-.2px}
+  .eyebrow{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+  .stack>*+*{margin-top:12px}
+  .row2{display:flex;gap:10px}.row2>*{flex:1}
+  .center{text-align:center}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;cursor:pointer;
+    background:var(--grad);color:#fff;font-weight:800;font-size:15px;padding:14px;border-radius:14px;box-shadow:var(--shadow-lg);transition:.15s}
+  .btn:active{transform:translateY(1px)}
+  .btn.sec{background:#fff;color:var(--brand1);border:1px solid #cfe0ff;box-shadow:none}
+  .btn.ghost{background:#eef2f7;color:#334155;box-shadow:none}
+  .btn.emerald{background:var(--grad-emerald);box-shadow:0 12px 30px rgba(16,185,129,.25)}
+  .btn.sm{width:auto;padding:9px 14px;font-size:13px;border-radius:11px;box-shadow:none}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:#eef2f7;color:#475569}
+  .chip.amber{background:#fef3c7;color:#b45309}.chip.blue{background:#dbeafe;color:#1d4ed8}
+  .chip.emerald{background:#dcfce7;color:#15803d}.chip.red{background:#fee2e2;color:#b91c1c}
+  .chip.brand{background:#e0edff;color:#1d4ed8}
+  .pill{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:4px 9px;border-radius:999px}
+  .pill.amber{background:#fef3c7;color:#b45309}.pill.blue{background:#dbeafe;color:#1d4ed8}.pill.emerald{background:#dcfce7;color:#15803d}.pill.red{background:#fee2e2;color:#b91c1c}
+
+  .listrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .listrow:last-child{border-bottom:0}
+  .thumb{width:44px;height:44px;border-radius:12px;background:#eef4ff;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+  .thumb.em{background:#e7fbf3}.thumb.vi{background:#f2ecfe}
+  .listrow .grow{flex:1;min-width:0}
+  .listrow .t{font-weight:700;font-size:14px}
+  .listrow .s{font-size:12px;color:var(--muted);margin-top:2px}
+  .listrow .meta{text-align:right;font-size:13px;font-weight:800}
+  .chev{color:var(--faint)}
+
+  .stepper{display:inline-flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#fff}
+  .stepper button{width:34px;height:34px;border:0;background:#f1f5f9;font-size:18px;cursor:pointer;color:#334155}
+  .stepper span{min-width:42px;text-align:center;font-weight:800;font-size:14px}
+
+  .field{width:100%;border:1px solid var(--line);border-radius:12px;padding:12px 13px;font-size:14px;background:#fff;color:var(--ink)}
+  .field.ph{color:var(--faint)}
+  label.lb{display:block;font-size:12px;font-weight:700;color:#475569;margin:0 0 6px 2px}
+
+  .progress{display:flex;align-items:center;gap:6px;padding:2px 2px 4px}
+  .progress .st{flex:1;height:5px;border-radius:999px;background:#dbe3ee}
+  .progress .st.on{background:var(--grad)}
+
+  .priceline{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;padding:5px 0;color:#475569}
+  .priceline .v{font-weight:700;color:var(--ink)}
+  .priceline.total{border-top:1px dashed var(--line);margin-top:6px;padding-top:11px;font-size:16px}
+  .priceline.total .v{font-size:18px}
+  .priceline.due .v{color:var(--red)}
+  .priceline.dep .v{color:var(--brand1)}
+
+  .est-banner{display:flex;gap:10px;background:#fff8e6;border:1px solid #fde9b8;border-radius:14px;padding:11px 12px;font-size:12px;color:#8a5a00;line-height:1.45}
+  .est-banner b{color:#734a00}
+
+  .timeline{position:relative;padding-left:26px}
+  .timeline::before{content:"";position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:#e2e8f0}
+  .tl{position:relative;padding:0 0 16px}
+  .tl:last-child{padding-bottom:0}
+  .tl .d{position:absolute;left:-26px;top:1px;width:20px;height:20px;border-radius:50%;background:#fff;border:2px solid #cbd5e1;display:flex;align-items:center;justify-content:center;font-size:11px;color:#cbd5e1}
+  .tl.done .d{background:var(--emerald);border-color:var(--emerald);color:#fff}
+  .tl.now .d{background:var(--brand1);border-color:var(--brand1);color:#fff;box-shadow:0 0 0 4px #dbeafe}
+  .tl .t{font-weight:700;font-size:14px}
+  .tl.todo .t{color:var(--faint)}
+  .tl .s{font-size:12px;color:var(--muted);margin-top:1px}
+
+  /* ---------- bottom tab bar ---------- */
+  .tabbar{position:absolute;left:0;right:0;bottom:0;height:74px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-around;padding:9px 8px 0;z-index:50}
+  .tabbar.hidden{display:none}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;cursor:pointer;color:#94a3b8;font-size:10.5px;font-weight:700;flex:1;padding-top:4px}
+  .tab.active{color:var(--brand1)}
+  .tab svg{width:23px;height:23px}
+  .tab.book{margin-top:-24px}
+  .tab.book .fab{width:56px;height:56px;border-radius:18px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-lg)}
+  .tab.book span{margin-top:3px;color:var(--brand1)}
+
+  /* hero */
+  .hero{position:relative;border-radius:24px;overflow:hidden;padding:22px 18px 20px;color:#fff;
+    background:linear-gradient(135deg,#0B3A66,#0EA5B7);min-height:210px;display:flex;flex-direction:column;justify-content:flex-end}
+  .hero .glow{position:absolute;inset:0;background:radial-gradient(400px 200px at 80% 10%,rgba(255,255,255,.25),transparent 60%)}
+  .hero .kick{position:relative;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+  .hero h3{position:relative;font-size:25px;line-height:1.12;margin:8px 0 6px;letter-spacing:-.4px}
+  .hero p{position:relative;font-size:13px;opacity:.9;margin:0 0 14px;max-width:250px}
+  .postcode{display:flex;gap:8px;background:#fff;border-radius:13px;padding:6px;box-shadow:var(--shadow)}
+  .postcode input{flex:1;border:0;outline:0;font-size:13px;padding:0 8px;color:var(--ink)}
+  .postcode button{border:0;background:var(--grad);color:#fff;font-weight:800;font-size:12.5px;padding:9px 12px;border-radius:9px;cursor:pointer}
+
+  .svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .svc{border-radius:16px;padding:14px;color:#fff;min-height:104px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;box-shadow:var(--shadow)}
+  .svc .big{font-size:26px}.svc .nm{font-weight:800;font-size:14px}.svc .sub{font-size:11px;opacity:.9;margin-top:1px}
+  .svc.laundry{background:linear-gradient(135deg,#1E6FB0,#0E4D8B)}
+  .svc.clean{background:linear-gradient(135deg,#12A5A8,#0E7C7B)}
+  .svc.shop{background:linear-gradient(135deg,#5B6EE1,#8A5CF6)}
+  .svc.wide{grid-column:1/3;flex-direction:row;align-items:center;gap:12px;min-height:auto}
+  .svc.wide .big{font-size:22px}
+
+  .steps3{display:flex;flex-direction:column;gap:10px}
+  .step3{display:flex;gap:12px;align-items:flex-start}
+  .step3 .n{width:26px;height:26px;border-radius:50%;background:var(--grad);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex:none}
+  .step3 .t{font-weight:700;font-size:13.5px}.step3 .s{font-size:12px;color:var(--muted)}
+
+  .review{display:flex;gap:10px;align-items:flex-start}
+  .stars{color:#f59e0b;font-size:12px;letter-spacing:1px}
+
+  .divlabel{display:flex;align-items:center;gap:10px;margin:16px 2px 10px;color:var(--faint);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+  .divlabel::before,.divlabel::after{content:"";height:1px;background:var(--line);flex:1}
+
+  .success-ring{width:92px;height:92px;border-radius:50%;background:var(--grad-emerald);display:flex;align-items:center;justify-content:center;margin:6px auto 0;box-shadow:0 16px 40px rgba(16,185,129,.35)}
+
+  .kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .kpi .k{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}
+  .kpi .k .n{font-size:20px;font-weight:800;letter-spacing:-.5px}
+  .kpi .k .l{font-size:11px;color:var(--muted);margin-top:2px}
+  .kpi .k.grad{background:var(--grad);color:#fff;border:0}
+  .kpi .k.grad .l{color:rgba(255,255,255,.85)}
+
+  .seg{display:flex;background:#e9eef5;border-radius:11px;padding:3px;gap:3px}
+  .seg button{flex:1;border:0;background:none;padding:8px;border-radius:8px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer}
+  .seg button.on{background:#fff;color:var(--brand1);box-shadow:var(--shadow)}
+
+  .assess{display:grid;grid-template-columns:1fr auto auto;gap:8px 10px;align-items:center;font-size:12.5px}
+  .assess .hd{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--faint)}
+  .assess input{width:58px;border:1px solid var(--line);border-radius:9px;padding:7px;text-align:center;font-size:13px;font-weight:700}
+  .delta{font-size:11px;font-weight:800}
+  .delta.up{color:#b45309}.delta.down{color:#15803d}
+
+  .foot{margin-top:22px;text-align:center;font-size:11px;color:var(--faint);line-height:1.6}
+
+  @media(max-width:900px){
+    .rail{display:none}
+    .wrap{padding:14px}
+  }
+
+  /* ============ DEVICE TOGGLE + DESKTOP ============ */
+  .devbar{display:flex;justify-content:center;margin-bottom:16px}
+  .devtoggle{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:13px;padding:4px;gap:4px;box-shadow:var(--shadow)}
+  .devtoggle button{border:0;background:none;cursor:pointer;font-weight:800;font-size:13px;color:var(--muted);padding:9px 18px;border-radius:9px;display:flex;align-items:center;gap:7px;transition:.15s}
+  .devtoggle button.on{background:var(--grad);color:#fff;box-shadow:var(--shadow-lg)}
+
+  /* legacy separate-desktop screens retired — desktop reflows the SAME screens */
+  #desktop,.dtswitch{display:none !important}
+
+  /* browser chrome + desktop top nav — shown only in desktop mode */
+  .chrome-bar{display:none;align-items:center;gap:10px;padding:10px 14px;background:#eef2f6;border-bottom:1px solid var(--line);flex:none}
+  .chrome-bar .dots{display:flex;gap:6px}.chrome-bar .dots i{width:11px;height:11px;border-radius:50%;display:block}
+  .chrome-bar .dots i:nth-child(1){background:#ff5f57}.chrome-bar .dots i:nth-child(2){background:#febc2e}.chrome-bar .dots i:nth-child(3){background:#28c840}
+  .chrome-bar .addr{flex:1;background:#fff;border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-size:12px;color:var(--muted);text-align:center;max-width:440px;margin:0 auto}
+  .sitenav{display:none;align-items:center;gap:6px;padding:12px 22px;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);flex:none}
+  .sitenav.navhide{display:none !important}
+  .sitenav .b{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px;color:var(--ink)}
+  .sitenav .b .lg{width:32px;height:32px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff}
+  .sitenav .links{display:flex;gap:2px;margin-left:12px}
+  .sitenav .links a{font-size:13.5px;font-weight:600;color:var(--muted);padding:8px 11px;border-radius:9px;cursor:pointer}
+  .sitenav .links a.on,.sitenav .links a:hover{background:#e8f1f9;color:var(--navy)}
+  .sitenav .sp{flex:1}
+  .sitenav .lnk{font-size:13px;font-weight:700;color:var(--navy);cursor:pointer;padding:0 8px}
+  .sitenav .navbtn{background:var(--grad);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:800;cursor:pointer}
+  .sitenav .avatar{width:32px;height:32px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+
+  /* ---- DESKTOP MODE: the SAME frame morphs to a browser; the SAME screens reflow ---- */
+  body.mode-desktop .phone{width:min(1120px,100%);height:770px;background:#fff;border-radius:16px;padding:0;
+    box-shadow:0 44px 90px -34px rgba(11,58,102,.5),0 0 0 1px var(--line)}
+  body.mode-desktop .screenframe{border-radius:16px;background:#fff}
+  body.mode-desktop .notch,body.mode-desktop .statusbar{display:none}
+  body.mode-desktop .chrome-bar{display:flex}
+  body.mode-desktop .sitenav{display:flex}
+  body.mode-desktop .tabbar{display:none}
+  body.mode-desktop .stage{width:100%}
+  body.mode-desktop .wrap{max-width:1360px}
+  body.mode-desktop .viewport{background:var(--bg)}
+  /* centre each screen's content in one comfortable column — identical components */
+  body.mode-desktop .pad{max-width:940px;margin:0 auto;padding:24px 26px 44px}
+  body.mode-desktop .haspad{padding-bottom:44px}
+  /* per-screen app bars become aligned page sub-headers (no phone back button) */
+  body.mode-desktop .appbar{position:static;background:transparent;backdrop-filter:none;border:0;max-width:940px;margin:0 auto;padding:20px 26px 2px}
+  body.mode-desktop .appbar .iconbtn{display:none}
+  /* roomy screens get more columns, but the same cards/content */
+  body.mode-desktop #sc-home .svc-grid{grid-template-columns:repeat(3,1fr)}
+  body.mode-desktop #sc-home .svc.wide{grid-column:auto;flex-direction:column;justify-content:flex-start;min-height:104px}
+  body.mode-desktop #sc-shop .svc-grid{grid-template-columns:repeat(4,1fr)}
+  body.mode-desktop .kpi{grid-template-columns:repeat(4,1fr)}
+  body.mode-desktop .steps3{flex-direction:row;gap:16px}
+  body.mode-desktop .steps3 .step3{flex:1}
+  body.mode-desktop .hero{min-height:300px;padding:42px}
+  body.mode-desktop .hero h3{font-size:40px;max-width:640px}
+  body.mode-desktop .hero p{max-width:520px}
+  @media(max-width:1180px){ body.mode-desktop .phone{width:100%} }
+  @media(max-width:820px){ body.mode-desktop .sitenav .links{display:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- ================= RAIL ================= -->
+  <aside class="rail">
+    <div class="brandbar">
+      <div class="logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.3 6.4L21 11l-6.7 2.3L12 20l-2.3-6.7L3 11l6.7-2.3L12 2z"/></svg>
+      </div>
+      <div><h1>Brilliance Care</h1><p>Wireframes</p></div>
+    </div>
+    <p class="note">Use the <b>Mobile / Desktop</b> toggle above the frame — it's the <b>same screens</b>, just reflowed. Tap any screen here, or navigate inside the frame.</p>
+    <div class="legend">
+      <span class="tag keep">Keep</span><span class="tag change">Change</span><span class="tag add">Add</span>
+    </div>
+
+    <div class="railgroup">Customer</div>
+    <div class="navlist" id="nav-client"></div>
+    <div class="railgroup">Admin</div>
+    <div class="navlist" id="nav-admin"></div>
+  </aside>
+
+  <!-- ================= STAGE ================= -->
+  <main class="stage">
+    <div class="devbar">
+      <div class="devtoggle">
+        <button class="on" data-mode="mobile"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2.5"/><path d="M11 18h2"/></svg> Mobile</button>
+        <button data-mode="desktop"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg> Desktop</button>
+      </div>
+    </div>
+    <div class="caption" id="caption"><b>Home</b> — the first thing a customer sees.</div>
+    <div class="phone">
+      <div class="screenframe">
+        <div class="notch"></div>
+        <div class="statusbar" id="statusbar">
+          <span id="clock">9:41</span>
+          <div class="sig"><span></span><span></span><span style="opacity:.5"></span></div>
+        </div>
+        <!-- desktop-only browser chrome + top nav (same screens below) -->
+        <div class="chrome-bar">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="addr">🔒 brilliancecare.com.au</div>
+        </div>
+        <nav class="sitenav" id="sitenav-client">
+          <div class="b"><span class="lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.3 6.4L21 11l-6.7 2.3L12 20l-2.3-6.7L3 11l6.7-2.3L12 2z"/></svg></span>Brilliance Care</div>
+          <div class="links"><a data-goto="home" class="on">Home</a><a data-goto="laundry">Laundry</a><a data-goto="book-build">Cleaning</a><a data-goto="shop">Shop</a><a data-goto="orders">Orders</a></div>
+          <div class="sp"></div>
+          <span class="lnk" data-goto="account">Log in</span>
+          <button class="navbtn" data-goto="book-build">Book a pickup</button>
+        </nav>
+        <nav class="sitenav navhide" id="sitenav-admin">
+          <div class="b"><span class="lg"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.3 6.4L21 11l-6.7 2.3L12 20l-2.3-6.7L3 11l6.7-2.3L12 2z"/></svg></span>Brilliance Admin</div>
+          <div class="links"><a data-goto="admin-dash" class="on">Dashboard</a><a data-goto="admin-orders">Orders</a><a data-goto="admin-assess">Assess &amp; Invoice</a></div>
+          <div class="sp"></div>
+          <span class="lnk" data-goto="home">Exit admin</span>
+          <div class="avatar">SM</div>
+        </nav>
+        <div class="viewport" id="viewport">
+          <!--SCREENS-->
+
+          <!-- ============ HOME ============ -->
+          <section class="screen" id="sc-home">
+            <div class="pad haspad">
+              <div class="hero">
+                <div class="glow"></div>
+                <div class="kick">Brilliance Care</div>
+                <h3>Fresh laundry &amp; sparkling homes — from your door.</h3>
+                <p>We pick up, clean, and deliver. Pay a small deposit now, the rest after.</p>
+                <div class="postcode"><input placeholder="Enter your postcode" /><button>Check area</button></div>
+              </div>
+
+              <div style="margin-top:16px" class="svc-grid">
+                <div class="svc laundry" data-goto="laundry"><div class="big">🧺</div><div><div class="nm">Laundry</div><div class="sub">Wash · Iron · Fold</div></div></div>
+                <div class="svc clean" data-goto="book-build"><div class="big">🫧</div><div><div class="nm">Cleaning</div><div class="sub">Home &amp; office</div></div></div>
+                <div class="svc shop wide" data-goto="shop"><div class="big">🧴</div><div><div class="nm">Shop products</div><div class="sub">Detergents &amp; eco care — pay in full</div></div></div>
+              </div>
+
+              <div class="card" style="margin-top:16px">
+                <div class="eyebrow">How it works</div>
+                <div class="steps3" style="margin-top:12px">
+                  <div class="step3"><div class="n">1</div><div><div class="t">Book &amp; pay 30% deposit</div><div class="s">Prices are estimates — you only pay part now.</div></div></div>
+                  <div class="step3"><div class="n">2</div><div><div class="t">We collect &amp; clean</div><div class="s">We weigh/assess the real job as we go.</div></div></div>
+                  <div class="step3"><div class="n">3</div><div><div class="t">Pay balance, delivered</div><div class="s">We send a clear invoice, then return it fresh.</div></div></div>
+                </div>
+              </div>
+
+              <div class="card" style="margin-top:12px">
+                <div class="review">
+                  <div class="thumb">💬</div>
+                  <div class="grow"><div class="stars">★★★★★</div><div style="font-size:13px;margin-top:3px">“Booked in a minute, loved the pickup reminder and the honest final invoice.”</div><div class="s muted" style="font-size:12px;margin-top:4px">Priya · Parramatta</div></div>
+                </div>
+              </div>
+
+              <button class="btn" style="margin-top:16px" data-goto="book-build">Book a pickup</button>
+            </div>
+          </section>
+
+          <!-- ============ LAUNDRY ============ -->
+          <section class="screen" id="sc-laundry">
+            <div class="appbar"><button class="iconbtn" data-goto="home">‹</button><h2>Laundry</h2><div class="spacer"></div><span class="chip amber">Est. prices</span></div>
+            <div class="pad haspad">
+              <div class="est-banner">💡 <div>Prices are an <b>estimate</b>. We weigh your load on pickup — you pay a deposit now and a final balance after.</div></div>
+
+              <div class="card" style="margin-top:12px">
+                <div class="listrow"><div class="thumb">👕</div><div class="grow"><div class="t">Wash &amp; Fold</div><div class="s">Everyday load · ~$6.50 / kg</div></div><div class="stepper"><button>−</button><span>8kg</span><button>+</button></div></div>
+                <div class="listrow"><div class="thumb">👔</div><div class="grow"><div class="t">Wash &amp; Iron</div><div class="s">Shirts &amp; work wear · ~$9 / kg</div></div><div class="stepper"><button>−</button><span>0</span><button>+</button></div></div>
+                <div class="listrow"><div class="thumb">🛏️</div><div class="grow"><div class="t">Duvets &amp; bulky</div><div class="s">Per item · ~$25</div></div><div class="stepper"><button>−</button><span>1</span><button>+</button></div></div>
+                <div class="listrow"><div class="thumb">🧥</div><div class="grow"><div class="t">Dry cleaning</div><div class="s">Delicate items · from ~$12</div></div><div class="stepper"><button>−</button><span>0</span><button>+</button></div></div>
+              </div>
+
+              <div class="card" style="position:sticky;bottom:8px;margin-top:14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-lg)">
+                <div><div class="faint" style="font-size:11px;font-weight:700">Estimated</div><div class="h" style="font-size:22px">$77.00</div></div>
+                <button class="btn" style="width:auto;flex:1" data-goto="book-schedule">Continue →</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ BOOK · BUILD ============ -->
+          <section class="screen" id="sc-book-build">
+            <div class="appbar"><button class="iconbtn" data-goto="laundry">‹</button><h2>Book a pickup</h2></div>
+            <div class="pad haspad">
+              <div class="progress"><div class="st on"></div><div class="st"></div><div class="st"></div><div class="st"></div></div>
+              <div class="muted" style="font-size:12px;margin:4px 2px 0">Step 1 of 4 · What needs cleaning?</div>
+
+              <div class="est-banner" style="margin-top:12px">💡 <div>You'll see an <b>estimated total</b>. Pay a 30% deposit to book; we invoice the balance after service.</div></div>
+
+              <div class="card" style="margin-top:12px">
+                <div class="eyebrow">Laundry</div>
+                <div class="listrow"><div class="grow"><div class="t">Wash &amp; Fold</div><div class="s">~$6.50 / kg</div></div><div class="stepper"><button>−</button><span>8kg</span><button>+</button></div></div>
+                <div class="listrow"><div class="grow"><div class="t">Wash &amp; Iron</div><div class="s">~$9 / kg</div></div><div class="stepper"><button>−</button><span>2kg</span><button>+</button></div></div>
+                <div class="listrow"><div class="grow"><div class="t">Duvet (Queen)</div><div class="s">~$25 each</div></div><div class="stepper"><button>−</button><span>1</span><button>+</button></div></div>
+              </div>
+
+              <div class="card" style="margin-top:12px">
+                <div class="eyebrow">Add cleaning too?</div>
+                <div class="listrow" style="border:0"><div class="thumb em">🫧</div><div class="grow"><div class="t">Add a home clean</div><div class="s">Book a cleaner in the same visit</div></div><span class="chev">›</span></div>
+              </div>
+
+              <div class="card" style="position:sticky;bottom:8px;margin-top:14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-lg)">
+                <div><div class="faint" style="font-size:11px;font-weight:700">Estimated</div><div class="h" style="font-size:22px">$95.00</div></div>
+                <button class="btn" style="width:auto;flex:1" data-goto="book-schedule">Next: schedule</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ BOOK · SCHEDULE ============ -->
+          <section class="screen" id="sc-book-schedule">
+            <div class="appbar"><button class="iconbtn" data-goto="book-build">‹</button><h2>Schedule</h2></div>
+            <div class="pad haspad">
+              <div class="progress"><div class="st on"></div><div class="st on"></div><div class="st"></div><div class="st"></div></div>
+              <div class="muted" style="font-size:12px;margin:4px 2px 0">Step 2 of 4 · Pickup &amp; delivery</div>
+
+              <div class="card" style="margin-top:12px">
+                <div class="eyebrow">Pickup date</div>
+                <div style="display:flex;gap:8px;margin-top:10px;overflow-x:auto">
+                  <div class="chip">Today</div><div class="chip brand">Tomorrow<br/>Thu 3</div><div class="chip">Fri 4</div><div class="chip">Sat 5</div><div class="chip">Sun 6</div>
+                </div>
+                <div class="eyebrow" style="margin-top:14px">Pickup window</div>
+                <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                  <div class="chip">7–9am</div><div class="chip brand">9–11am</div><div class="chip">12–2pm</div><div class="chip" style="opacity:.45">2–4pm ·full</div><div class="chip">4–6pm</div>
+                </div>
+              </div>
+
+              <div class="card" style="margin-top:12px">
+                <div class="eyebrow">Return / delivery</div>
+                <div class="listrow" style="border:0"><div class="thumb">🚚</div><div class="grow"><div class="t">Sat 5 July · 9–11am</div><div class="s">Standard turnaround (48h) · free over $50</div></div><span class="chev">›</span></div>
+              </div>
+
+              <button class="btn" style="margin-top:16px" data-goto="book-details">Next: your details</button>
+            </div>
+          </section>
+
+          <!-- ============ BOOK · DETAILS ============ -->
+          <section class="screen" id="sc-book-details">
+            <div class="appbar"><button class="iconbtn" data-goto="book-schedule">‹</button><h2>Your details</h2></div>
+            <div class="pad haspad">
+              <div class="progress"><div class="st on"></div><div class="st on"></div><div class="st on"></div><div class="st"></div></div>
+              <div class="muted" style="font-size:12px;margin:4px 2px 0">Step 3 of 4 · Where &amp; how</div>
+
+              <div class="card" style="margin-top:12px">
+                <label class="lb">Pickup address</label>
+                <div class="listrow" style="border:0;background:#f4f8ff;border-radius:12px;padding:10px 12px"><div class="thumb">🏠</div><div class="grow"><div class="t">14 Marsden St</div><div class="s">Parramatta NSW 2150 · Default</div></div><span class="chip brand">Change</span></div>
+                <button class="btn ghost sm" style="margin-top:10px">+ Add new address</button>
+              </div>
+
+              <div class="card" style="margin-top:12px">
+                <label class="lb">Access notes</label>
+                <div class="field ph">e.g. Leave at door, gate code 1234…</div>
+                <label class="lb" style="margin-top:12px">Contact number</label>
+                <div class="field">+61 4•• ••• •••</div>
+              </div>
+
+              <button class="btn" style="margin-top:16px" data-goto="book-review">Review order</button>
+            </div>
+          </section>
+
+          <!-- ============ BOOK · REVIEW ============ -->
+          <section class="screen" id="sc-book-review">
+            <div class="appbar"><button class="iconbtn" data-goto="book-details">‹</button><h2>Review</h2></div>
+            <div class="pad haspad">
+              <div class="progress"><div class="st on"></div><div class="st on"></div><div class="st on"></div><div class="st on"></div></div>
+              <div class="muted" style="font-size:12px;margin:4px 2px 0">Step 4 of 4 · Confirm &amp; deposit</div>
+
+              <div class="card" style="margin-top:12px">
+                <div class="eyebrow">Estimated order</div>
+                <div class="priceline"><span>Wash &amp; Fold · ~8 kg</span><span class="v">$52.00</span></div>
+                <div class="priceline"><span>Wash &amp; Iron · ~2 kg</span><span class="v">$18.00</span></div>
+                <div class="priceline"><span>Duvet (Queen) ×1</span><span class="v">$25.00</span></div>
+                <div class="priceline"><span>GST (incl.)</span><span class="v">$8.64</span></div>
+                <div class="priceline total"><span>Estimated total</span><span class="v">$95.00</span></div>
+                <div class="priceline dep"><span>Deposit now (30%)</span><span class="v">$28.50</span></div>
+                <div class="priceline"><span>Balance after service</span><span class="v">~$66.50</span></div>
+              </div>
+
+              <div class="est-banner" style="margin-top:12px">🧾 <div>Final price is confirmed after we weigh your load. We'll send an <b>invoice</b> and you'll pay only the balance.</div></div>
+
+              <label style="display:flex;gap:10px;align-items:flex-start;margin:14px 2px;font-size:12.5px;color:#475569"><input type="checkbox" checked style="margin-top:2px"/> I understand prices are estimates and agree to the terms.</label>
+
+              <button class="btn" data-goto="checkout">Continue to deposit · $28.50</button>
+            </div>
+          </section>
+
+          <!-- ============ CHECKOUT (deposit) ============ -->
+          <section class="screen" id="sc-checkout">
+            <div class="appbar"><button class="iconbtn" data-goto="book-review">‹</button><h2>Pay deposit</h2><div class="spacer"></div><span class="chip">🔒 Secure</span></div>
+            <div class="pad haspad">
+              <div class="card">
+                <div class="priceline"><span>Estimated total</span><span class="v">$95.00</span></div>
+                <div class="priceline dep"><span>Deposit due now (30%)</span><span class="v">$28.50</span></div>
+                <div class="priceline"><span>Balance after service</span><span class="v">~$66.50</span></div>
+              </div>
+
+              <div class="divlabel">Pay with</div>
+              <button class="btn" style="background:#000">  Pay — Apple Pay</button>
+              <div class="card" style="margin-top:12px">
+                <label class="lb">Card number</label>
+                <div class="field ph">1234 5678 9012 3456</div>
+                <div class="row2" style="margin-top:10px"><div><label class="lb">Expiry</label><div class="field ph">MM/YY</div></div><div><label class="lb">CVC</label><div class="field ph">•••</div></div></div>
+              </div>
+
+              <div class="est-banner" style="margin-top:12px">✅ <div>You're only paying the <b>deposit</b> now. The balance is invoiced after your service — no surprises.</div></div>
+
+              <button class="btn emerald" style="margin-top:14px" data-goto="confirmed">Pay $28.50 deposit</button>
+            </div>
+          </section>
+
+          <!-- ============ CONFIRMED ============ -->
+          <section class="screen" id="sc-confirmed">
+            <div class="pad haspad center">
+              <div class="success-ring"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 6"/></svg></div>
+              <h2 style="margin:16px 0 4px">You're booked!</h2>
+              <div class="muted" style="font-size:13px">Order <b>#BC‑1042</b> · deposit $28.50 paid</div>
+
+              <div class="card" style="margin-top:18px;text-align:left">
+                <div class="eyebrow">What happens next</div>
+                <div class="timeline" style="margin-top:12px">
+                  <div class="tl done"><div class="d">✓</div><div class="t">Deposit paid</div><div class="s">Receipt sent to your email</div></div>
+                  <div class="tl now"><div class="d">•</div><div class="t">Pickup tomorrow · 9–11am</div><div class="s">We'll SMS when we're on the way</div></div>
+                  <div class="tl todo"><div class="d"></div><div class="t">We weigh &amp; clean</div></div>
+                  <div class="tl todo"><div class="d"></div><div class="t">Invoice + pay balance</div></div>
+                </div>
+              </div>
+
+              <button class="btn" style="margin-top:16px" data-goto="order-detail">Track your order</button>
+              <button class="btn ghost" style="margin-top:10px" data-goto="home">Back to home</button>
+            </div>
+          </section>
+
+          <!-- ============ ORDERS ============ -->
+          <section class="screen" id="sc-orders">
+            <div class="appbar plain"><h2>My orders</h2></div>
+            <div class="pad haspad">
+              <div class="seg"><button class="on">Active</button><button>Past</button></div>
+
+              <div class="card" style="margin-top:12px" data-goto="order-detail">
+                <div style="display:flex;align-items:center;gap:10px"><div class="thumb">🧺</div><div class="grow"><div class="t h">Laundry · #BC‑1042</div><div class="s muted" style="font-size:12px">Pickup tomorrow · 9–11am</div></div><span class="pill blue">In progress</span></div>
+                <div class="priceline" style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px"><span>Deposit paid $28.50</span><span class="v">Est. $95.00</span></div>
+              </div>
+
+              <div class="card" data-goto="invoice">
+                <div style="display:flex;align-items:center;gap:10px"><div class="thumb em">🫧</div><div class="grow"><div class="t h">Cleaning · #BC‑1039</div><div class="s muted" style="font-size:12px">Completed · Mon 30 Jun</div></div><span class="pill red">Balance due</span></div>
+                <div class="priceline due" style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px"><span>Invoice ready — tap to pay</span><span class="v">$121.00</span></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ ORDER DETAIL ============ -->
+          <section class="screen" id="sc-order-detail">
+            <div class="appbar"><button class="iconbtn" data-goto="orders">‹</button><h2>Order #BC‑1042</h2></div>
+            <div class="pad haspad">
+              <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center"><div class="h">Laundry · Wash &amp; Fold +2</div><span class="pill blue">In progress</span></div>
+                <div class="timeline" style="margin-top:14px">
+                  <div class="tl done"><div class="d">✓</div><div class="t">Booked &amp; deposit paid</div><div class="s">Wed 1 Jul · $28.50</div></div>
+                  <div class="tl done"><div class="d">✓</div><div class="t">Picked up</div><div class="s">Thu 2 Jul · 9:52am</div></div>
+                  <div class="tl now"><div class="d">•</div><div class="t">Cleaning in progress</div><div class="s">Weighed: 10.4 kg (est 8 kg)</div></div>
+                  <div class="tl todo"><div class="d"></div><div class="t">Invoice &amp; balance</div></div>
+                  <div class="tl todo"><div class="d"></div><div class="t">Out for delivery</div></div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="eyebrow">Pickup &amp; delivery</div>
+                <div class="listrow"><div class="grow"><div class="t" style="font-size:13px">🏠 14 Marsden St, Parramatta</div><div class="s">Leave at door</div></div></div>
+                <div class="listrow" style="border:0"><div class="grow"><div class="t" style="font-size:13px">🚚 Return Sat 5 Jul · 9–11am</div></div></div>
+              </div>
+
+              <button class="btn sec">Message support · Reschedule</button>
+            </div>
+          </section>
+
+          <!-- ============ INVOICE ============ -->
+          <section class="screen" id="sc-invoice">
+            <div class="appbar"><button class="iconbtn" data-goto="orders">‹</button><h2>Invoice</h2><div class="spacer"></div><span class="pill red">Awaiting payment</span></div>
+            <div class="pad haspad">
+              <div class="muted" style="font-size:12px;margin:0 2px">Invoice <b>BC‑INV‑1042</b> · issued 3 Jul 2026</div>
+
+              <div class="card" style="margin-top:12px">
+                <div class="eyebrow">Estimate vs actual</div>
+                <div class="assess" style="margin-top:12px">
+                  <div class="hd">Item</div><div class="hd">Est</div><div class="hd">Actual</div>
+                  <div>Wash &amp; Fold<br/><span class="delta up">8kg → 10.4kg</span></div><div class="muted">$52.00</div><div class="v h">$67.60</div>
+                  <div>Wash &amp; Iron</div><div class="muted">$18.00</div><div class="v h">$18.00</div>
+                  <div>Duvet (Queen)</div><div class="muted">$25.00</div><div class="v h">$25.00</div>
+                  <div>Ironing ×5 <span class="delta up">added</span></div><div class="muted">—</div><div class="v h">$10.00</div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="priceline"><span>Subtotal</span><span class="v">$120.60</span></div>
+                <div class="priceline"><span>GST (incl. 10%)</span><span class="v">$10.96</span></div>
+                <div class="priceline total"><span>Actual total</span><span class="v">$120.60</span></div>
+                <div class="priceline dep"><span>Less deposit paid</span><span class="v">−$28.50</span></div>
+                <div class="priceline due total"><span>Balance due</span><span class="v">$92.10</span></div>
+              </div>
+
+              <div class="card" style="background:#f0f7ff;border-color:#cfe0ff">
+                <div style="font-size:12.5px;color:#334155">📝 <b>Note from Brilliance Care:</b> Your load came in a bit heavier than estimated and you added ironing. Everything's washed &amp; ready!</div>
+              </div>
+
+              <button class="btn emerald" style="margin-top:14px" data-goto="orders">Pay balance · $92.10</button>
+              <button class="btn ghost" style="margin-top:10px">Pay on delivery (cash/card)</button>
+              <div class="center muted" style="font-size:11px;margin-top:10px">Download PDF · Question this invoice</div>
+            </div>
+          </section>
+
+          <!-- ============ SHOP ============ -->
+          <section class="screen" id="sc-shop">
+            <div class="appbar"><button class="iconbtn" data-goto="home">‹</button><h2>Shop</h2><div class="spacer"></div><button class="iconbtn">🛒</button></div>
+            <div class="pad haspad">
+              <div class="field ph" style="margin-bottom:12px">🔍 Search products…</div>
+              <div class="svc-grid">
+                <div class="card" style="padding:10px"><div style="height:80px;background:#eef4ff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:34px">🧴</div><div class="t" style="margin-top:8px;font-size:13px">Eco Detergent 2L</div><div class="s muted" style="font-size:12px">In stock</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><b>$18.00</b><button class="btn sm">Add</button></div></div>
+                <div class="card" style="padding:10px"><div style="height:80px;background:#e7fbf3;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:34px">🧼</div><div class="t" style="margin-top:8px;font-size:13px">Wool &amp; Delicate</div><div class="s muted" style="font-size:12px">In stock</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><b>$14.50</b><button class="btn sm">Add</button></div></div>
+                <div class="card" style="padding:10px"><div style="height:80px;background:#f2ecfe;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:34px">🌿</div><div class="t" style="margin-top:8px;font-size:13px">Fabric Softener</div><div class="s muted" style="font-size:12px">Low stock</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><b>$11.00</b><button class="btn sm">Add</button></div></div>
+                <div class="card" style="padding:10px"><div style="height:80px;background:#fff4e6;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:34px">🧺</div><div class="t" style="margin-top:8px;font-size:13px">Laundry Bag</div><div class="s muted" style="font-size:12px">In stock</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><b>$9.00</b><button class="btn sm">Add</button></div></div>
+              </div>
+              <div class="est-banner" style="margin-top:14px">🛒 <div>Products are <b>paid in full</b> at checkout (no deposit) and delivered in your chosen slot.</div></div>
+            </div>
+          </section>
+
+          <!-- ============ ACCOUNT ============ -->
+          <section class="screen" id="sc-account">
+            <div class="appbar plain"><h2>Account</h2></div>
+            <div class="pad haspad">
+              <div class="card" style="display:flex;align-items:center;gap:12px">
+                <div class="thumb" style="width:52px;height:52px;background:var(--grad);color:#fff;font-weight:800;font-size:18px">PS</div>
+                <div class="grow"><div class="h">Priya Sharma</div><div class="s muted" style="font-size:12px">priya@email.com · +61 4•• •••</div></div>
+              </div>
+              <div class="card" style="padding:6px 14px">
+                <div class="listrow" data-goto="orders"><div class="grow"><div class="t" style="font-size:14px">🧾 Orders &amp; bookings</div></div><span class="chev">›</span></div>
+                <div class="listrow" data-goto="invoice"><div class="grow"><div class="t" style="font-size:14px">💳 Invoices &amp; payments</div></div><span class="pill red">1 due</span></div>
+                <div class="listrow"><div class="grow"><div class="t" style="font-size:14px">🏠 Saved addresses</div></div><span class="chev">›</span></div>
+                <div class="listrow"><div class="grow"><div class="t" style="font-size:14px">🔔 Notifications (SMS/email)</div></div><span class="chev">›</span></div>
+                <div class="listrow" style="border:0"><div class="grow"><div class="t" style="font-size:14px">💬 Help &amp; support</div></div><span class="chev">›</span></div>
+              </div>
+              <button class="btn sec" data-goto="admin-dash">Switch to Admin view →</button>
+              <button class="btn ghost" style="margin-top:10px" data-goto="home">Log out</button>
+            </div>
+          </section>
+
+          <!-- ============ ADMIN · DASHBOARD ============ -->
+          <section class="screen" id="sc-admin-dash">
+            <div class="appbar plain"><div><div class="eyebrow">Admin</div><h2 style="margin-top:2px">Good morning, Sam</h2></div><div class="spacer"></div><button class="iconbtn" data-goto="account">↩</button></div>
+            <div class="pad haspad">
+              <div class="kpi">
+                <div class="k grad"><div class="n">$742</div><div class="l">Revenue today</div></div>
+                <div class="k"><div class="n">$1,120</div><div class="l">Balances outstanding</div></div>
+                <div class="k"><div class="n">6</div><div class="l">Deposits collected</div></div>
+                <div class="k"><div class="n">9</div><div class="l">New bookings (wk)</div></div>
+              </div>
+
+              <div class="card" style="margin-top:14px">
+                <div class="eyebrow">Needs action</div>
+                <div class="listrow" data-goto="admin-assess"><div class="thumb" style="background:#fef3c7">🧾</div><div class="grow"><div class="t">Awaiting invoice</div><div class="s">Jobs done, not yet billed</div></div><span class="pill amber">2</span></div>
+                <div class="listrow" data-goto="admin-orders"><div class="thumb" style="background:#fee2e2">💳</div><div class="grow"><div class="t">Awaiting payment</div><div class="s">Invoices sent, unpaid</div></div><span class="pill red">3</span></div>
+                <div class="listrow" style="border:0"><div class="thumb" style="background:#e0edff">📦</div><div class="grow"><div class="t">Low stock</div><div class="s">Fabric Softener</div></div><span class="pill blue">1</span></div>
+              </div>
+
+              <div class="card">
+                <div class="eyebrow">Today · pickups &amp; jobs</div>
+                <div class="listrow"><div class="thumb">🧺</div><div class="grow"><div class="t">9–11am · Parramatta</div><div class="s">#BC‑1042 · Wash &amp; Fold</div></div><span class="pill blue">Pickup</span></div>
+                <div class="listrow"><div class="thumb em">🫧</div><div class="grow"><div class="t">1–3pm · Westmead</div><div class="s">#BC‑1044 · Deep clean 3‑bed</div></div><span class="pill emerald">Clean</span></div>
+                <div class="listrow" style="border:0"><div class="thumb">🚚</div><div class="grow"><div class="t">4–6pm · Harris Park</div><div class="s">#BC‑1038 · Delivery</div></div><span class="pill amber">Deliver</span></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ ADMIN · ORDERS ============ -->
+          <section class="screen" id="sc-admin-orders">
+            <div class="appbar plain"><h2>Orders</h2><div class="spacer"></div><button class="iconbtn">🔍</button></div>
+            <div class="pad haspad">
+              <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:4px">
+                <div class="chip brand">All</div><div class="chip">New</div><div class="chip">Scheduled</div><div class="chip amber">Awaiting invoice · 2</div><div class="chip red">Unpaid · 3</div><div class="chip">Done</div>
+              </div>
+
+              <div class="card" style="margin-top:12px" data-goto="admin-assess">
+                <div style="display:flex;align-items:center;gap:10px"><div class="thumb">🧺</div><div class="grow"><div class="t h">#BC‑1042 · Priya S.</div><div class="s muted" style="font-size:12px">Wash &amp; Fold · picked up 9:52am</div></div><span class="pill amber">Assess</span></div>
+              </div>
+              <div class="card" data-goto="admin-assess">
+                <div style="display:flex;align-items:center;gap:10px"><div class="thumb em">🫧</div><div class="grow"><div class="t h">#BC‑1040 · Marcus T.</div><div class="s muted" style="font-size:12px">Deep clean · completed</div></div><span class="pill amber">Assess</span></div>
+              </div>
+              <div class="card">
+                <div style="display:flex;align-items:center;gap:10px"><div class="thumb">🧾</div><div class="grow"><div class="t h">#BC‑1039 · Aisha K.</div><div class="s muted" style="font-size:12px">Invoice sent · $121.00</div></div><span class="pill red">Unpaid</span></div>
+              </div>
+              <div class="card">
+                <div style="display:flex;align-items:center;gap:10px"><div class="thumb" style="background:#dcfce7">✓</div><div class="grow"><div class="t h">#BC‑1035 · Dan P.</div><div class="s muted" style="font-size:12px">Delivered &amp; paid</div></div><span class="pill emerald">Paid</span></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ ADMIN · ASSESS & INVOICE ============ -->
+          <section class="screen" id="sc-admin-assess">
+            <div class="appbar"><button class="iconbtn" data-goto="admin-orders">‹</button><h2>Assess &amp; Invoice</h2></div>
+            <div class="pad haspad">
+              <div class="card">
+                <div style="display:flex;align-items:center;gap:10px"><div class="thumb">🧺</div><div class="grow"><div class="h">#BC‑1042 · Priya Sharma</div><div class="s muted" style="font-size:12px">Wash &amp; Fold +2 · Parramatta</div></div></div>
+              </div>
+
+              <div class="card">
+                <div class="eyebrow">Enter actuals</div>
+                <div class="assess" style="margin-top:12px">
+                  <div class="hd">Item · est</div><div class="hd">Actual</div><div class="hd">$</div>
+                  <div>Wash &amp; Fold<br/><span class="muted">est 8 kg</span></div><div><input value="10.4"/></div><div class="v h">$67.60</div>
+                  <div>Wash &amp; Iron<br/><span class="muted">est 2 kg</span></div><div><input value="2.0"/></div><div class="v h">$18.00</div>
+                  <div>Duvet (Queen)<br/><span class="muted">est 1</span></div><div><input value="1"/></div><div class="v h">$25.00</div>
+                </div>
+                <button class="btn ghost sm" style="margin-top:12px">+ Add extra service (ironing, stain…)</button>
+                <div class="listrow" style="border:0;margin-top:4px"><div class="grow"><div class="t" style="font-size:13px">Ironing ×5 <span class="delta up">added</span></div></div><div class="v h">$10.00</div></div>
+              </div>
+
+              <div class="card">
+                <div class="priceline"><span>Estimated total</span><span class="v muted">$95.00</span></div>
+                <div class="priceline total"><span>Actual total</span><span class="v">$120.60</span> </div>
+                <div class="priceline"><span>Deposit paid</span><span class="v">−$28.50</span></div>
+                <div class="priceline due total"><span>Balance to collect</span><span class="v">$92.10</span></div>
+              </div>
+
+              <div class="card">
+                <label class="lb">Note to customer (why it changed)</label>
+                <div class="field" style="min-height:56px;font-size:13px">Load came in heavier than estimated; added ironing ×5.</div>
+              </div>
+
+              <button class="btn emerald" data-goto="admin-orders">Generate &amp; send invoice</button>
+              <button class="btn ghost" style="margin-top:10px">Mark paid on delivery (cash)</button>
+            </div>
+          </section>
+
+          <!--SCREENS_END-->
+        </div>
+        <!-- bottom tab bars -->
+        <nav class="tabbar" id="tabbar-client">
+          <button class="tab" data-goto="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg><span>Home</span></button>
+          <button class="tab" data-goto="laundry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2.5" width="16" height="19" rx="2.5"/><path d="M4 7h16"/><circle cx="12" cy="14" r="4.2"/></svg><span>Services</span></button>
+          <button class="tab book" data-goto="book-build"><span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span><span>Book</span></button>
+          <button class="tab" data-goto="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span>Orders</span></button>
+          <button class="tab" data-goto="account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg><span>Account</span></button>
+        </nav>
+        <nav class="tabbar hidden" id="tabbar-admin">
+          <button class="tab" data-goto="admin-dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Dashboard</span></button>
+          <button class="tab" data-goto="admin-orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"/><path d="M9 12h6M9 16h4"/></svg><span>Orders</span></button>
+          <button class="tab" data-goto="admin-assess"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg><span>Invoice</span></button>
+          <button class="tab" data-goto="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg><span>Exit</span></button>
+        </nav>
+      </div>
+    </div>
+    <!-- ================= DESKTOP ================= -->
+    <div id="desktop">
+      <div class="dtswitch">
+        <button class="on" data-dt="home">Home</button>
+        <button data-dt="book">Booking</button>
+        <button data-dt="invoice">Invoice</button>
+        <button data-dt="admin">Admin · Dashboard</button>
+        <button data-dt="assess">Admin · Assess &amp; Invoice</button>
+      </div>
+      <div class="browser">
+        <div class="chrome"><div class="dots"><i></i><i></i><i></i></div><div class="addr">🔒 brilliancecare.com.au</div></div>
+        <div class="dwin">
+
+          <!-- ===== DT HOME ===== -->
+          <section class="dtscreen active" id="dt-home">
+            <div class="topnav">
+              <div class="b"><span class="lg"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.3 6.4L21 11l-6.7 2.3L12 20l-2.3-6.7L3 11l6.7-2.3L12 2z"/></svg></span>Brilliance Care</div>
+              <div class="links"><a class="on">Home</a><a>Laundry</a><a>Cleaning</a><a>Shop</a><a>How it works</a><a>Contact</a></div>
+              <div class="sp"></div>
+              <span class="lnk">Log in</span>
+              <button class="btn sm" style="width:auto" data-dt="book">Book a pickup</button>
+            </div>
+            <div class="dpad">
+              <div class="dhero">
+                <div>
+                  <span class="chip" style="background:rgba(255,255,255,.16);color:#fff">🧺 Laundry &amp; Cleaning · Greater Sydney</span>
+                  <h3>Fresh laundry &amp; sparkling homes, from your door.</h3>
+                  <p>We pick up, clean, and deliver. Pay a small deposit to book — the balance only after the job's done and priced fairly.</p>
+                  <div class="cta"><button class="btn" style="width:auto" data-dt="book">Book a pickup</button><button class="btn sec" style="width:auto">See pricing</button></div>
+                  <div class="postcode" style="margin-top:20px;max-width:350px"><input placeholder="Enter your postcode" /><button>Check area</button></div>
+                </div>
+                <div class="panel">
+                  <div style="font-weight:800;margin-bottom:6px">Why Brilliance Care</div>
+                  <div class="stat"><span>⭐ Customer rating</span><b>4.9 / 5</b></div>
+                  <div class="stat"><span>🚚 Pickup windows</span><b>7 days/wk</b></div>
+                  <div class="stat"><span>⏱ Turnaround</span><b>48 hours</b></div>
+                  <div class="stat"><span>🌿 Eco products</span><b>Included</b></div>
+                  <div class="stat"><span>🛡 Fully insured</span><b>Yes</b></div>
+                </div>
+              </div>
+
+              <div style="padding:28px 0 14px"><div class="eyebrow">Our services</div></div>
+              <div class="dsvc">
+                <div class="dcard"><div style="font-size:30px">🧺</div><h4>Laundry</h4><div class="muted" style="font-size:13px">Wash &amp; fold, wash &amp; iron, duvets, dry cleaning. Priced per kg — pickup &amp; delivery included.</div><div style="margin-top:12px"><span class="chip brand">From ~$6.50/kg</span></div></div>
+                <div class="dcard"><div style="font-size:30px">🫧</div><h4>Cleaning</h4><div class="muted" style="font-size:13px">Standard, deep, end-of-lease &amp; office cleans. Priced by home size &amp; add-ons.</div><div style="margin-top:12px"><span class="chip emerald">From ~$120</span></div></div>
+                <div class="dcard"><div style="font-size:30px">🧴</div><h4>Shop products</h4><div class="muted" style="font-size:13px">Eco detergents &amp; care products, delivered. Paid in full at checkout.</div><div style="margin-top:12px"><span class="chip">Fixed prices</span></div></div>
+              </div>
+
+              <div class="dcard" style="margin-top:24px">
+                <div class="eyebrow">How it works</div>
+                <div class="dsvc" style="margin-top:14px">
+                  <div class="step3"><div class="n">1</div><div><div class="t">Book &amp; pay 30% deposit</div><div class="s">Prices are estimates — pay part now.</div></div></div>
+                  <div class="step3"><div class="n">2</div><div><div class="t">We collect &amp; clean</div><div class="s">We weigh/assess the real job.</div></div></div>
+                  <div class="step3"><div class="n">3</div><div><div class="t">Pay balance, delivered</div><div class="s">Clear invoice, then fresh delivery.</div></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="dfoot">
+              <div><div class="b" style="display:flex;align-items:center;gap:8px;color:#fff;font-weight:800;margin-bottom:8px"><span class="lg" style="width:28px;height:28px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center">✦</span>Brilliance Care PTY LTD</div><div style="max-width:280px">Premium laundry &amp; cleaning across Greater Sydney. ABN 00 000 000 000.</div></div>
+              <div><h5>Services</h5><div class="fa">Laundry</div><div class="fa">Cleaning</div><div class="fa">Shop</div><div class="fa">Pricing</div></div>
+              <div><h5>Company</h5><div class="fa">How it works</div><div class="fa">Contact</div><div class="fa">FAQ</div><div class="fa">Service areas</div></div>
+            </div>
+          </section>
+
+          <!-- ===== DT BOOK ===== -->
+          <section class="dtscreen" id="dt-book">
+            <div class="topnav">
+              <div class="b"><span class="lg"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.3 6.4L21 11l-6.7 2.3L12 20l-2.3-6.7L3 11l6.7-2.3L12 2z"/></svg></span>Brilliance Care</div>
+              <div class="links"><a>Home</a><a class="on">Book</a><a>Shop</a></div>
+              <div class="sp"></div><span class="lnk">Priya S.</span>
+            </div>
+            <div class="dpad">
+              <h3 style="margin:4px 0 4px;font-size:23px">Book a laundry pickup</h3>
+              <div class="muted" style="font-size:13px;margin-bottom:18px">Build your order — you'll see a live estimate and pay a 30% deposit to confirm.</div>
+              <div class="dcol2">
+                <div>
+                  <div class="dcard">
+                    <div class="eyebrow">1 · Choose services</div>
+                    <div class="listrow"><div class="thumb">👕</div><div class="grow"><div class="t">Wash &amp; Fold</div><div class="s">~$6.50 / kg</div></div><div class="stepper"><button>−</button><span>8kg</span><button>+</button></div></div>
+                    <div class="listrow"><div class="thumb">👔</div><div class="grow"><div class="t">Wash &amp; Iron</div><div class="s">~$9 / kg</div></div><div class="stepper"><button>−</button><span>2kg</span><button>+</button></div></div>
+                    <div class="listrow"><div class="thumb">🛏️</div><div class="grow"><div class="t">Duvet (Queen)</div><div class="s">~$25 each</div></div><div class="stepper"><button>−</button><span>1</span><button>+</button></div></div>
+                    <div class="listrow" style="border:0"><div class="thumb">🧥</div><div class="grow"><div class="t">Dry cleaning</div><div class="s">from ~$12</div></div><div class="stepper"><button>−</button><span>0</span><button>+</button></div></div>
+                  </div>
+                  <div class="dcard" style="margin-top:16px">
+                    <div class="eyebrow">2 · Pickup &amp; delivery</div>
+                    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><span class="chip">Today</span><span class="chip brand">Tomorrow · Thu 3</span><span class="chip">Fri 4</span><span class="chip">Sat 5</span></div>
+                    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><span class="chip">7–9am</span><span class="chip brand">9–11am</span><span class="chip">12–2pm</span><span class="chip" style="opacity:.45">2–4pm ·full</span></div>
+                    <div class="muted" style="font-size:12px;margin-top:12px">Return: Sat 5 July · 9–11am (48h turnaround)</div>
+                  </div>
+                </div>
+                <div class="sticky-sum">
+                  <div class="dcard">
+                    <div class="eyebrow">Your estimate</div>
+                    <div class="priceline" style="margin-top:8px"><span>Wash &amp; Fold · ~8kg</span><span class="v">$52.00</span></div>
+                    <div class="priceline"><span>Wash &amp; Iron · ~2kg</span><span class="v">$18.00</span></div>
+                    <div class="priceline"><span>Duvet ×1</span><span class="v">$25.00</span></div>
+                    <div class="priceline"><span>GST (incl.)</span><span class="v">$8.64</span></div>
+                    <div class="priceline total"><span>Estimated total</span><span class="v">$95.00</span></div>
+                    <div class="priceline dep"><span>Deposit now (30%)</span><span class="v">$28.50</span></div>
+                    <div class="priceline"><span>Balance after service</span><span class="v">~$66.50</span></div>
+                    <div class="est-banner" style="margin-top:12px">🧾 <div>Final price confirmed after we weigh your load. You'll get an invoice for the balance.</div></div>
+                    <button class="btn" style="margin-top:14px" data-dt="invoice">Continue to deposit · $28.50</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===== DT INVOICE ===== -->
+          <section class="dtscreen" id="dt-invoice">
+            <div class="topnav">
+              <div class="b"><span class="lg"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.3 6.4L21 11l-6.7 2.3L12 20l-2.3-6.7L3 11l6.7-2.3L12 2z"/></svg></span>Brilliance Care</div>
+              <div class="links"><a>Home</a><a class="on">My account</a></div>
+              <div class="sp"></div><span class="lnk">Priya S.</span>
+            </div>
+            <div class="dpad" style="max-width:840px;margin:0 auto">
+              <div class="dcard" style="padding:32px">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                  <div><div class="b" style="display:flex;align-items:center;gap:9px;font-weight:800;font-size:16px"><span style="width:32px;height:32px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff">✦</span>Brilliance Care</div><div class="muted" style="font-size:12px;margin-top:8px">ABN 00 000 000 000<br/>Greater Sydney</div></div>
+                  <div class="rgt"><div style="font-size:22px;font-weight:800">Invoice</div><div class="muted" style="font-size:12.5px">BC-INV-1042 · 3 Jul 2026</div><span class="pill red" style="margin-top:6px;display:inline-block">Awaiting payment</span></div>
+                </div>
+                <div style="height:1px;background:var(--line);margin:20px 0"></div>
+                <div style="display:flex;justify-content:space-between;font-size:13px"><div><div class="eyebrow">Billed to</div><div style="margin-top:4px">Priya Sharma<br/>14 Marsden St, Parramatta NSW 2150</div></div><div class="rgt"><div class="eyebrow">Order</div><div style="margin-top:4px">#BC-1042 · Laundry<br/>Picked up 2 Jul 2026</div></div></div>
+
+                <table class="dtable" style="margin-top:20px">
+                  <thead><tr><th>Item</th><th class="rgt">Estimated</th><th class="rgt">Actual</th><th class="rgt">Amount</th></tr></thead>
+                  <tbody>
+                    <tr><td>Wash &amp; Fold <span class="delta up">8kg → 10.4kg</span></td><td class="rgt muted">$52.00</td><td class="rgt">10.4 kg</td><td class="rgt"><b>$67.60</b></td></tr>
+                    <tr><td>Wash &amp; Iron</td><td class="rgt muted">$18.00</td><td class="rgt">2.0 kg</td><td class="rgt"><b>$18.00</b></td></tr>
+                    <tr><td>Duvet (Queen)</td><td class="rgt muted">$25.00</td><td class="rgt">×1</td><td class="rgt"><b>$25.00</b></td></tr>
+                    <tr><td>Ironing <span class="delta up">added</span></td><td class="rgt muted">—</td><td class="rgt">×5</td><td class="rgt"><b>$10.00</b></td></tr>
+                  </tbody>
+                </table>
+
+                <div style="display:flex;justify-content:flex-end;margin-top:18px">
+                  <div style="width:280px">
+                    <div class="priceline"><span>Subtotal</span><span class="v">$120.60</span></div>
+                    <div class="priceline"><span>GST (incl. 10%)</span><span class="v">$10.96</span></div>
+                    <div class="priceline total"><span>Actual total</span><span class="v">$120.60</span></div>
+                    <div class="priceline dep"><span>Less deposit paid</span><span class="v">−$28.50</span></div>
+                    <div class="priceline due total"><span>Balance due</span><span class="v">$92.10</span></div>
+                  </div>
+                </div>
+
+                <div class="dcard" style="background:#eef6fc;border-color:#cfe3f5;margin-top:18px"><div style="font-size:13px">📝 <b>Note:</b> Your load came in heavier than estimated and you added ironing ×5. Everything's washed &amp; ready for delivery Sat 5 July.</div></div>
+                <div style="display:flex;gap:12px;margin-top:18px"><button class="btn emerald" style="width:auto;flex:1">Pay balance · $92.10</button><button class="btn ghost" style="width:auto">Download PDF</button></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===== DT ADMIN DASHBOARD ===== -->
+          <section class="dtscreen" id="dt-admin">
+            <div class="adminwrap">
+              <div class="aside">
+                <div class="lg"><i><svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.3 6.4L21 11l-6.7 2.3L12 20l-2.3-6.7L3 11l6.7-2.3L12 2z"/></svg></i>Brilliance Admin</div>
+                <a class="on" data-dt="admin">▦ Dashboard</a>
+                <a data-dt="assess">🧾 Orders</a>
+                <a>📅 Schedule</a>
+                <a>🧺 Services &amp; pricing</a>
+                <a>📦 Products</a>
+                <a>👥 Customers</a>
+                <a>⚙ Settings</a>
+                <a style="margin-top:14px" data-mode="mobile">↩ Exit admin</a>
+              </div>
+              <div class="amain">
+                <div class="atop"><h3>Good morning, Sam</h3><div style="flex:1"></div><button class="btn sm" style="width:auto">+ New order</button></div>
+                <div class="dkpi">
+                  <div class="k grad"><div class="n">$742</div><div class="l">Revenue today</div></div>
+                  <div class="k"><div class="n">$1,120</div><div class="l">Balances outstanding</div></div>
+                  <div class="k"><div class="n">6</div><div class="l">Deposits collected</div></div>
+                  <div class="k"><div class="n">9</div><div class="l">New bookings (wk)</div></div>
+                </div>
+                <div class="dcol2" style="margin-top:18px">
+                  <div class="dcard">
+                    <div class="eyebrow" style="margin-bottom:6px">Today · pickups &amp; jobs</div>
+                    <table class="dtable">
+                      <thead><tr><th>Time</th><th>Job</th><th>Customer</th><th>Type</th></tr></thead>
+                      <tbody>
+                        <tr data-dt="assess"><td>9–11am</td><td>#BC-1042</td><td>Priya S.</td><td><span class="pill blue">Pickup</span></td></tr>
+                        <tr><td>1–3pm</td><td>#BC-1044</td><td>Westmead</td><td><span class="pill emerald">Deep clean</span></td></tr>
+                        <tr><td>4–6pm</td><td>#BC-1038</td><td>Harris Park</td><td><span class="pill amber">Delivery</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="dcard">
+                    <div class="eyebrow" style="margin-bottom:10px">Needs action</div>
+                    <div class="listrow" data-dt="assess"><div class="thumb" style="background:#fef3c7">🧾</div><div class="grow"><div class="t" style="font-size:13px">Awaiting invoice</div></div><span class="pill amber">2</span></div>
+                    <div class="listrow"><div class="thumb" style="background:#fee2e2">💳</div><div class="grow"><div class="t" style="font-size:13px">Awaiting payment</div></div><span class="pill red">3</span></div>
+                    <div class="listrow" style="border:0"><div class="thumb" style="background:#e0edff">📦</div><div class="grow"><div class="t" style="font-size:13px">Low stock</div></div><span class="pill blue">1</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===== DT ADMIN ASSESS ===== -->
+          <section class="dtscreen" id="dt-assess">
+            <div class="adminwrap">
+              <div class="aside">
+                <div class="lg"><i><svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.3 6.4L21 11l-6.7 2.3L12 20l-2.3-6.7L3 11l6.7-2.3L12 2z"/></svg></i>Brilliance Admin</div>
+                <a data-dt="admin">▦ Dashboard</a>
+                <a class="on" data-dt="assess">🧾 Orders</a>
+                <a>📅 Schedule</a>
+                <a>🧺 Services &amp; pricing</a>
+                <a>📦 Products</a>
+                <a>👥 Customers</a>
+                <a>⚙ Settings</a>
+                <a style="margin-top:14px" data-mode="mobile">↩ Exit admin</a>
+              </div>
+              <div class="amain">
+                <div class="atop"><a class="lnk" data-dt="admin" style="text-decoration:none">‹ Orders</a><h3 style="margin-left:4px">Assess &amp; Invoice · #BC-1042</h3></div>
+                <div class="dcol2">
+                  <div class="dcard">
+                    <div class="eyebrow">Enter actuals — Priya S. · Wash &amp; Fold +2</div>
+                    <table class="dtable" style="margin-top:8px">
+                      <thead><tr><th>Item (est)</th><th class="rgt">Actual</th><th class="rgt">Amount</th></tr></thead>
+                      <tbody>
+                        <tr><td>Wash &amp; Fold <span class="muted">· est 8kg</span></td><td class="rgt"><input class="field" style="width:70px;padding:6px;text-align:center" value="10.4"/></td><td class="rgt"><b>$67.60</b></td></tr>
+                        <tr><td>Wash &amp; Iron <span class="muted">· est 2kg</span></td><td class="rgt"><input class="field" style="width:70px;padding:6px;text-align:center" value="2.0"/></td><td class="rgt"><b>$18.00</b></td></tr>
+                        <tr><td>Duvet (Queen) <span class="muted">· est 1</span></td><td class="rgt"><input class="field" style="width:70px;padding:6px;text-align:center" value="1"/></td><td class="rgt"><b>$25.00</b></td></tr>
+                        <tr><td>Ironing <span class="delta up">added</span></td><td class="rgt">×5</td><td class="rgt"><b>$10.00</b></td></tr>
+                      </tbody>
+                    </table>
+                    <button class="btn ghost sm" style="margin-top:12px">+ Add extra service</button>
+                  </div>
+                  <div class="dcard">
+                    <div class="eyebrow">Invoice summary</div>
+                    <div class="priceline" style="margin-top:8px"><span>Estimated total</span><span class="v muted">$95.00</span></div>
+                    <div class="priceline total"><span>Actual total</span><span class="v">$120.60</span></div>
+                    <div class="priceline"><span>Deposit paid</span><span class="v">−$28.50</span></div>
+                    <div class="priceline due total"><span>Balance to collect</span><span class="v">$92.10</span></div>
+                    <label class="lb" style="margin-top:14px">Note to customer</label>
+                    <div class="field" style="min-height:54px;font-size:13px">Load heavier than estimated; added ironing ×5.</div>
+                    <button class="btn emerald" style="margin-top:14px">Generate &amp; send invoice</button>
+                    <button class="btn ghost" style="margin-top:10px">Mark paid on delivery (cash)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="foot">Brilliance Care PTY LTD · mid‑fidelity wireframes · AUD · responsive: mobile + desktop<br/>Companion to BLUEPRINT.md</div>
+  </main>
+</div>
+<script>
+/* screen registry: id -> {group, label, tag, caption, admin, brandStatus} */
+const SCREENS = [
+  ["home","Home","change","<b>Home</b> — hero, postcode check, services, how it works.",false,false],
+  ["laundry","Laundry catalogue","change","<b>Laundry</b> — pick services, live estimate builds at the bottom.",false,false],
+  ["book-build","Book · Build","add","<b>Booking step 1</b> — build the order, watch the estimate update.",false,false],
+  ["book-schedule","Book · Schedule","add","<b>Booking step 2</b> — choose pickup & delivery windows.",false,false],
+  ["book-details","Book · Details","add","<b>Booking step 3</b> — address, access notes, contact.",false,false],
+  ["book-review","Book · Review","add","<b>Booking step 4</b> — review estimate, deposit & balance.",false,false],
+  ["checkout","Deposit checkout","add","<b>Checkout</b> — pay the 30% deposit; balance comes later.",false,false],
+  ["confirmed","Order confirmed","add","<b>Confirmed</b> — receipt + what happens next.",false,false],
+  ["orders","My orders","change","<b>Orders</b> — active & past, with balance‑due flags.",false,false],
+  ["order-detail","Order tracking","add","<b>Order detail</b> — live status timeline.",false,false],
+  ["invoice","Invoice · pay balance","add","<b>Invoice</b> — estimate vs actual, then pay the balance.",false,false],
+  ["shop","Shop","keep","<b>Shop</b> — normal e‑commerce, pay in full.",false,false],
+  ["account","Account","change","<b>Account</b> — profile, addresses, invoices, support.",false,false],
+  ["admin-dash","Admin · Dashboard","add","<b>Admin dashboard</b> — the morning glance.",true,false],
+  ["admin-orders","Admin · Orders","add","<b>Admin orders</b> — segmented by status, incl. ‘awaiting invoice’.",true,false],
+  ["admin-assess","Admin · Assess & Invoice","add","<b>Assess &amp; Invoice</b> — turn a finished job into a final bill.",true,false],
+];
+function makeNav(){
+  const c=document.getElementById('nav-client'), a=document.getElementById('nav-admin');
+  SCREENS.forEach(s=>{
+    const [id,label,tag,cap,admin]=s;
+    const b=document.createElement('button');
+    b.className='navitem';b.dataset.goto=id;
+    b.innerHTML=`<span class="dot"></span>${label}<span class="mtag ${tag}">${tag}</span>`;
+    (admin?a:c).appendChild(b);
+  });
+}
+function show(id){
+  const rec=SCREENS.find(s=>s[0]===id); if(!rec) return;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='sc-'+id));
+  document.querySelectorAll('.navitem').forEach(n=>n.classList.toggle('active',n.dataset.goto===id));
+  document.getElementById('caption').innerHTML=rec[3];
+  const admin=rec[4];
+  document.getElementById('tabbar-client').classList.toggle('hidden',admin);
+  document.getElementById('tabbar-admin').classList.toggle('hidden',!admin);
+  document.getElementById('sitenav-client').classList.toggle('navhide',admin);
+  document.getElementById('sitenav-admin').classList.toggle('navhide',!admin);
+  document.querySelectorAll('.tabbar .tab').forEach(t=>t.classList.toggle('active',t.dataset.goto===id));
+  document.querySelectorAll('.sitenav .links a').forEach(a=>a.classList.toggle('on',a.dataset.goto===id));
+  const el=document.getElementById('sc-'+id); if(el) el.scrollTop=0;
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-goto]'); if(t){show(t.dataset.goto);}
+});
+
+/* device mode — SAME screens; only the frame + layout reflow (no separate desktop pages) */
+function setMode(mode){
+  document.body.classList.toggle('mode-desktop',mode==='desktop');
+  document.querySelectorAll('.devtoggle button').forEach(x=>x.classList.toggle('on',x.dataset.mode===mode));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.addEventListener('click',e=>{
+  const m=e.target.closest('[data-mode]'); if(m){setMode(m.dataset.mode);}
+});
+
+makeNav();
+show('home');
+</script>
+</body>
+</html>
