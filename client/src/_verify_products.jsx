@@ -1,22 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '../context/AuthContext.jsx';
-import { useCart } from '../context/CartContext.jsx';
+import { useAuth } from './context/AuthContext.jsx';
+import { useCart } from './context/CartContext.jsx';
 import {
   getProducts,
   updateProduct,
   createProduct,
   deleteProduct,
-} from '../services/productService.js';
-import ProductCard from '../components/products/ProductCard.jsx';
-import CartDrawer from '../components/products/CartDrawer.jsx';
-import AdminPanel from '../components/products/AdminPanel.jsx';
-import DeliverySlotMenu from '../components/products/DeliverySlotMenu.jsx';
-import ToastStack from '../components/products/ToastStack.jsx';
+} from './services/productService.js';
+import { checkout } from './services/orderService.js';
+import ProductCard from './components/products/ProductCard.jsx';
+import CartDrawer from './components/products/CartDrawer.jsx';
+import AdminPanel from './components/products/AdminPanel.jsx';
+import DeliverySlotMenu from './components/products/DeliverySlotMenu.jsx';
+import ToastStack from './components/products/ToastStack.jsx';
 
 export default function Products() {
   // Admin status is auto-detected from the header login (no separate admin login).
   const { isAdmin } = useAuth();
-  const { add, count, deliverySlot, setDeliverySlot } = useCart();
+  const { items, add, clear, count } = useCart();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,7 +28,9 @@ export default function Products() {
 
   const [cartOpen, setCartOpen] = useState(false);
   const [adminPanelOpen, setAdminPanelOpen] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState(null);
 
+  const [submitting, setSubmitting] = useState(false);
   const [savingId, setSavingId] = useState(null);
   const [toasts, setToasts] = useState([]);
 
@@ -91,6 +94,33 @@ export default function Products() {
   const handleAdd = (product) => {
     add(product);
     notify(`${product.name} added to cart`, 'success');
+  };
+
+  const handleCheckout = async () => {
+    if (!selectedSlot) {
+      notify('Please choose a delivery slot first.', 'error');
+      setCartOpen(false);
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const order = await checkout(
+        items.map((i) => ({ productId: i.id, qty: i.qty })),
+        { date: selectedSlot.date, window: selectedSlot.window }
+      );
+      clear();
+      setCartOpen(false);
+      notify(
+        `Order placed! $${Number(order.total).toFixed(2)} · delivery ${selectedSlot.dateLabel}, ${selectedSlot.label} 🎉`,
+        'success'
+      );
+      setSelectedSlot(null);
+      await load();
+    } catch (err) {
+      notify(err.message, 'error');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // ---- admin actions (panel only rendered when isAdmin) ----
@@ -159,8 +189,8 @@ export default function Products() {
           <div className="flex items-center gap-3">
             <DeliverySlotMenu
               isAdmin={isAdmin}
-              selected={deliverySlot}
-              onSelect={setDeliverySlot}
+              selected={selectedSlot}
+              onSelect={setSelectedSlot}
               notify={notify}
             />
             {!isAdmin && (
@@ -246,8 +276,10 @@ export default function Products() {
         <CartDrawer
           open={cartOpen}
           onClose={() => setCartOpen(false)}
-          notify={notify}
-          onDone={load}
+          onCheckout={handleCheckout}
+          submitting={submitting}
+          slot={selectedSlot}
+          onChooseSlot={() => setCartOpen(false)}
         />
       )}
       {isAdmin && (

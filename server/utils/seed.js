@@ -2,7 +2,12 @@ import config from '../config/index.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 import DeliverySlot from '../models/DeliverySlot.js';
+import LaundryService from '../models/LaundryService.js';
+import CleaningService from '../models/CleaningService.js';
+import Settings from '../models/Settings.js';
 import { products as productSeed } from '../data/seedData.js';
+import { laundryServices as laundrySeed } from '../data/laundrySeed.js';
+import { cleaningServices as cleaningSeed } from '../data/cleaningSeed.js';
 import { dayFromToday, dayMeta } from './delivery.js';
 
 /**
@@ -50,6 +55,29 @@ export async function seedDatabase({ force = false } = {}) {
   if (force || count === 0) {
     await Product.insertMany(productSeed);
     console.log(`📦 Seeded ${productSeed.length} products`);
+  }
+
+  // --- Laundry services ---
+  if (force) await LaundryService.deleteMany({});
+  const laundryCount = await LaundryService.countDocuments();
+  if (force || laundryCount === 0) {
+    await LaundryService.insertMany(laundrySeed);
+    console.log(`🧺 Seeded ${laundrySeed.length} laundry services`);
+  }
+
+  // --- Cleaning services ---
+  if (force) await CleaningService.deleteMany({});
+  const cleaningCount = await CleaningService.countDocuments();
+  if (force || cleaningCount === 0) {
+    await CleaningService.insertMany(cleaningSeed);
+    console.log(`🫧 Seeded ${cleaningSeed.length} cleaning services`);
+  }
+
+  // --- Store settings (delivery fee) ---
+  if (force) await Settings.deleteMany({});
+  if ((await Settings.countDocuments()) === 0) {
+    await Settings.create({ key: 'global', deliveryFee: 9.99 });
+    console.log('⚙️  Seeded store settings (delivery fee $9.99)');
   }
 
   // --- Delivery slots ---

@@ -5,6 +5,9 @@ import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import deliveryRoutes from './routes/deliveryRoutes.js';
+import laundryRoutes from './routes/laundryRoutes.js';
+import cleaningRoutes from './routes/cleaningRoutes.js';
+import settingsRoutes from './routes/settingsRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
 const app = express();
@@ -21,6 +24,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/delivery-slots', deliveryRoutes);
+app.use('/api/laundry-services', laundryRoutes);
+app.use('/api/cleaning-services', cleaningRoutes);
+app.use('/api/settings', settingsRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

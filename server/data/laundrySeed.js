@@ -1,0 +1,58 @@
+// Starter catalogue of laundry services Brilliance Care offers.
+// Admins can add/edit/remove these and upload real photos from the panel.
+export const laundryServices = [
+  {
+    name: 'Wash & Fold',
+    description: 'Everyday laundry washed, dried and neatly folded — ready to put away.',
+    price: 24.99,
+    image: '🧺',
+    unit: 'per load',
+    turnaround: '48h',
+    sort: 1,
+  },
+  {
+    name: 'Ironing & Pressing',
+    description: 'Crisp, wrinkle-free shirts, trousers and linens pressed by hand.',
+    price: 3.5,
+    image: '👔',
+    unit: 'per item',
+    turnaround: '48h',
+    sort: 2,
+  },
+  {
+    name: 'Dry Cleaning',
+    description: 'Gentle solvent care for suits, coats and dry-clean-only garments.',
+    price: 8.99,
+    image: '🧥',
+    unit: 'per item',
+    turnaround: '72h',
+    sort: 3,
+  },
+  {
+    name: 'Duvet & Bedding',
+    description: 'Deep-clean wash for duvets, comforters and bulky bed linen.',
+    price: 29.99,
+    image: '🛏️',
+    unit: 'per item',
+    turnaround: '72h',
+    sort: 4,
+  },
+  {
+    name: 'Delicates & Silk',
+    description: 'Specialist hand-care for silk, wool and fine delicates.',
+    price: 12.5,
+    image: '🧣',
+    unit: 'per item',
+    turnaround: '72h',
+    sort: 5,
+  },
+  {
+    name: 'Express 24h Wash',
+    description: 'In a hurry? Wash, dry and fold returned within 24 hours.',
+    price: 34.99,
+    image: '⚡',
+    unit: 'per load',
+    turnaround: '24h',
+    sort: 6,
+  },
+];
