@@ -130,10 +130,10 @@ export default function HomeSections() {
       {/* ================= CLOSING CTA (desktop) ================= */}
       <section className="mt-8 hidden lg:block">
         <Link
-          to="/laundry"
+          to="/book"
           className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-navy to-aqua px-6 py-4 text-base font-bold text-white shadow-cta transition hover:-translate-y-0.5"
         >
-          Book a pickup
+          Book a service
           <ArrowRight />
         </Link>
       </section>
@@ -147,7 +147,7 @@ export default function HomeSections() {
         }`}
       >
         <Link
-          to="/laundry"
+          to="/book"
           className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-navy to-aqua px-6 py-3.5 text-sm font-bold text-white shadow-cta"
         >
           Book now

@@ -39,20 +39,14 @@ export default function Hero() {
             after — with a clear, honest invoice.
           </p>
 
-          {/* Primary + secondary CTAs */}
+          {/* Primary CTA */}
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link
-              to="/laundry"
+              to="/book"
               className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-navy shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"
             >
-              Book a pickup
+              Book a service
               <ArrowRight width={18} height={18} />
-            </Link>
-            <Link
-              to="/laundry"
-              className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-6 py-3 text-sm font-bold text-white ring-1 ring-white/40 backdrop-blur transition hover:bg-white/25"
-            >
-              Browse services
             </Link>
           </div>
 
@@ -109,7 +103,7 @@ export default function Hero() {
             }`}
           >
             {areaResult === 'ok'
-              ? `Great news — we service ${postcode}! Book a pickup to get started.`
+              ? `Great news — we service ${postcode}! Book a service to get started.`
               : 'Please enter a valid 4-digit Australian postcode.'}
           </p>
         )}
