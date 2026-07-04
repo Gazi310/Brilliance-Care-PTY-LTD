@@ -1,5 +1,10 @@
 // Starter catalogue of cleaning services Brilliance Care offers.
 // Admins can add/edit/remove these and upload real photos from the panel.
+//
+// Pricing model (see CleaningService.js):
+//  - 'home' services: price = 1 bed / 1 bath base; + perBedroom / + perBathroom.
+//  - 'flat' services: price per unit (visit / room).
+//  - isAddon: offered as extras on top of a main clean in the booking flow.
 export const cleaningServices = [
   {
     name: 'Standard Home Clean',
@@ -9,6 +14,9 @@ export const cleaningServices = [
     unit: 'per visit',
     duration: '2h',
     sort: 1,
+    pricingMode: 'home',
+    perBedroom: 25.0,
+    perBathroom: 20.0,
   },
   {
     name: 'Deep Cleaning',
@@ -18,6 +26,9 @@ export const cleaningServices = [
     unit: 'per visit',
     duration: '4h',
     sort: 2,
+    pricingMode: 'home',
+    perBedroom: 45.0,
+    perBathroom: 35.0,
   },
   {
     name: 'End of Lease / Bond Clean',
@@ -27,6 +38,9 @@ export const cleaningServices = [
     unit: 'per visit',
     duration: '6h',
     sort: 3,
+    pricingMode: 'home',
+    perBedroom: 60.0,
+    perBathroom: 45.0,
   },
   {
     name: 'Office & Commercial',
@@ -36,6 +50,7 @@ export const cleaningServices = [
     unit: 'per visit',
     duration: '3h',
     sort: 4,
+    pricingMode: 'flat',
   },
   {
     name: 'Carpet Steam Clean',
@@ -45,6 +60,8 @@ export const cleaningServices = [
     unit: 'per room',
     duration: '1h',
     sort: 5,
+    pricingMode: 'flat',
+    isAddon: true,
   },
   {
     name: 'Window Cleaning',
@@ -54,6 +71,8 @@ export const cleaningServices = [
     unit: 'per visit',
     duration: '1.5h',
     sort: 6,
+    pricingMode: 'flat',
+    isAddon: true,
   },
   {
     name: 'Oven & Kitchen Detail',
@@ -63,5 +82,7 @@ export const cleaningServices = [
     unit: 'per visit',
     duration: '1.5h',
     sort: 7,
+    pricingMode: 'flat',
+    isAddon: true,
   },
 ];

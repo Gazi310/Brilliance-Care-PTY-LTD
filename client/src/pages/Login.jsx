@@ -8,7 +8,10 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  // Preserve pathname + query (e.g. /book/laundry?step=4) for a clean return trip.
+  const from = location.state?.from
+    ? `${location.state.from.pathname || '/'}${location.state.from.search || ''}`
+    : '/';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

@@ -4,6 +4,7 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import bookingRoutes from './routes/bookingRoutes.js';
 import deliveryRoutes from './routes/deliveryRoutes.js';
 import laundryRoutes from './routes/laundryRoutes.js';
 import cleaningRoutes from './routes/cleaningRoutes.js';
@@ -23,6 +24,7 @@ app.get('/api/health', (req, res) =>
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/bookings', bookingRoutes);
 app.use('/api/delivery-slots', deliveryRoutes);
 app.use('/api/laundry-services', laundryRoutes);
 app.use('/api/cleaning-services', cleaningRoutes);

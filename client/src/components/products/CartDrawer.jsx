@@ -65,7 +65,7 @@ function SlotField({ icon, title, hint, accent, value, onChange }) {
   );
 }
 
-function Line({ item, setQty, remove, showUnit }) {
+function Line({ item, setQty, remove }) {
   return (
     <li className="bc-fade-up flex gap-3 rounded-2xl border border-gray-100 bg-white p-3 shadow-sm">
       <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-50 text-3xl">
@@ -76,16 +76,14 @@ function Line({ item, setQty, remove, showUnit }) {
           <p className="text-sm font-semibold leading-tight text-gray-800">{item.name}</p>
           <button onClick={() => remove(item.id)} className="text-gray-300 transition hover:text-red-500" aria-label="Remove">✕</button>
         </div>
-        <p className="text-xs text-gray-400">
-          ${item.price.toFixed(2)} {showUnit && item.unit ? item.unit : 'each'}
-        </p>
+        <p className="text-xs text-gray-400">${item.price.toFixed(2)} each</p>
         <div className="mt-auto flex items-center justify-between pt-2">
           <div className="inline-flex items-center rounded-lg border border-gray-200">
             <button onClick={() => setQty(item.id, item.qty - 1)} className="px-2.5 py-1 text-gray-500 transition hover:text-gray-900">−</button>
             <span className="w-8 text-center text-sm font-semibold">{item.qty}</span>
             <button
               onClick={() => setQty(item.id, item.qty + 1)}
-              disabled={item.kind === 'product' && item.qty >= (item.stock ?? 99)}
+              disabled={item.qty >= (item.stock ?? 99)}
               className="px-2.5 py-1 text-gray-500 transition hover:text-gray-900 disabled:opacity-30"
             >
               +
@@ -98,50 +96,30 @@ function Line({ item, setQty, remove, showUnit }) {
   );
 }
 
+/**
+ * The SHOP cart drawer — products only, paid in full (blueprint §4.6:
+ * the service estimate lives in the /book flow instead).
+ */
 export default function CartDrawer({ open, onClose, notify, onDone }) {
-  const cart = useCart();
   const {
-    productItems, laundryItems, cleaningItems, setQty, remove, clear, count,
-    subtotal, deliveryFee, deliveryTotal, grandTotal, visitCount, slotsReady,
-    hasProducts, hasLaundry, hasCleaning,
+    items, setQty, remove, clear, count,
+    subtotal, deliveryFee, deliveryTotal, grandTotal, slotsReady,
     deliverySlot, setDeliverySlot,
-    laundryPickupSlot, setLaundryPickupSlot,
-    laundryReturnSlot, setLaundryReturnSlot,
-    cleaningSlot, setCleaningSlot,
-  } = cart;
+  } = useCart();
 
   const [submitting, setSubmitting] = useState(false);
   const empty = count === 0;
 
-  // How many service types need a slot (drives the shared-visit tip).
-  const serviceTypeCount = (hasProducts ? 1 : 0) + (hasLaundry ? 1 : 0) + (hasCleaning ? 1 : 0);
-
-  // How many slots were collapsed into a shared visit (drives the savings note).
-  const chosenSlots =
-    (hasProducts && deliverySlot ? 1 : 0) +
-    (hasLaundry && laundryPickupSlot ? 1 : 0) +
-    (hasLaundry && laundryReturnSlot ? 1 : 0) +
-    (hasCleaning && cleaningSlot ? 1 : 0);
-  const sharedSaved = Math.max(0, chosenSlots - visitCount);
-
   const placeOrder = async () => {
     if (!slotsReady) {
-      notify?.('Please choose the required time slot(s) first.', 'error');
+      notify?.('Please choose your delivery slot first.', 'error');
       return;
     }
     setSubmitting(true);
     try {
-      const order = await checkout({
-        products: productItems,
-        laundry: laundryItems,
-        cleaning: cleaningItems,
-        deliverySlot,
-        laundryPickupSlot,
-        laundryReturnSlot,
-        cleaningSlot,
-      });
+      const order = await checkout({ products: items, deliverySlot });
       clear();
-      notify?.(`Order placed! $${Number(order.total).toFixed(2)} · ${order.visits.length} home visit${order.visits.length > 1 ? 's' : ''} 🎉`, 'success');
+      notify?.(`Order placed! $${Number(order.total).toFixed(2)} 🎉`, 'success');
       onDone?.();
       onClose?.();
     } catch (err) {
@@ -173,57 +151,26 @@ export default function CartDrawer({ open, onClose, notify, onDone }) {
             <div className="flex h-full flex-col items-center justify-center text-center text-gray-400">
               <span className="bc-float text-6xl">🛒</span>
               <p className="mt-4 font-medium text-gray-500">Your cart is empty</p>
-              <p className="text-sm">Add products, laundry or cleaning services to get started.</p>
+              <p className="text-sm">Add products from the shop to get started.</p>
             </div>
           ) : (
             <div className="space-y-5">
-              {hasProducts && (
-                <section>
-                  <p className="mb-2 px-1 text-xs font-bold uppercase tracking-wide text-gray-400">🛍️ Products</p>
-                  <ul className="space-y-3">
-                    {productItems.map((i) => <Line key={i.id} item={i} setQty={setQty} remove={remove} />)}
-                  </ul>
-                </section>
-              )}
+              <section>
+                <p className="mb-2 px-1 text-xs font-bold uppercase tracking-wide text-gray-400">🛍️ Products</p>
+                <ul className="space-y-3">
+                  {items.map((i) => <Line key={i.id} item={i} setQty={setQty} remove={remove} />)}
+                </ul>
+              </section>
 
-              {hasLaundry && (
-                <section>
-                  <p className="mb-2 px-1 text-xs font-bold uppercase tracking-wide text-gray-400">🧺 Laundry services</p>
-                  <ul className="space-y-3">
-                    {laundryItems.map((i) => <Line key={i.id} item={i} setQty={setQty} remove={remove} showUnit />)}
-                  </ul>
-                </section>
-              )}
-
-              {hasCleaning && (
-                <section>
-                  <p className="mb-2 px-1 text-xs font-bold uppercase tracking-wide text-gray-400">🫧 Cleaning services</p>
-                  <ul className="space-y-3">
-                    {cleaningItems.map((i) => <Line key={i.id} item={i} setQty={setQty} remove={remove} showUnit />)}
-                  </ul>
-                </section>
-              )}
-
-              {/* Time slots */}
+              {/* Delivery slot */}
               <section className="space-y-2">
-                <p className="px-1 text-xs font-bold uppercase tracking-wide text-gray-400">📅 Choose your time slots</p>
-                {hasProducts && (
-                  <SlotField icon="🚚" title="Product delivery" hint="Required — pick a day & time" accent="emerald" value={deliverySlot} onChange={setDeliverySlot} />
-                )}
-                {hasLaundry && (
-                  <>
-                    <SlotField icon="🧺" title="Laundry pickup" hint="Required — when should we collect?" accent="sky" value={laundryPickupSlot} onChange={setLaundryPickupSlot} />
-                    <SlotField icon="✨" title="Laundry return" hint="Required — when should we drop it back?" accent="amber" value={laundryReturnSlot} onChange={setLaundryReturnSlot} />
-                  </>
-                )}
-                {hasCleaning && (
-                  <SlotField icon="🫧" title="Cleaning appointment" hint="Required — when should we come to clean?" accent="emerald" value={cleaningSlot} onChange={setCleaningSlot} />
-                )}
-                {serviceTypeCount > 1 && (
-                  <p className="px-1 text-[11px] leading-relaxed text-gray-400">
-                    Tip: pick the <span className="font-semibold text-gray-500">same day &amp; time</span> for two of these and we only charge delivery once — our team makes a single trip.
-                  </p>
-                )}
+                <p className="px-1 text-xs font-bold uppercase tracking-wide text-gray-400">📅 Choose your delivery slot</p>
+                <SlotField icon="🚚" title="Product delivery" hint="Required — pick a day & time" accent="emerald" value={deliverySlot} onChange={setDeliverySlot} />
+                <p className="px-1 text-[11px] leading-relaxed text-gray-400">
+                  Booking laundry or cleaning too? Those are booked (with a small deposit) via{' '}
+                  <span className="font-semibold text-gray-500">Book a service</span> — this cart is just for
+                  shop products, paid in full.
+                </p>
               </section>
             </div>
           )}
@@ -237,16 +184,11 @@ export default function CartDrawer({ open, onClose, notify, onDone }) {
                 <span className="font-semibold text-gray-700">${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex items-center justify-between text-gray-500">
-                <span>
-                  Delivery {slotsReady ? `· ${visitCount} visit${visitCount > 1 ? 's' : ''} × $${deliveryFee.toFixed(2)}` : `· $${deliveryFee.toFixed(2)}/visit`}
+                <span>Delivery</span>
+                <span className="font-semibold text-gray-700">
+                  {slotsReady ? `$${deliveryTotal.toFixed(2)}` : `$${deliveryFee.toFixed(2)} — pick a slot`}
                 </span>
-                <span className="font-semibold text-gray-700">{slotsReady ? `$${deliveryTotal.toFixed(2)}` : '—'}</span>
               </div>
-              {sharedSaved > 0 && (
-                <p className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
-                  ✓ Shared time slot — delivery charged once (saved ${(sharedSaved * deliveryFee).toFixed(2)})
-                </p>
-              )}
               <div className="mt-1 flex items-center justify-between border-t border-gray-100 pt-2">
                 <span className="text-sm text-gray-500">Total</span>
                 <span className="text-2xl font-extrabold text-gray-900">${(slotsReady ? grandTotal : subtotal).toFixed(2)}</span>
@@ -258,7 +200,7 @@ export default function CartDrawer({ open, onClose, notify, onDone }) {
               disabled={submitting || !slotsReady}
               className="mt-3 w-full rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 py-3.5 font-semibold text-white shadow-lg transition hover:shadow-xl active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {submitting ? 'Processing…' : slotsReady ? `Checkout · $${grandTotal.toFixed(2)}` : 'Pick your time slot(s) to continue'}
+              {submitting ? 'Processing…' : slotsReady ? `Checkout · $${grandTotal.toFixed(2)}` : 'Pick your delivery slot to continue'}
             </button>
           </footer>
         )}

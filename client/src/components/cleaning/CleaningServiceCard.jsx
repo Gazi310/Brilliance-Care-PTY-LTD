@@ -44,8 +44,15 @@ export default function CleaningServiceCard({ service, index = 0, mounted = true
 
           <div className="mt-4 flex items-center justify-between">
             <span className="flex items-baseline gap-1">
+              {service.pricingMode === 'home' && (
+                <span className="text-xs font-semibold text-gray-400">from ~</span>
+              )}
               <span className="text-2xl font-extrabold text-gray-900">${Number(service.price || 0).toFixed(2)}</span>
-              {service.unit && <span className="text-xs font-medium text-gray-400">{service.unit}</span>}
+              {service.unit && (
+                <span className="text-xs font-medium text-gray-400">
+                  {service.pricingMode === 'home' ? '1 bed · 1 bath' : service.unit}
+                </span>
+              )}
             </span>
             {canBook && (
               <button

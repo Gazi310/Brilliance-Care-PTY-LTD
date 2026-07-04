@@ -12,6 +12,8 @@ import HowItWorks from '../pages/HowItWorks';
 import Faq from '../pages/Faq';
 import Orders from '../pages/Orders';
 import Profile from '../pages/Profile';
+import Checkout from '../pages/Checkout';
+import OrderConfirmed from '../pages/OrderConfirmed';
 import AdminLayout from '../components/admin/AdminLayout';
 import AdminDashboard from '../pages/admin/Dashboard';
 import AdminServices from '../pages/admin/Services';
@@ -38,6 +40,24 @@ export default function AppRoutes() {
       <Route path="/contact" element={<Contact />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/faq" element={<Faq />} />
+
+      {/* Auth-only (booking payment + confirmation) */}
+      <Route
+        path="/checkout/:orderId"
+        element={
+          <PrivateRoute>
+            <Checkout />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/order/:id/confirmed"
+        element={
+          <PrivateRoute>
+            <OrderConfirmed />
+          </PrivateRoute>
+        }
+      />
 
       {/* Auth-only (customer account) */}
       <Route

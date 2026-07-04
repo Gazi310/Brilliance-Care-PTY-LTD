@@ -29,7 +29,10 @@ function readImageFile(file, max = 800) {
   });
 }
 
-const BLANK = { name: '', description: '', price: '', unit: 'per visit', duration: '2h', image: '' };
+const BLANK = {
+  name: '', description: '', price: '', unit: 'per visit', duration: '2h', image: '',
+  pricingMode: 'flat', perBedroom: '', perBathroom: '', isAddon: false,
+};
 
 /**
  * Cleaning service manager. Renders inline on the /admin/cleaning page
@@ -44,7 +47,14 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
   const [synced, setSynced] = useState(null);
   if (synced !== services) {
     const d = {};
-    for (const s of services) d[s._id] = { price: s.price, unit: s.unit || '', duration: s.duration || '', available: s.available, image: s.image || '' };
+    for (const s of services)
+      d[s._id] = {
+        price: s.price, unit: s.unit || '', duration: s.duration || '', available: s.available, image: s.image || '',
+        pricingMode: s.pricingMode || 'flat',
+        perBedroom: s.perBedroom ?? 0,
+        perBathroom: s.perBathroom ?? 0,
+        isAddon: !!s.isAddon,
+      };
     setDraft(d);
     setSynced(services);
   }
@@ -59,7 +69,11 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
       (d.unit || '') !== (s.unit || '') ||
       (d.duration || '') !== (s.duration || '') ||
       d.available !== s.available ||
-      (d.image || '') !== (s.image || '')
+      (d.image || '') !== (s.image || '') ||
+      (d.pricingMode || 'flat') !== (s.pricingMode || 'flat') ||
+      Number(d.perBedroom) !== (s.perBedroom ?? 0) ||
+      Number(d.perBathroom) !== (s.perBathroom ?? 0) ||
+      !!d.isAddon !== !!s.isAddon
     );
   };
 
@@ -71,6 +85,10 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
       duration: d.duration || '',
       available: d.available,
       image: d.image || '',
+      pricingMode: d.pricingMode || 'flat',
+      perBedroom: Number(d.perBedroom) || 0,
+      perBathroom: Number(d.perBathroom) || 0,
+      isAddon: !!d.isAddon,
     });
   };
 
@@ -103,6 +121,10 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
         unit: newS.unit || 'per visit',
         duration: newS.duration || '',
         image: newS.image || '',
+        pricingMode: newS.pricingMode || 'flat',
+        perBedroom: Number(newS.perBedroom) || 0,
+        perBathroom: Number(newS.perBathroom) || 0,
+        isAddon: !!newS.isAddon,
       });
       setNewS(BLANK);
       setShowAdd(false);
@@ -152,6 +174,28 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
             <input type="number" step="0.01" min="0" required placeholder="Charge ($)" value={newS.price} onChange={(e) => setNewS({ ...newS, price: e.target.value })} className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
             <input placeholder="Unit (per visit / per room)" value={newS.unit} onChange={(e) => setNewS({ ...newS, unit: e.target.value })} className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
             <input placeholder="Duration (e.g. 2h)" value={newS.duration} onChange={(e) => setNewS({ ...newS, duration: e.target.value })} className="col-span-2 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
+
+            {/* Pricing model */}
+            <div className="col-span-2 grid grid-cols-2 items-end gap-3 rounded-xl bg-gray-50 p-3">
+              <div>
+                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Pricing</label>
+                <select value={newS.pricingMode} onChange={(e) => setNewS({ ...newS, pricingMode: e.target.value })} className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400">
+                  <option value="flat">Flat — price × qty</option>
+                  <option value="home">Home size — base + per room</option>
+                </select>
+              </div>
+              <label className="flex items-center gap-2 pb-2 text-sm font-medium text-gray-600">
+                <input type="checkbox" checked={newS.isAddon} onChange={(e) => setNewS({ ...newS, isAddon: e.target.checked })} className="h-4 w-4 accent-emerald-500" />
+                Offer as add-on
+              </label>
+              {newS.pricingMode === 'home' && (
+                <>
+                  <input type="number" step="0.01" min="0" placeholder="+$ per extra bedroom" value={newS.perBedroom} onChange={(e) => setNewS({ ...newS, perBedroom: e.target.value })} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400" />
+                  <input type="number" step="0.01" min="0" placeholder="+$ per extra bathroom" value={newS.perBathroom} onChange={(e) => setNewS({ ...newS, perBathroom: e.target.value })} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400" />
+                  <p className="col-span-2 text-[11px] leading-relaxed text-gray-400">Base charge covers a 1-bed · 1-bath home; extras are added per additional room.</p>
+                </>
+              )}
+            </div>
             <button type="submit" disabled={creating} className="col-span-2 rounded-lg bg-emerald-600 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
               {creating ? 'Adding…' : 'Add service'}
             </button>
@@ -162,7 +206,10 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
       {/* Service rows */}
       <ul className="space-y-3">
         {services.map((s) => {
-          const d = draft[s._id] || { price: s.price, unit: s.unit || '', duration: s.duration || '', available: s.available, image: s.image || '' };
+          const d = draft[s._id] || {
+            price: s.price, unit: s.unit || '', duration: s.duration || '', available: s.available, image: s.image || '',
+            pricingMode: s.pricingMode || 'flat', perBedroom: s.perBedroom ?? 0, perBathroom: s.perBathroom ?? 0, isAddon: !!s.isAddon,
+          };
           return (
             <li key={s._id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
               <div className="flex items-center gap-3">
@@ -207,6 +254,39 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
                 >
                   {savingId === s._id ? 'Saving…' : isDirty(s) ? 'Save' : 'Saved'}
                 </button>
+              </div>
+
+              {/* Pricing model (booking flow) */}
+              <div className="mt-3 flex flex-wrap items-end gap-3 rounded-xl bg-gray-50 p-3">
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Pricing</label>
+                  <select value={d.pricingMode} onChange={(e) => edit(s._id, 'pricingMode', e.target.value)} className="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-emerald-400">
+                    <option value="flat">Flat</option>
+                    <option value="home">Home size</option>
+                  </select>
+                </div>
+                {d.pricingMode === 'home' && (
+                  <>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">+$/bedroom</label>
+                      <div className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-2">
+                        <span className="text-sm text-gray-400">$</span>
+                        <input type="number" step="0.01" min="0" value={d.perBedroom} onChange={(e) => edit(s._id, 'perBedroom', e.target.value)} className="w-16 py-1.5 text-sm outline-none" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">+$/bathroom</label>
+                      <div className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-2">
+                        <span className="text-sm text-gray-400">$</span>
+                        <input type="number" step="0.01" min="0" value={d.perBathroom} onChange={(e) => edit(s._id, 'perBathroom', e.target.value)} className="w-16 py-1.5 text-sm outline-none" />
+                      </div>
+                    </div>
+                  </>
+                )}
+                <label className="flex items-center gap-2 pb-1.5 text-sm font-medium text-gray-600">
+                  <input type="checkbox" checked={!!d.isAddon} onChange={(e) => edit(s._id, 'isAddon', e.target.checked)} className="h-4 w-4 accent-emerald-500" />
+                  Add-on
+                </label>
               </div>
             </li>
           );

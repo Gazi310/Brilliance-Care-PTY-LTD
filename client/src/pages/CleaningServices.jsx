@@ -1,28 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useCart } from '../context/CartContext.jsx';
+import { useNavigate } from 'react-router-dom';
+import { useBooking } from '../context/BookingContext.jsx';
 import { getCleaningServices } from '../services/cleaningService.js';
 import CleaningServiceCard from '../components/cleaning/CleaningServiceCard.jsx';
-import CartDrawer from '../components/products/CartDrawer.jsx';
-import ToastStack from '../components/products/ToastStack.jsx';
 
 export default function CleaningServices() {
-  const { addCleaning, count } = useCart();
+  const navigate = useNavigate();
+  const { setCleaningService, setAddonQty } = useBooking();
 
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
-
-  const [cartOpen, setCartOpen] = useState(false);
-  const [toasts, setToasts] = useState([]);
-
-  const notify = (message, type = 'success') => {
-    const id = Date.now() + Math.random();
-    setToasts((t) => [...t, { id, message, type }]);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 3400);
-  };
-  const dismiss = (id) => setToasts((t) => t.filter((x) => x.id !== id));
 
   const load = async () => {
     setLoading(true);
@@ -67,9 +57,12 @@ export default function CleaningServices() {
     return services.filter((s) => s.name.toLowerCase().includes(q) || (s.description || '').toLowerCase().includes(q));
   }, [services, search]);
 
+  // "Book" jumps into the guided flow with this service pre-selected.
+  // Add-ons pre-select as an extra; main services become the cleaning type.
   const handleAdd = (service) => {
-    addCleaning(service);
-    notify(`${service.name} added — choose your appointment in your cart`, 'success');
+    if (service.isAddon) setAddonQty(service._id, 1);
+    else setCleaningService(service._id);
+    navigate('/book/cleaning');
   };
 
   return (
@@ -79,9 +72,9 @@ export default function CleaningServices() {
         <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-700 px-6 py-8 text-white shadow-lg sm:px-10 sm:py-10">
           <h1 className="text-2xl font-extrabold sm:text-3xl">Cleaning Services</h1>
           <p className="mt-2 max-w-2xl text-sm text-emerald-100 sm:text-base">
-            Pick the services you need, then choose an <span className="font-semibold text-white">appointment</span> time in
-            your cart. Book your cleaning at the same slot as a shop delivery or laundry pickup and you’re only charged
-            delivery once — we make a single trip.
+            Pick a clean and we'll size the price to your home — bedrooms, bathrooms and any extras. You'll see
+            an <span className="font-semibold text-white">estimate</span>, pay a small deposit to book, and settle
+            the balance after your service.
           </p>
         </div>
       </section>
@@ -97,9 +90,11 @@ export default function CleaningServices() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button onClick={() => setCartOpen(true)} className="relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-fuchsia-500/25 transition hover:-translate-y-0.5 hover:shadow-lg active:scale-95">
-              <span className="text-lg">🛒</span> Cart
-              {count > 0 && <span className="bc-pop absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-pink-500 px-1.5 text-xs font-bold text-white ring-2 ring-white">{count}</span>}
+            <button
+              onClick={() => navigate('/book/cleaning')}
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 py-3 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
+            >
+              🫧 Book a clean
             </button>
           </div>
         </div>
@@ -143,10 +138,6 @@ export default function CleaningServices() {
         )}
       </section>
 
-      {/* Overlays */}
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} notify={notify} />
-
-      <ToastStack toasts={toasts} onDismiss={dismiss} />
     </main>
   );
 }

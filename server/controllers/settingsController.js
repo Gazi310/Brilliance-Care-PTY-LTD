@@ -2,6 +2,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 import Settings from '../models/Settings.js';
 
 const DEFAULT_FEE = 9.99;
+const round2 = (n) => Math.round(n * 100) / 100;
 
 // Get the singleton settings document, creating it with defaults on first use.
 export async function getSettingsDoc() {
@@ -16,13 +17,26 @@ export async function getDeliveryFee() {
   return doc.deliveryFee;
 }
 
-// GET /api/settings  (public) — the bits the storefront needs (delivery fee).
-export const getSettings = asyncHandler(async (req, res) => {
+// Convenience helper used by the booking controller.
+export async function getDepositPercent() {
   const doc = await getSettingsDoc();
-  res.json({ deliveryFee: doc.deliveryFee });
+  return typeof doc.depositPercent === 'number' ? doc.depositPercent : 30;
+}
+
+const publicShape = (doc) => ({
+  deliveryFee: doc.deliveryFee,
+  depositPercent: doc.depositPercent ?? 30,
+  gstRate: doc.gstRate ?? 0.1,
+  currency: doc.currency || 'AUD',
 });
 
-// PUT /api/settings  (admin) — update the flat delivery fee.
+// GET /api/settings  (public) — the bits the storefront needs.
+export const getSettings = asyncHandler(async (req, res) => {
+  const doc = await getSettingsDoc();
+  res.json(publicShape(doc));
+});
+
+// PUT /api/settings  (admin) — update the storefront knobs.
 export const updateSettings = asyncHandler(async (req, res) => {
   const doc = await getSettingsDoc();
   if (req.body.deliveryFee !== undefined) {
@@ -31,8 +45,16 @@ export const updateSettings = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error('Delivery fee must be a non-negative number');
     }
-    doc.deliveryFee = Math.round(fee * 100) / 100;
+    doc.deliveryFee = round2(fee);
+  }
+  if (req.body.depositPercent !== undefined) {
+    const pct = Number(req.body.depositPercent);
+    if (!Number.isFinite(pct) || pct < 0 || pct > 100) {
+      res.status(400);
+      throw new Error('Deposit percent must be between 0 and 100');
+    }
+    doc.depositPercent = round2(pct);
   }
   await doc.save();
-  res.json({ deliveryFee: doc.deliveryFee });
+  res.json(publicShape(doc));
 });

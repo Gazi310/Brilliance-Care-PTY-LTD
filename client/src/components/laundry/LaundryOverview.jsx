@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import LaundryServiceInfo from './LaundryServiceInfo.jsx';
 
-const BOOK_TO = '/laundry/book';
+const BOOK_TO = '/book/laundry';
 
 /**
  * The /laundry overview: introduces every laundry service with a description
- * and a Book button. Booking (choosing quantities & estimate) happens on the
- * catalogue page at /laundry/book.
+ * and a Book button. Booking (choosing quantities & estimate) happens in the
+ * guided flow at /book/laundry.
  */
 export default function LaundryOverview({ services = [], loading, error, onRetry }) {
   const [mounted, setMounted] = useState(false);

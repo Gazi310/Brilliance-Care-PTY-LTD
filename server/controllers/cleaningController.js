@@ -1,7 +1,10 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import CleaningService from '../models/CleaningService.js';
 
-const EDITABLE = ['name', 'description', 'price', 'image', 'unit', 'duration', 'available', 'sort'];
+const EDITABLE = [
+  'name', 'description', 'price', 'image', 'unit', 'duration', 'available', 'sort',
+  'pricingMode', 'perBedroom', 'perBathroom', 'isAddon',
+];
 
 // GET /api/cleaning-services  (public) — list bookable cleaning services
 export const getCleaningServices = asyncHandler(async (req, res) => {

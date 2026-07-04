@@ -7,9 +7,9 @@ const isPhoto = (img) =>
 /**
  * A roomy, descriptive laundry service card for the /laundry overview page.
  * Shows the full detailed description so customers understand exactly what the
- * service includes, with a Book button into the estimate builder (/laundry/book).
+ * service includes, with a Book button into the booking flow (/book/laundry).
  */
-export default function LaundryServiceInfo({ service, index = 0, mounted = true, bookTo = '/laundry/book' }) {
+export default function LaundryServiceInfo({ service, index = 0, mounted = true, bookTo = '/book/laundry' }) {
   const photo = isPhoto(service.image);
   const price = Number(service.price || 0);
 

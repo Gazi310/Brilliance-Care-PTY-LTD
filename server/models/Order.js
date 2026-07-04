@@ -57,13 +57,67 @@ const visitSchema = new mongoose.Schema(
   { _id: false }
 );
 
+/**
+ * One line of a service booking, carrying BOTH the estimate shown at booking
+ * time and (after Phase 2's assessment) the actual measured values, so the
+ * invoice can show "est 8 kg → actual 10.4 kg" per line.
+ */
+const bookingLineSchema = new mongoose.Schema(
+  {
+    kind: { type: String, enum: ['laundry', 'cleaning', 'addon'], required: true },
+    serviceRef: { type: mongoose.Schema.Types.ObjectId, default: null }, // Laundry/CleaningService id
+    label: { type: String, required: true }, // e.g. 'Wash & Fold' or 'Deep Cleaning · 3 bed · 2 bath'
+    unit: { type: String, default: '' },
+    estQty: { type: Number, default: 1 },
+    estUnitPrice: { type: Number, default: 0 },
+    estAmount: { type: Number, default: 0 },
+    actualQty: { type: Number, default: null },
+    actualUnitPrice: { type: Number, default: null },
+    actualAmount: { type: Number, default: null },
+    note: { type: String, default: '' },
+  },
+  { _id: false }
+);
+
+// Where the crew goes. AU format: line1, suburb, state, postcode.
+const addressSchema = new mongoose.Schema(
+  {
+    line1: { type: String, default: '' },
+    suburb: { type: String, default: '' },
+    state: { type: String, default: '' },
+    postcode: { type: String, default: '' },
+  },
+  { _id: false }
+);
+
+const contactSchema = new mongoose.Schema(
+  {
+    name: { type: String, default: '' },
+    phone: { type: String, default: '' },
+  },
+  { _id: false }
+);
+
+/**
+ * One Order document covers both worlds:
+ *  - kind 'shop'    — retail products, paid in full at checkout (legacy flow).
+ *  - kind 'booking' — laundry/cleaning service with the estimate → deposit →
+ *                     invoice → balance model (blueprint §2 / §9).
+ */
 const orderSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
 
+    kind: { type: String, enum: ['shop', 'booking'], default: 'shop' },
+    orderNumber: { type: String, unique: true, sparse: true }, // e.g. BC-1042
+    service: { type: String, enum: ['laundry', 'cleaning', 'combo', null], default: null },
+
     items: { type: [orderItemSchema], default: [] }, // product lines
     laundryItems: { type: [laundryItemSchema], default: [] }, // laundry lines
     cleaningItems: { type: [cleaningItemSchema], default: [] }, // cleaning lines
+
+    // Booking estimate lines (est vs actual) — the invoice-ready shape.
+    lineItems: { type: [bookingLineSchema], default: [] },
 
     // Chosen windows. Product delivery + laundry pickup/return + cleaning visit.
     deliverySlot: { type: slotSchema, default: null },
@@ -79,15 +133,53 @@ const orderSchema = new mongoose.Schema(
     subtotal: { type: Number, default: 0 }, // items + laundry + cleaning, before delivery
     total: { type: Number, required: true, default: 0 }, // subtotal + deliveryTotal
 
+    // ---- Estimate & two-stage payment (bookings) ----
+    estimatedSubtotal: { type: Number, default: 0 },
+    gstAmount: { type: Number, default: 0 }, // GST included in the total (total / 11 at 10%)
+    estimatedTotal: { type: Number, default: 0 },
+    depositPercent: { type: Number, default: 0 }, // e.g. 30 (from Settings at booking time)
+    depositAmount: { type: Number, default: 0 },
+    depositStatus: { type: String, enum: ['unpaid', 'paid', 'refunded'], default: 'unpaid' },
+    depositPaymentId: { type: String, default: '' },
+
+    // Filled by Phase 2's assess & invoice loop.
+    actualTotal: { type: Number, default: null },
+    balanceDue: { type: Number, default: null },
+    balanceStatus: { type: String, enum: ['none', 'awaiting', 'paid', 'waived'], default: 'none' },
+    balancePaymentId: { type: String, default: '' },
+
+    // ---- Logistics (bookings) ----
+    address: { type: addressSchema, default: null },
+    contact: { type: contactSchema, default: null },
+    accessNotes: { type: String, default: '' },
+    specialInstructions: { type: String, default: '' },
+
     status: {
       type: String,
-      enum: ['pending', 'paid', 'fulfilled', 'cancelled'],
+      enum: [
+        // shop lifecycle (legacy)
+        'pending', 'fulfilled',
+        // booking lifecycle (blueprint §9)
+        'booked', 'deposit_paid', 'scheduled', 'picked_up', 'in_progress',
+        'assessed', 'ready', 'out_for_delivery', 'delivered',
+        // shared
+        'paid', 'cancelled',
+      ],
       default: 'paid',
     },
   },
   { timestamps: true }
 );
 
+// Human-friendly sequential order number, shared across shop + bookings.
+orderSchema.pre('save', async function assignNumber(next) {
+  if (this.isNew && !this.orderNumber) {
+    const count = await this.constructor.estimatedDocumentCount();
+    this.orderNumber = `BC-${1001 + count}`;
+  }
+  next();
+});
+
 const Order = mongoose.model('Order', orderSchema);
 export default Order;
-// Order model: products + laundry + cleaning lines, with de-duplicated home visits.
+// Order model: shop orders (pay in full) + service bookings (deposit model).
