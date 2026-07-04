@@ -36,7 +36,11 @@ function readImageFile(file, max = 800) {
 
 const BLANK = { name: '', category: 'Laundry', price: '', stock: '', image: '' };
 
-export default function AdminPanel({ open, onClose, products, onSave, onDelete, onCreate, savingId }) {
+/**
+ * Product inventory manager. Renders inline on the /admin/products page
+ * (`inline`), or as a slide-over drawer (default) for legacy callers.
+ */
+export default function AdminPanel({ open, onClose, products, onSave, onDelete, onCreate, savingId, inline = false }) {
   const [draft, setDraft] = useState({});
   const [showAdd, setShowAdd] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -119,6 +123,194 @@ export default function AdminPanel({ open, onClose, products, onSave, onDelete, 
     }
   };
 
+  // Shared editing UI (used by both inline and drawer modes).
+  const body = (
+    <>
+      {/* Add-product */}
+      <div className="mb-4">
+        <button
+          onClick={() => setShowAdd((v) => !v)}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 py-2.5 text-sm font-semibold text-gray-500 transition hover:border-violet-300 hover:text-violet-600"
+        >
+          {showAdd ? '− Close' : '＋ Add new product'}
+        </button>
+        {showAdd && (
+          <form onSubmit={submitNew} className="bc-fade-up mt-3 grid grid-cols-2 gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+            <input
+              required
+              placeholder="Product name"
+              value={newP.name}
+              onChange={(e) => setNewP({ ...newP, name: e.target.value })}
+              className="col-span-2 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
+            />
+
+            {/* Product photo */}
+            <div className="col-span-2">
+              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Product photo</label>
+              <div className="flex items-center gap-3">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 text-2xl">
+                  {newP.image ? (
+                    isPhoto(newP.image) ? (
+                      <img src={newP.image} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <span>{newP.image}</span>
+                    )
+                  ) : (
+                    <span className="text-gray-300">🖼️</span>
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 transition hover:bg-violet-100">
+                    ⬆ Upload photo
+                    <input type="file" accept="image/*" className="hidden" onChange={pickNewImage} />
+                  </label>
+                  <input
+                    placeholder="or paste image URL"
+                    value={newP.image.startsWith('data:') ? '' : newP.image}
+                    onChange={(e) => setNewP({ ...newP, image: e.target.value })}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <select
+              value={newP.category}
+              onChange={(e) => setNewP({ ...newP, category: e.target.value })}
+              className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              required
+              placeholder="Price"
+              value={newP.price}
+              onChange={(e) => setNewP({ ...newP, price: e.target.value })}
+              className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
+            />
+            <input
+              type="number"
+              min="0"
+              required
+              placeholder="Stock qty"
+              value={newP.stock}
+              onChange={(e) => setNewP({ ...newP, stock: e.target.value })}
+              className="col-span-2 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
+            />
+            <button
+              type="submit"
+              disabled={creating}
+              className="col-span-2 rounded-lg bg-violet-600 py-2 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:opacity-60"
+            >
+              {creating ? 'Adding…' : 'Add product'}
+            </button>
+          </form>
+        )}
+      </div>
+
+      {/* Product rows */}
+      <ul className="space-y-3">
+        {products.map((p) => {
+          const d = draft[p._id] || { price: p.price, stock: p.stock, available: p.available, image: p.image || '' };
+          return (
+            <li key={p._id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <label
+                  className="group/img relative flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-gray-50 text-2xl"
+                  title="Change photo"
+                >
+                  {isPhoto(d.image) ? (
+                    <img src={d.image} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <span>{d.image || '🧴'}</span>
+                  )}
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/45 text-xs font-semibold text-white opacity-0 transition group-hover/img:opacity-100">
+                    ✎
+                  </span>
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => pickRowImage(p._id, e)} />
+                </label>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold text-gray-800">{p.name}</p>
+                  <p className="text-xs text-gray-400">{p.category}</p>
+                </div>
+                <button onClick={() => onDelete(p._id)} title="Delete product" className="rounded-lg p-2 text-gray-300 transition hover:bg-red-50 hover:text-red-500">
+                  🗑️
+                </button>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-end gap-3">
+                {/* Stock stepper */}
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Stock qty</label>
+                  <div className="inline-flex items-center rounded-lg border border-gray-200">
+                    <button type="button" onClick={() => edit(p._id, 'stock', Math.max(0, Number(d.stock) - 1))} className="px-2.5 py-1.5 text-gray-500 transition hover:text-gray-900">−</button>
+                    <input
+                      type="number"
+                      min="0"
+                      value={d.stock}
+                      onChange={(e) => edit(p._id, 'stock', e.target.value)}
+                      className="w-16 border-x border-gray-200 py-1.5 text-center text-sm outline-none"
+                    />
+                    <button type="button" onClick={() => edit(p._id, 'stock', Number(d.stock) + 1)} className="px-2.5 py-1.5 text-gray-500 transition hover:text-gray-900">+</button>
+                  </div>
+                </div>
+
+                {/* Price */}
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Price</label>
+                  <div className="inline-flex items-center rounded-lg border border-gray-200 px-2">
+                    <span className="text-sm text-gray-400">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={d.price}
+                      onChange={(e) => edit(p._id, 'price', e.target.value)}
+                      className="w-20 py-1.5 text-sm outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Availability toggle */}
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Live</label>
+                  <button
+                    type="button"
+                    onClick={() => edit(p._id, 'available', !d.available)}
+                    className={`relative h-7 w-12 rounded-full transition ${d.available ? 'bg-emerald-500' : 'bg-gray-300'}`}
+                    aria-label="Toggle availability"
+                  >
+                    <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${d.available ? 'left-[22px]' : 'left-0.5'}`} />
+                  </button>
+                </div>
+
+                {/* Save */}
+                <button
+                  onClick={() => save(p)}
+                  disabled={!isDirty(p) || savingId === p._id}
+                  className={`ml-auto rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${
+                    isDirty(p) ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:shadow-md active:scale-95' : 'cursor-not-allowed bg-gray-200 text-gray-400'
+                  }`}
+                >
+                  {savingId === p._id ? 'Saving…' : isDirty(p) ? 'Save' : 'Saved'}
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
+
+  // Inline mode: rendered directly inside the /admin/products page.
+  if (inline) return body;
+
+  // Drawer mode: slide-over aside with backdrop.
   return (
     <>
       <div
@@ -145,186 +337,7 @@ export default function AdminPanel({ open, onClose, products, onSave, onDelete, 
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-5 py-5">
-          {/* Add-product */}
-          <div className="mb-4">
-            <button
-              onClick={() => setShowAdd((v) => !v)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 py-2.5 text-sm font-semibold text-gray-500 transition hover:border-violet-300 hover:text-violet-600"
-            >
-              {showAdd ? '− Close' : '＋ Add new product'}
-            </button>
-            {showAdd && (
-              <form onSubmit={submitNew} className="bc-fade-up mt-3 grid grid-cols-2 gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                <input
-                  required
-                  placeholder="Product name"
-                  value={newP.name}
-                  onChange={(e) => setNewP({ ...newP, name: e.target.value })}
-                  className="col-span-2 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
-                />
-
-                {/* Product photo */}
-                <div className="col-span-2">
-                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Product photo</label>
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 text-2xl">
-                      {newP.image ? (
-                        isPhoto(newP.image) ? (
-                          <img src={newP.image} alt="" className="h-full w-full object-cover" />
-                        ) : (
-                          <span>{newP.image}</span>
-                        )
-                      ) : (
-                        <span className="text-gray-300">🖼️</span>
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 transition hover:bg-violet-100">
-                        ⬆ Upload photo
-                        <input type="file" accept="image/*" className="hidden" onChange={pickNewImage} />
-                      </label>
-                      <input
-                        placeholder="or paste image URL"
-                        value={newP.image.startsWith('data:') ? '' : newP.image}
-                        onChange={(e) => setNewP({ ...newP, image: e.target.value })}
-                        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <select
-                  value={newP.category}
-                  onChange={(e) => setNewP({ ...newP, category: e.target.value })}
-                  className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c}>{c}</option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  required
-                  placeholder="Price"
-                  value={newP.price}
-                  onChange={(e) => setNewP({ ...newP, price: e.target.value })}
-                  className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
-                />
-                <input
-                  type="number"
-                  min="0"
-                  required
-                  placeholder="Stock qty"
-                  value={newP.stock}
-                  onChange={(e) => setNewP({ ...newP, stock: e.target.value })}
-                  className="col-span-2 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-violet-400"
-                />
-                <button
-                  type="submit"
-                  disabled={creating}
-                  className="col-span-2 rounded-lg bg-violet-600 py-2 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:opacity-60"
-                >
-                  {creating ? 'Adding…' : 'Add product'}
-                </button>
-              </form>
-            )}
-          </div>
-
-          {/* Product rows */}
-          <ul className="space-y-3">
-            {products.map((p) => {
-              const d = draft[p._id] || { price: p.price, stock: p.stock, available: p.available, image: p.image || '' };
-              return (
-                <li key={p._id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <label
-                      className="group/img relative flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-gray-50 text-2xl"
-                      title="Change photo"
-                    >
-                      {isPhoto(d.image) ? (
-                        <img src={d.image} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <span>{d.image || '🧴'}</span>
-                      )}
-                      <span className="absolute inset-0 flex items-center justify-center bg-black/45 text-xs font-semibold text-white opacity-0 transition group-hover/img:opacity-100">
-                        ✎
-                      </span>
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => pickRowImage(p._id, e)} />
-                    </label>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-gray-800">{p.name}</p>
-                      <p className="text-xs text-gray-400">{p.category}</p>
-                    </div>
-                    <button onClick={() => onDelete(p._id)} title="Delete product" className="rounded-lg p-2 text-gray-300 transition hover:bg-red-50 hover:text-red-500">
-                      🗑️
-                    </button>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap items-end gap-3">
-                    {/* Stock stepper */}
-                    <div>
-                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Stock qty</label>
-                      <div className="inline-flex items-center rounded-lg border border-gray-200">
-                        <button type="button" onClick={() => edit(p._id, 'stock', Math.max(0, Number(d.stock) - 1))} className="px-2.5 py-1.5 text-gray-500 transition hover:text-gray-900">−</button>
-                        <input
-                          type="number"
-                          min="0"
-                          value={d.stock}
-                          onChange={(e) => edit(p._id, 'stock', e.target.value)}
-                          className="w-16 border-x border-gray-200 py-1.5 text-center text-sm outline-none"
-                        />
-                        <button type="button" onClick={() => edit(p._id, 'stock', Number(d.stock) + 1)} className="px-2.5 py-1.5 text-gray-500 transition hover:text-gray-900">+</button>
-                      </div>
-                    </div>
-
-                    {/* Price */}
-                    <div>
-                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Price</label>
-                      <div className="inline-flex items-center rounded-lg border border-gray-200 px-2">
-                        <span className="text-sm text-gray-400">$</span>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={d.price}
-                          onChange={(e) => edit(p._id, 'price', e.target.value)}
-                          className="w-20 py-1.5 text-sm outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Availability toggle */}
-                    <div>
-                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Live</label>
-                      <button
-                        type="button"
-                        onClick={() => edit(p._id, 'available', !d.available)}
-                        className={`relative h-7 w-12 rounded-full transition ${d.available ? 'bg-emerald-500' : 'bg-gray-300'}`}
-                        aria-label="Toggle availability"
-                      >
-                        <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${d.available ? 'left-[22px]' : 'left-0.5'}`} />
-                      </button>
-                    </div>
-
-                    {/* Save */}
-                    <button
-                      onClick={() => save(p)}
-                      disabled={!isDirty(p) || savingId === p._id}
-                      className={`ml-auto rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${
-                        isDirty(p) ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:shadow-md active:scale-95' : 'cursor-not-allowed bg-gray-200 text-gray-400'
-                      }`}
-                    >
-                      {savingId === p._id ? 'Saving…' : isDirty(p) ? 'Save' : 'Saved'}
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-5">{body}</div>
       </aside>
     </>
   );

@@ -1,19 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
-import {
-  getCleaningServices,
-  createCleaningService,
-  updateCleaningService,
-  deleteCleaningService,
-} from '../services/cleaningService.js';
+import { getCleaningServices } from '../services/cleaningService.js';
 import CleaningServiceCard from '../components/cleaning/CleaningServiceCard.jsx';
-import CleaningAdminPanel from '../components/cleaning/CleaningAdminPanel.jsx';
 import CartDrawer from '../components/products/CartDrawer.jsx';
 import ToastStack from '../components/products/ToastStack.jsx';
 
 export default function CleaningServices() {
-  const { isAdmin } = useAuth();
   const { addCleaning, count } = useCart();
 
   const [services, setServices] = useState([]);
@@ -23,8 +15,6 @@ export default function CleaningServices() {
   const [search, setSearch] = useState('');
 
   const [cartOpen, setCartOpen] = useState(false);
-  const [adminPanelOpen, setAdminPanelOpen] = useState(false);
-  const [savingId, setSavingId] = useState(null);
   const [toasts, setToasts] = useState([]);
 
   const notify = (message, type = 'success') => {
@@ -35,6 +25,7 @@ export default function CleaningServices() {
   const dismiss = (id) => setToasts((t) => t.filter((x) => x.id !== id));
 
   const load = async () => {
+    setLoading(true);
     try {
       const data = await getCleaningServices();
       setServices(data);
@@ -81,40 +72,8 @@ export default function CleaningServices() {
     notify(`${service.name} added — choose your appointment in your cart`, 'success');
   };
 
-  const handleSave = async (id, fields) => {
-    setSavingId(id);
-    try {
-      await updateCleaningService(id, fields);
-      await load();
-      notify('Service updated ✅', 'success');
-    } catch (err) {
-      notify(err.message, 'error');
-    } finally {
-      setSavingId(null);
-    }
-  };
-  const handleDelete = async (id) => {
-    try {
-      await deleteCleaningService(id);
-      await load();
-      notify('Service removed.', 'info');
-    } catch (err) {
-      notify(err.message, 'error');
-    }
-  };
-  const handleCreate = async (fields) => {
-    try {
-      await createCleaningService(fields);
-      await load();
-      notify('Service added 🎉', 'success');
-    } catch (err) {
-      notify(err.message, 'error');
-      throw err;
-    }
-  };
-
   return (
-    <main className="flex-1 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-4 sm:p-6">
+    <main className="flex-1 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 px-4 pt-4 pb-28 sm:px-6 sm:pt-6 lg:pb-6">
       {/* Hero */}
       <section className="mx-auto mb-6 max-w-7xl">
         <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-teal-700 px-6 py-8 text-white shadow-lg sm:px-10 sm:py-10">
@@ -138,18 +97,10 @@ export default function CleaningServices() {
           </div>
 
           <div className="flex items-center gap-3">
-            {!isAdmin && (
-              <button onClick={() => setCartOpen(true)} className="relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-fuchsia-500/25 transition hover:-translate-y-0.5 hover:shadow-lg active:scale-95">
-                <span className="text-lg">🛒</span> Cart
-                {count > 0 && <span className="bc-pop absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-pink-500 px-1.5 text-xs font-bold text-white ring-2 ring-white">{count}</span>}
-              </button>
-            )}
-            {isAdmin && (
-              <button onClick={() => setAdminPanelOpen(true)} className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-slate-800 active:scale-95">
-                <span className="text-lg">🫧</span> Manage services
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              </button>
-            )}
+            <button onClick={() => setCartOpen(true)} className="relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-fuchsia-500/25 transition hover:-translate-y-0.5 hover:shadow-lg active:scale-95">
+              <span className="text-lg">🛒</span> Cart
+              {count > 0 && <span className="bc-pop absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-pink-500 px-1.5 text-xs font-bold text-white ring-2 ring-white">{count}</span>}
+            </button>
           </div>
         </div>
       </section>
@@ -176,7 +127,7 @@ export default function CleaningServices() {
           <div className="flex flex-col items-center justify-center py-24 text-center text-gray-400">
             <span className="text-6xl">🫧</span>
             <p className="mt-4 text-lg font-semibold text-gray-500">No cleaning services found</p>
-            <p className="text-sm">{isAdmin ? 'Add services from “Manage services”.' : 'Please check back soon.'}</p>
+            <p className="text-sm">Please check back soon.</p>
           </div>
         ) : (
           <>
@@ -185,7 +136,7 @@ export default function CleaningServices() {
             </p>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filtered.map((s, i) => (
-                <CleaningServiceCard key={s._id} service={s} index={i} mounted={mounted} onAdd={handleAdd} canBook={!isAdmin} />
+                <CleaningServiceCard key={s._id} service={s} index={i} mounted={mounted} onAdd={handleAdd} canBook />
               ))}
             </div>
           </>
@@ -193,19 +144,7 @@ export default function CleaningServices() {
       </section>
 
       {/* Overlays */}
-      {!isAdmin && <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} notify={notify} />}
-      {isAdmin && (
-        <CleaningAdminPanel
-          open={adminPanelOpen}
-          onClose={() => setAdminPanelOpen(false)}
-          services={services}
-          onSave={handleSave}
-          onDelete={handleDelete}
-          onCreate={handleCreate}
-          savingId={savingId}
-          notify={notify}
-        />
-      )}
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} notify={notify} />
 
       <ToastStack toasts={toasts} onDismiss={dismiss} />
     </main>

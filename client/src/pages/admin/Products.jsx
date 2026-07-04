@@ -1,20 +1,24 @@
 import { useEffect, useState } from 'react';
+import { useCart } from '../../context/CartContext.jsx';
 import {
-  getLaundryServices,
-  createLaundryService,
-  updateLaundryService,
-  deleteLaundryService,
-} from '../../services/laundryService.js';
-import LaundryAdminPanel from '../../components/laundry/LaundryAdminPanel.jsx';
+  getProducts,
+  updateProduct,
+  createProduct,
+  deleteProduct,
+} from '../../services/productService.js';
+import AdminPanel from '../../components/products/AdminPanel.jsx';
+import DeliverySlotMenu from '../../components/products/DeliverySlotMenu.jsx';
 import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
 import ToastStack from '../../components/products/ToastStack.jsx';
 
 /**
- * /admin/services — manage laundry services and the delivery fee.
+ * /admin/products — manage shop inventory and delivery-slot availability.
  * Access is handled by the AdminLayout shell (PrivateRoute requireAdmin).
  */
-export default function AdminServices() {
-  const [services, setServices] = useState([]);
+export default function AdminProducts() {
+  const { deliverySlot, setDeliverySlot } = useCart();
+
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [savingId, setSavingId] = useState(null);
@@ -30,8 +34,8 @@ export default function AdminServices() {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await getLaundryServices();
-      setServices(data);
+      const data = await getProducts();
+      setProducts(data);
       setError('');
     } catch (err) {
       setError(err.message);
@@ -47,9 +51,9 @@ export default function AdminServices() {
   const handleSave = async (id, fields) => {
     setSavingId(id);
     try {
-      await updateLaundryService(id, fields);
+      await updateProduct(id, fields);
       await load();
-      notify('Service updated ✅', 'success');
+      notify('Inventory updated ✅', 'success');
     } catch (err) {
       notify(err.message, 'error');
     } finally {
@@ -58,18 +62,18 @@ export default function AdminServices() {
   };
   const handleDelete = async (id) => {
     try {
-      await deleteLaundryService(id);
+      await deleteProduct(id);
       await load();
-      notify('Service removed.', 'info');
+      notify('Product removed.', 'info');
     } catch (err) {
       notify(err.message, 'error');
     }
   };
   const handleCreate = async (fields) => {
     try {
-      await createLaundryService(fields);
+      await createProduct(fields);
       await load();
-      notify('Service added 🎉', 'success');
+      notify('Product added 🎉', 'success');
     } catch (err) {
       notify(err.message, 'error');
       throw err;
@@ -80,9 +84,17 @@ export default function AdminServices() {
     <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-8">
       <AdminSectionHeader
         eyebrow="Manage"
-        title="Laundry services"
-        subtitle="Add services, set estimated charges, and the per-visit delivery fee."
+        title="Shop inventory"
+        subtitle="Manage product photos, stock, price and availability."
       />
+
+      {/* Delivery-slot availability (admin) */}
+      <div className="mb-5 rounded-2xl border border-line bg-white p-4 shadow-soft">
+        <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-faint">
+          Delivery availability
+        </p>
+        <DeliverySlotMenu isAdmin selected={deliverySlot} onSelect={setDeliverySlot} notify={notify} />
+      </div>
 
       {error && (
         <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
@@ -100,14 +112,13 @@ export default function AdminServices() {
           ))}
         </div>
       ) : (
-        <LaundryAdminPanel
+        <AdminPanel
           inline
-          services={services}
+          products={products}
           onSave={handleSave}
           onDelete={handleDelete}
           onCreate={handleCreate}
           savingId={savingId}
-          notify={notify}
         />
       )}
 

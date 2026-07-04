@@ -1,21 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '../context/AuthContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
-import {
-  getProducts,
-  updateProduct,
-  createProduct,
-  deleteProduct,
-} from '../services/productService.js';
+import { getProducts } from '../services/productService.js';
 import ProductCard from '../components/products/ProductCard.jsx';
 import CartDrawer from '../components/products/CartDrawer.jsx';
-import AdminPanel from '../components/products/AdminPanel.jsx';
 import DeliverySlotMenu from '../components/products/DeliverySlotMenu.jsx';
 import ToastStack from '../components/products/ToastStack.jsx';
 
 export default function Products() {
-  // Admin status is auto-detected from the header login (no separate admin login).
-  const { isAdmin } = useAuth();
   const { add, count, deliverySlot, setDeliverySlot } = useCart();
 
   const [products, setProducts] = useState([]);
@@ -26,9 +17,6 @@ export default function Products() {
   const [search, setSearch] = useState('');
 
   const [cartOpen, setCartOpen] = useState(false);
-  const [adminPanelOpen, setAdminPanelOpen] = useState(false);
-
-  const [savingId, setSavingId] = useState(null);
   const [toasts, setToasts] = useState([]);
 
   // ---- toasts ----
@@ -41,6 +29,7 @@ export default function Products() {
 
   // ---- data ----
   const load = async () => {
+    setLoading(true);
     try {
       const data = await getProducts();
       setProducts(data);
@@ -93,43 +82,8 @@ export default function Products() {
     notify(`${product.name} added to cart`, 'success');
   };
 
-  // ---- admin actions (panel only rendered when isAdmin) ----
-  const handleSave = async (id, fields) => {
-    setSavingId(id);
-    try {
-      await updateProduct(id, fields);
-      await load();
-      notify('Inventory updated ✅', 'success');
-    } catch (err) {
-      notify(err.message, 'error');
-    } finally {
-      setSavingId(null);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      await deleteProduct(id);
-      await load();
-      notify('Product removed.', 'info');
-    } catch (err) {
-      notify(err.message, 'error');
-    }
-  };
-
-  const handleCreate = async (fields) => {
-    try {
-      await createProduct(fields);
-      await load();
-      notify('Product added 🎉', 'success');
-    } catch (err) {
-      notify(err.message, 'error');
-      throw err;
-    }
-  };
-
   return (
-    <main className="flex-1 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-4 sm:p-6">
+    <main className="flex-1 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 px-4 pt-4 pb-28 sm:px-6 sm:pt-6 lg:pb-6">
       {/* SEARCH + ACTIONS */}
       <section className="mx-auto mb-8 max-w-7xl">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -158,33 +112,21 @@ export default function Products() {
           {/* actions */}
           <div className="flex items-center gap-3">
             <DeliverySlotMenu
-              isAdmin={isAdmin}
               selected={deliverySlot}
               onSelect={setDeliverySlot}
               notify={notify}
             />
-            {!isAdmin && (
-              <button
-                onClick={() => setCartOpen(true)}
-                className="relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-fuchsia-500/25 transition hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
-              >
-                <span className="text-lg">🛒</span> Cart
-                {count > 0 && (
-                  <span className="bc-pop absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-pink-500 px-1.5 text-xs font-bold text-white ring-2 ring-white">
-                    {count}
-                  </span>
-                )}
-              </button>
-            )}
-            {isAdmin && (
-              <button
-                onClick={() => setAdminPanelOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-slate-800 active:scale-95"
-              >
-                <span className="text-lg">🛠️</span> Admin
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              </button>
-            )}
+            <button
+              onClick={() => setCartOpen(true)}
+              className="relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-fuchsia-500/25 transition hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
+            >
+              <span className="text-lg">🛒</span> Cart
+              {count > 0 && (
+                <span className="bc-pop absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-pink-500 px-1.5 text-xs font-bold text-white ring-2 ring-white">
+                  {count}
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </section>
@@ -233,7 +175,7 @@ export default function Products() {
                   index={i}
                   mounted={mounted}
                   onAdd={handleAdd}
-                  canBuy={!isAdmin}
+                  canBuy
                 />
               ))}
             </div>
@@ -242,25 +184,12 @@ export default function Products() {
       </section>
 
       {/* OVERLAYS */}
-      {!isAdmin && (
-        <CartDrawer
-          open={cartOpen}
-          onClose={() => setCartOpen(false)}
-          notify={notify}
-          onDone={load}
-        />
-      )}
-      {isAdmin && (
-        <AdminPanel
-          open={adminPanelOpen}
-          onClose={() => setAdminPanelOpen(false)}
-          products={products}
-          onSave={handleSave}
-          onDelete={handleDelete}
-          onCreate={handleCreate}
-          savingId={savingId}
-        />
-      )}
+      <CartDrawer
+        open={cartOpen}
+        onClose={() => setCartOpen(false)}
+        notify={notify}
+        onDone={load}
+      />
 
       <ToastStack toasts={toasts} onDismiss={dismiss} />
     </main>

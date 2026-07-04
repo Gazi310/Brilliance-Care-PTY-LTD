@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 import {
-  getLaundryServices,
-  createLaundryService,
-  updateLaundryService,
-  deleteLaundryService,
-} from '../../services/laundryService.js';
-import LaundryAdminPanel from '../../components/laundry/LaundryAdminPanel.jsx';
+  getCleaningServices,
+  createCleaningService,
+  updateCleaningService,
+  deleteCleaningService,
+} from '../../services/cleaningService.js';
+import CleaningAdminPanel from '../../components/cleaning/CleaningAdminPanel.jsx';
 import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
 import ToastStack from '../../components/products/ToastStack.jsx';
 
 /**
- * /admin/services — manage laundry services and the delivery fee.
+ * /admin/cleaning — manage cleaning services and the delivery fee.
  * Access is handled by the AdminLayout shell (PrivateRoute requireAdmin).
  */
-export default function AdminServices() {
+export default function AdminCleaning() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -30,7 +30,7 @@ export default function AdminServices() {
   const load = async () => {
     setLoading(true);
     try {
-      const data = await getLaundryServices();
+      const data = await getCleaningServices();
       setServices(data);
       setError('');
     } catch (err) {
@@ -47,7 +47,7 @@ export default function AdminServices() {
   const handleSave = async (id, fields) => {
     setSavingId(id);
     try {
-      await updateLaundryService(id, fields);
+      await updateCleaningService(id, fields);
       await load();
       notify('Service updated ✅', 'success');
     } catch (err) {
@@ -58,7 +58,7 @@ export default function AdminServices() {
   };
   const handleDelete = async (id) => {
     try {
-      await deleteLaundryService(id);
+      await deleteCleaningService(id);
       await load();
       notify('Service removed.', 'info');
     } catch (err) {
@@ -67,7 +67,7 @@ export default function AdminServices() {
   };
   const handleCreate = async (fields) => {
     try {
-      await createLaundryService(fields);
+      await createCleaningService(fields);
       await load();
       notify('Service added 🎉', 'success');
     } catch (err) {
@@ -80,7 +80,7 @@ export default function AdminServices() {
     <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-8">
       <AdminSectionHeader
         eyebrow="Manage"
-        title="Laundry services"
+        title="Cleaning services"
         subtitle="Add services, set estimated charges, and the per-visit delivery fee."
       />
 
@@ -100,7 +100,7 @@ export default function AdminServices() {
           ))}
         </div>
       ) : (
-        <LaundryAdminPanel
+        <CleaningAdminPanel
           inline
           services={services}
           onSave={handleSave}

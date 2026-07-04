@@ -31,7 +31,11 @@ function readImageFile(file, max = 800) {
 
 const BLANK = { name: '', description: '', price: '', unit: 'per visit', duration: '2h', image: '' };
 
-export default function CleaningAdminPanel({ open, onClose, services, onSave, onDelete, onCreate, savingId, notify }) {
+/**
+ * Cleaning service manager. Renders inline on the /admin/cleaning page
+ * (`inline`), or as a slide-over drawer (default) for legacy callers.
+ */
+export default function CleaningAdminPanel({ open, onClose, services, onSave, onDelete, onCreate, savingId, notify, inline = false }) {
   const [draft, setDraft] = useState({});
   const [showAdd, setShowAdd] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -107,6 +111,119 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
     }
   };
 
+  // Shared editing UI (used by both inline and drawer modes).
+  const body = (
+    <>
+      {/* Delivery fee */}
+      <div className="mb-4">
+        <DeliveryFeeControl notify={notify} />
+      </div>
+
+      {/* Add service */}
+      <div className="mb-4">
+        <button
+          onClick={() => setShowAdd((v) => !v)}
+          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 py-2.5 text-sm font-semibold text-gray-500 transition hover:border-emerald-300 hover:text-emerald-600"
+        >
+          {showAdd ? '− Close' : '＋ Add cleaning service'}
+        </button>
+        {showAdd && (
+          <form onSubmit={submitNew} className="bc-fade-up mt-3 grid grid-cols-2 gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+            <input required placeholder="Service name (e.g. Deep Cleaning)" value={newS.name} onChange={(e) => setNewS({ ...newS, name: e.target.value })} className="col-span-2 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
+            <textarea placeholder="Short description" value={newS.description} onChange={(e) => setNewS({ ...newS, description: e.target.value })} rows={2} className="col-span-2 resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
+
+            {/* Photo */}
+            <div className="col-span-2">
+              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Service photo</label>
+              <div className="flex items-center gap-3">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 text-2xl">
+                  {newS.image ? (isPhoto(newS.image) ? <img src={newS.image} alt="" className="h-full w-full object-cover" /> : <span>{newS.image}</span>) : <span className="text-gray-300">🖼️</span>}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100">
+                    ⬆ Upload photo
+                    <input type="file" accept="image/*" className="hidden" onChange={pickNewImage} />
+                  </label>
+                  <input placeholder="or paste image URL / emoji" value={newS.image.startsWith('data:') ? '' : newS.image} onChange={(e) => setNewS({ ...newS, image: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
+                </div>
+              </div>
+            </div>
+
+            <input type="number" step="0.01" min="0" required placeholder="Charge ($)" value={newS.price} onChange={(e) => setNewS({ ...newS, price: e.target.value })} className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
+            <input placeholder="Unit (per visit / per room)" value={newS.unit} onChange={(e) => setNewS({ ...newS, unit: e.target.value })} className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
+            <input placeholder="Duration (e.g. 2h)" value={newS.duration} onChange={(e) => setNewS({ ...newS, duration: e.target.value })} className="col-span-2 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
+            <button type="submit" disabled={creating} className="col-span-2 rounded-lg bg-emerald-600 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
+              {creating ? 'Adding…' : 'Add service'}
+            </button>
+          </form>
+        )}
+      </div>
+
+      {/* Service rows */}
+      <ul className="space-y-3">
+        {services.map((s) => {
+          const d = draft[s._id] || { price: s.price, unit: s.unit || '', duration: s.duration || '', available: s.available, image: s.image || '' };
+          return (
+            <li key={s._id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <label className="group/img relative flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-gray-50 text-2xl" title="Change photo">
+                  {isPhoto(d.image) ? <img src={d.image} alt="" className="h-full w-full object-cover" /> : <span>{d.image || '🫧'}</span>}
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/45 text-xs font-semibold text-white opacity-0 transition group-hover/img:opacity-100">✎</span>
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => pickRowImage(s._id, e)} />
+                </label>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-bold text-gray-800">{s.name}</p>
+                  <p className="line-clamp-1 text-xs text-gray-400">{s.description || '—'}</p>
+                </div>
+                <button onClick={() => onDelete(s._id)} title="Delete service" className="rounded-lg p-2 text-gray-300 transition hover:bg-red-50 hover:text-red-500">🗑️</button>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-end gap-3">
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Charge</label>
+                  <div className="inline-flex items-center rounded-lg border border-gray-200 px-2">
+                    <span className="text-sm text-gray-400">$</span>
+                    <input type="number" step="0.01" min="0" value={d.price} onChange={(e) => edit(s._id, 'price', e.target.value)} className="w-20 py-1.5 text-sm outline-none" />
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Unit</label>
+                  <input value={d.unit} onChange={(e) => edit(s._id, 'unit', e.target.value)} className="w-28 rounded-lg border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-emerald-400" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Duration</label>
+                  <input value={d.duration} onChange={(e) => edit(s._id, 'duration', e.target.value)} className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-emerald-400" />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Live</label>
+                  <button type="button" onClick={() => edit(s._id, 'available', !d.available)} className={`relative h-7 w-12 rounded-full transition ${d.available ? 'bg-emerald-500' : 'bg-gray-300'}`} aria-label="Toggle availability">
+                    <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${d.available ? 'left-[22px]' : 'left-0.5'}`} />
+                  </button>
+                </div>
+                <button
+                  onClick={() => save(s)}
+                  disabled={!isDirty(s) || savingId === s._id}
+                  className={`ml-auto rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${isDirty(s) ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:shadow-md active:scale-95' : 'cursor-not-allowed bg-gray-200 text-gray-400'}`}
+                >
+                  {savingId === s._id ? 'Saving…' : isDirty(s) ? 'Save' : 'Saved'}
+                </button>
+              </div>
+            </li>
+          );
+        })}
+        {services.length === 0 && (
+          <li className="rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center text-sm text-gray-400">
+            No cleaning services yet — add your first one above.
+          </li>
+        )}
+      </ul>
+    </>
+  );
+
+  // Inline mode: rendered directly inside the /admin/cleaning page.
+  if (inline) return body;
+
+  // Drawer mode: slide-over aside with backdrop.
   return (
     <>
       <div
@@ -124,111 +241,7 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
           <button onClick={onClose} className="rounded-full p-2 text-white/70 transition hover:bg-white/10 hover:text-white" aria-label="Close">✕</button>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-5 py-5">
-          {/* Delivery fee */}
-          <div className="mb-4">
-            <DeliveryFeeControl notify={notify} />
-          </div>
-
-          {/* Add service */}
-          <div className="mb-4">
-            <button
-              onClick={() => setShowAdd((v) => !v)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 py-2.5 text-sm font-semibold text-gray-500 transition hover:border-emerald-300 hover:text-emerald-600"
-            >
-              {showAdd ? '− Close' : '＋ Add cleaning service'}
-            </button>
-            {showAdd && (
-              <form onSubmit={submitNew} className="bc-fade-up mt-3 grid grid-cols-2 gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                <input required placeholder="Service name (e.g. Deep Cleaning)" value={newS.name} onChange={(e) => setNewS({ ...newS, name: e.target.value })} className="col-span-2 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-                <textarea placeholder="Short description" value={newS.description} onChange={(e) => setNewS({ ...newS, description: e.target.value })} rows={2} className="col-span-2 resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-
-                {/* Photo */}
-                <div className="col-span-2">
-                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Service photo</label>
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 text-2xl">
-                      {newS.image ? (isPhoto(newS.image) ? <img src={newS.image} alt="" className="h-full w-full object-cover" /> : <span>{newS.image}</span>) : <span className="text-gray-300">🖼️</span>}
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100">
-                        ⬆ Upload photo
-                        <input type="file" accept="image/*" className="hidden" onChange={pickNewImage} />
-                      </label>
-                      <input placeholder="or paste image URL / emoji" value={newS.image.startsWith('data:') ? '' : newS.image} onChange={(e) => setNewS({ ...newS, image: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-                    </div>
-                  </div>
-                </div>
-
-                <input type="number" step="0.01" min="0" required placeholder="Charge ($)" value={newS.price} onChange={(e) => setNewS({ ...newS, price: e.target.value })} className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-                <input placeholder="Unit (per visit / per room)" value={newS.unit} onChange={(e) => setNewS({ ...newS, unit: e.target.value })} className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-                <input placeholder="Duration (e.g. 2h)" value={newS.duration} onChange={(e) => setNewS({ ...newS, duration: e.target.value })} className="col-span-2 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-                <button type="submit" disabled={creating} className="col-span-2 rounded-lg bg-emerald-600 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
-                  {creating ? 'Adding…' : 'Add service'}
-                </button>
-              </form>
-            )}
-          </div>
-
-          {/* Service rows */}
-          <ul className="space-y-3">
-            {services.map((s) => {
-              const d = draft[s._id] || { price: s.price, unit: s.unit || '', duration: s.duration || '', available: s.available, image: s.image || '' };
-              return (
-                <li key={s._id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <label className="group/img relative flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-gray-50 text-2xl" title="Change photo">
-                      {isPhoto(d.image) ? <img src={d.image} alt="" className="h-full w-full object-cover" /> : <span>{d.image || '🫧'}</span>}
-                      <span className="absolute inset-0 flex items-center justify-center bg-black/45 text-xs font-semibold text-white opacity-0 transition group-hover/img:opacity-100">✎</span>
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => pickRowImage(s._id, e)} />
-                    </label>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-gray-800">{s.name}</p>
-                      <p className="line-clamp-1 text-xs text-gray-400">{s.description || '—'}</p>
-                    </div>
-                    <button onClick={() => onDelete(s._id)} title="Delete service" className="rounded-lg p-2 text-gray-300 transition hover:bg-red-50 hover:text-red-500">🗑️</button>
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap items-end gap-3">
-                    <div>
-                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Charge</label>
-                      <div className="inline-flex items-center rounded-lg border border-gray-200 px-2">
-                        <span className="text-sm text-gray-400">$</span>
-                        <input type="number" step="0.01" min="0" value={d.price} onChange={(e) => edit(s._id, 'price', e.target.value)} className="w-20 py-1.5 text-sm outline-none" />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Unit</label>
-                      <input value={d.unit} onChange={(e) => edit(s._id, 'unit', e.target.value)} className="w-28 rounded-lg border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-emerald-400" />
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Duration</label>
-                      <input value={d.duration} onChange={(e) => edit(s._id, 'duration', e.target.value)} className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-emerald-400" />
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Live</label>
-                      <button type="button" onClick={() => edit(s._id, 'available', !d.available)} className={`relative h-7 w-12 rounded-full transition ${d.available ? 'bg-emerald-500' : 'bg-gray-300'}`} aria-label="Toggle availability">
-                        <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${d.available ? 'left-[22px]' : 'left-0.5'}`} />
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => save(s)}
-                      disabled={!isDirty(s) || savingId === s._id}
-                      className={`ml-auto rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${isDirty(s) ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:shadow-md active:scale-95' : 'cursor-not-allowed bg-gray-200 text-gray-400'}`}
-                    >
-                      {savingId === s._id ? 'Saving…' : isDirty(s) ? 'Save' : 'Saved'}
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-            {services.length === 0 && (
-              <li className="rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center text-sm text-gray-400">
-                No cleaning services yet — add your first one above.
-              </li>
-            )}
-          </ul>
-        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-5">{body}</div>
       </aside>
     </>
   );
