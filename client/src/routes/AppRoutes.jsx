@@ -1,8 +1,10 @@
 import { Routes, Route } from 'react-router-dom';
 import Main from '../components/layout/Main';
 import LaundryServices from '../pages/LaundryServices';
+import LaundryBook from '../pages/LaundryBook';
 import CleaningServices from '../pages/CleaningServices';
 import Products from '../pages/Products';
+import AdminServices from '../pages/admin/Services';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import NotFound from '../pages/NotFound';
@@ -12,8 +14,10 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/" element={<Main />} />
       <Route path="/laundry" element={<LaundryServices />} />
+      <Route path="/laundry/book" element={<LaundryBook />} />
       <Route path="/cleaning" element={<CleaningServices />} />
       <Route path="/products" element={<Products />} />
+      <Route path="/admin/services" element={<AdminServices />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="*" element={<NotFound />} />
