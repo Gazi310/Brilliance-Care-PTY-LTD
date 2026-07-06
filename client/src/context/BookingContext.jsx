@@ -63,7 +63,7 @@ export function BookingProvider({ children }) {
   // Catalogue + pricing knobs the estimate engine needs.
   const [laundryServices, setLaundryServices] = useState([]);
   const [cleaningServices, setCleaningServices] = useState([]);
-  const [depositPercent, setDepositPercent] = useState(30);
+  const [depositPercent, setDepositPercent] = useState(50);
   const [catalogueLoading, setCatalogueLoading] = useState(true);
   const [catalogueError, setCatalogueError] = useState('');
 

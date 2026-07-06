@@ -11,7 +11,7 @@ import {
 const STEPS = [
   {
     n: 1,
-    t: 'Book & pay 30% deposit',
+    t: 'Book & pay 50% deposit',
     s: 'Prices are estimates — you only pay part now.',
   },
   {

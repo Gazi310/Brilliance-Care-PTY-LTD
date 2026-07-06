@@ -14,11 +14,14 @@ import Orders from '../pages/Orders';
 import Profile from '../pages/Profile';
 import Checkout from '../pages/Checkout';
 import OrderConfirmed from '../pages/OrderConfirmed';
+import Invoice from '../pages/Invoice';
 import AdminLayout from '../components/admin/AdminLayout';
 import AdminDashboard from '../pages/admin/Dashboard';
 import AdminServices from '../pages/admin/Services';
 import AdminCleaning from '../pages/admin/Cleaning';
 import AdminProducts from '../pages/admin/Products';
+import AdminOrders from '../pages/admin/Orders';
+import AdminOrderDetail from '../pages/admin/OrderDetail';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import NotFound from '../pages/NotFound';
@@ -69,6 +72,14 @@ export default function AppRoutes() {
         }
       />
       <Route
+        path="/account/invoices/:id"
+        element={
+          <PrivateRoute>
+            <Invoice />
+          </PrivateRoute>
+        }
+      />
+      <Route
         path="/account/profile"
         element={
           <PrivateRoute>
@@ -87,6 +98,8 @@ export default function AppRoutes() {
         }
       >
         <Route index element={<AdminDashboard />} />
+        <Route path="orders" element={<AdminOrders />} />
+        <Route path="orders/:id" element={<AdminOrderDetail />} />
         <Route path="services" element={<AdminServices />} />
         <Route path="cleaning" element={<AdminCleaning />} />
         <Route path="products" element={<AdminProducts />} />

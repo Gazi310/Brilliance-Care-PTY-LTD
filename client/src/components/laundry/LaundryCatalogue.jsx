@@ -70,7 +70,7 @@ export default function LaundryCatalogue({ services = [], loading, error, onRetr
         <span aria-hidden="true" className="text-base">💡</span>
         <p>
           Prices are an <b className="font-bold text-amber-900">estimate</b>. We weigh and check your load on
-          pickup — you pay a <b className="font-bold text-amber-900">30% deposit</b> now and a final balance
+          pickup — you pay a <b className="font-bold text-amber-900">50% deposit</b> now and a final balance
           after service.
         </p>
       </div>

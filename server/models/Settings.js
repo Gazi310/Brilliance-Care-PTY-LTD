@@ -10,7 +10,7 @@ const settingsSchema = new mongoose.Schema(
   {
     key: { type: String, default: 'global', unique: true },
     deliveryFee: { type: Number, default: 9.99, min: 0 },
-    depositPercent: { type: Number, default: 30, min: 0, max: 100 }, // % of estimate paid to book
+    depositPercent: { type: Number, default: 50, min: 0, max: 100 }, // % of estimate paid to book
     gstRate: { type: Number, default: 0.1, min: 0 }, // AU GST — prices are shown GST-inclusive
     currency: { type: String, default: 'AUD' },
   },

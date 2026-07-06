@@ -137,7 +137,7 @@ const orderSchema = new mongoose.Schema(
     estimatedSubtotal: { type: Number, default: 0 },
     gstAmount: { type: Number, default: 0 }, // GST included in the total (total / 11 at 10%)
     estimatedTotal: { type: Number, default: 0 },
-    depositPercent: { type: Number, default: 0 }, // e.g. 30 (from Settings at booking time)
+    depositPercent: { type: Number, default: 0 }, // e.g. 50 (from Settings at booking time)
     depositAmount: { type: Number, default: 0 },
     depositStatus: { type: String, enum: ['unpaid', 'paid', 'refunded'], default: 'unpaid' },
     depositPaymentId: { type: String, default: '' },
@@ -147,6 +147,8 @@ const orderSchema = new mongoose.Schema(
     balanceDue: { type: Number, default: null },
     balanceStatus: { type: String, enum: ['none', 'awaiting', 'paid', 'waived'], default: 'none' },
     balancePaymentId: { type: String, default: '' },
+    invoiceRef: { type: mongoose.Schema.Types.ObjectId, ref: 'Invoice', default: null },
+    assessmentNote: { type: String, default: '' }, // admin's "why it changed" note
 
     // ---- Logistics (bookings) ----
     address: { type: addressSchema, default: null },

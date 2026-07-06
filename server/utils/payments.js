@@ -1,18 +1,21 @@
 /**
  * Payment provider abstraction — MOCK implementation.
  *
- * The API mirrors Stripe's PaymentIntent flow closely enough that swapping in
- * real Stripe later is contained to this file (plus real keys in .env):
- *   - chargeDeposit(order, card) → { id, status } like a confirmed PaymentIntent.
+ * The API mirrors a typical card gateway's payment-intent flow closely enough
+ * that swapping in a real provider later (any hosted card payment system) is
+ * contained to this file plus keys in .env:
+ *   - chargeDeposit(order, card) → { id, status } like a confirmed payment.
+ *   - chargeBalance(order, invoice, card) → same shape, for the final balance.
  *
- * Mock behaviour (for demoing error states, mirrors Stripe's test cards):
+ * Mock behaviour (for demoing error states, mirrors common gateway test cards):
  *   - any 12–19 digit card number succeeds,
- *   - a number ending in 0002 is DECLINED (like Stripe's 4000 0000 0000 0002).
+ *   - a number ending in 0002 is DECLINED.
  */
 
 const digitsOnly = (s) => String(s || '').replace(/\D/g, '');
 
-export async function chargeDeposit(order, card = {}) {
+/** Validate the card fields and simulate a gateway charge of `amount` AUD. */
+async function mockCharge(amount, card, idSeed) {
   const number = digitsOnly(card.number);
   const expiry = String(card.expiry || '').trim();
   const cvc = digitsOnly(card.cvc);
@@ -42,10 +45,20 @@ export async function chargeDeposit(order, card = {}) {
   await new Promise((r) => setTimeout(r, 400));
 
   return {
-    id: `mock_pi_${order._id.toString().slice(-6)}_${Date.now()}`,
+    id: `mock_pi_${idSeed}_${Date.now()}`,
     status: 'succeeded',
-    amount: Math.round(order.depositAmount * 100), // cents, like Stripe
+    amount: Math.round(amount * 100), // cents, like real gateways
     currency: 'aud',
     provider: 'mock',
   };
+}
+
+/** Charge the booking deposit (Phase 1 flow). */
+export async function chargeDeposit(order, card = {}) {
+  return mockCharge(order.depositAmount, card, order._id.toString().slice(-6));
+}
+
+/** Charge the remaining balance of a sent invoice (Phase 2 flow). */
+export async function chargeBalance(order, invoice, card = {}) {
+  return mockCharge(invoice.balanceDue, card, `bal_${invoice._id.toString().slice(-6)}`);
 }

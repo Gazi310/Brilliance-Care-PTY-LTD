@@ -55,10 +55,23 @@ export default function OrderTimeline({ steps }) {
   );
 }
 
-/** Build the standard post-booking timeline for a service order. */
+/* How far along the booking lifecycle is each status? (blueprint §9) */
+const STATUS_RANK = {
+  booked: 0, deposit_paid: 1, scheduled: 2, picked_up: 3, in_progress: 4,
+  assessed: 5, ready: 6, out_for_delivery: 7, delivered: 8, paid: 9,
+};
+
+/**
+ * Build the standard post-booking timeline for a service order, marking steps
+ * done/now/todo from the order's real status + payment records.
+ */
 export function buildBookingSteps(order) {
   const steps = [];
   const depositPaid = order.depositStatus === 'paid';
+  const rank = STATUS_RANK[order.status] ?? 0;
+  const balanceSettled = ['paid', 'waived'].includes(order.balanceStatus);
+  // done / now / todo relative to a milestone rank
+  const at = (doneAt, nowFrom) => (rank >= doneAt ? 'done' : rank >= nowFrom ? 'now' : 'todo');
 
   steps.push(
     depositPaid
@@ -68,23 +81,34 @@ export function buildBookingSteps(order) {
 
   if (order.laundryPickupSlot) {
     steps.push({
-      state: depositPaid ? 'now' : 'todo',
+      state: depositPaid ? at(3, 1) : 'todo',
       title: `Pickup · ${slotLabel(order.laundryPickupSlot)}`,
       sub: "We'll SMS when we're on the way",
     });
-    steps.push({ state: 'todo', title: 'We weigh & clean', sub: 'Your final price is confirmed here' });
+    steps.push({
+      state: at(5, 3),
+      title: 'We weigh & clean',
+      sub: 'Your final price is confirmed here',
+    });
     if (order.laundryReturnSlot) {
-      steps.push({ state: 'todo', title: `Return · ${slotLabel(order.laundryReturnSlot)}` });
+      steps.push({ state: at(8, 6), title: `Return · ${slotLabel(order.laundryReturnSlot)}` });
     }
   }
   if (order.cleaningSlot) {
     steps.push({
-      state: depositPaid && !order.laundryPickupSlot ? 'now' : 'todo',
+      state: depositPaid && !order.laundryPickupSlot ? at(5, 1) : at(5, 3),
       title: `Cleaning visit · ${slotLabel(order.cleaningSlot)}`,
       sub: order.laundryPickupSlot ? '' : 'We confirm the final price on site',
     });
   }
-  steps.push({ state: 'todo', title: 'Invoice + pay balance', sub: 'Only the remaining balance — no surprises' });
+
+  steps.push(
+    balanceSettled
+      ? { state: 'done', title: order.balanceStatus === 'waived' ? 'Balance waived' : 'Balance paid', sub: 'All settled — thank you!' }
+      : order.balanceStatus === 'awaiting'
+        ? { state: 'now', title: 'Invoice + pay balance', sub: 'Your final invoice is ready' }
+        : { state: 'todo', title: 'Invoice + pay balance', sub: 'Only the remaining balance — no surprises' }
+  );
 
   return steps;
 }

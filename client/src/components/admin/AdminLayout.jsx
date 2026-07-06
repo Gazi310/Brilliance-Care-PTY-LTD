@@ -3,11 +3,12 @@ import { NavLink, Link, Outlet } from 'react-router-dom';
 /* Live admin sections + future ones (shown greyed as "soon"). */
 const LIVE = [
   { to: '/admin', label: 'Dashboard', end: true },
+  { to: '/admin/orders', label: 'Orders' },
   { to: '/admin/services', label: 'Laundry' },
   { to: '/admin/cleaning', label: 'Cleaning' },
   { to: '/admin/products', label: 'Shop' },
 ];
-const SOON = ['Orders', 'Schedule', 'Customers', 'Settings'];
+const SOON = ['Schedule', 'Customers', 'Settings'];
 
 /**
  * Shell for the /admin/* area. Guarded once (via PrivateRoute requireAdmin in

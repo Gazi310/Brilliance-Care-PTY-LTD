@@ -41,7 +41,8 @@ export default function OrderCard({ order }) {
         : 'Laundry pickup'
     : `Shop order · ${order.items.reduce((n, i) => n + i.qty, 0)} item${order.items.reduce((n, i) => n + i.qty, 0) === 1 ? '' : 's'}`;
 
-  const amount = isBooking ? order.estimatedTotal : order.total;
+  const assessed = isBooking && order.actualTotal !== null && order.actualTotal !== undefined;
+  const amount = isBooking ? (assessed ? order.actualTotal : order.estimatedTotal) : order.total;
   const needsDeposit = isBooking && order.depositStatus !== 'paid' && order.status === 'booked';
   const balanceDue = isBooking && order.balanceStatus === 'awaiting';
 
@@ -74,7 +75,7 @@ export default function OrderCard({ order }) {
           <span className="mt-0.5 block text-xs text-muted">
             {order.orderNumber ? `${order.orderNumber} · ` : ''}
             {dateLabel(order.createdAt)}
-            {isBooking && ' · estimated'}
+            {isBooking && (assessed ? ' · final' : ' · estimated')}
           </span>
         </span>
         <span className="flex flex-none flex-col items-end gap-1">
@@ -108,6 +109,12 @@ export default function OrderCard({ order }) {
                 <span>Estimated total</span>
                 <span className="tabular-nums">${Number(order.estimatedTotal).toFixed(2)}</span>
               </div>
+              {assessed && (
+                <div className="flex justify-between font-bold text-ink">
+                  <span>Actual total</span>
+                  <span className="tabular-nums">${Number(order.actualTotal).toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-xs text-muted">
                 <span>Deposit ({order.depositPercent}%)</span>
                 <span className="tabular-nums">
@@ -158,6 +165,22 @@ export default function OrderCard({ order }) {
                   className="mt-3 block w-full rounded-xl bg-gradient-to-r from-navy to-aqua py-3 text-center text-sm font-bold text-white shadow-md transition hover:shadow-lg"
                 >
                   Pay deposit · ${Number(order.depositAmount).toFixed(2)}
+                </Link>
+              )}
+              {order.invoiceRef && balanceDue && (
+                <Link
+                  to={`/account/invoices/${order.invoiceRef}`}
+                  className="mt-3 block w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal py-3 text-center text-sm font-bold text-white shadow-md transition hover:shadow-lg"
+                >
+                  🧾 Your final invoice is ready — pay balance · ${Number(order.balanceDue || 0).toFixed(2)}
+                </Link>
+              )}
+              {order.invoiceRef && !balanceDue && (
+                <Link
+                  to={`/account/invoices/${order.invoiceRef}`}
+                  className="mt-3 block w-full rounded-xl border border-line bg-white py-2.5 text-center text-xs font-bold text-navy shadow-soft transition hover:bg-surface"
+                >
+                  View invoice
                 </Link>
               )}
             </>

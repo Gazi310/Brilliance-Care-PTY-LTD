@@ -20,12 +20,12 @@ export async function getDeliveryFee() {
 // Convenience helper used by the booking controller.
 export async function getDepositPercent() {
   const doc = await getSettingsDoc();
-  return typeof doc.depositPercent === 'number' ? doc.depositPercent : 30;
+  return typeof doc.depositPercent === 'number' ? doc.depositPercent : 50;
 }
 
 const publicShape = (doc) => ({
   deliveryFee: doc.deliveryFee,
-  depositPercent: doc.depositPercent ?? 30,
+  depositPercent: doc.depositPercent ?? 50,
   gstRate: doc.gstRate ?? 0.1,
   currency: doc.currency || 'AUD',
 });

@@ -32,3 +32,39 @@ export const checkout = ({
     laundryReturnSlot: slim(laundryReturnSlot),
     cleaningSlot: slim(cleaningSlot),
   });
+
+/* ------------------------------------------------------------------ */
+/*  Admin — the orders work queue + assess → invoice → balance loop.   */
+/* ------------------------------------------------------------------ */
+
+/** List orders for the admin queue. Filters: segment, q (search), kind. */
+export const adminListOrders = ({ segment = 'all', q = '', kind = '' } = {}) => {
+  const params = new URLSearchParams();
+  if (segment && segment !== 'all') params.set('segment', segment);
+  if (q) params.set('q', q);
+  if (kind) params.set('kind', kind);
+  const qs = params.toString();
+  return api.get(`/orders${qs ? `?${qs}` : ''}`, true);
+};
+
+/** Advance an order through its lifecycle (admin). */
+export const adminUpdateStatus = (orderId, status) =>
+  api.patch(`/orders/${orderId}/status`, { status }, true);
+
+/**
+ * Save the assessed ACTUALS for a booking (admin).
+ * @param {object} p
+ * @param {Array<{index,actualQty,actualUnitPrice}>} p.lines   per booked line
+ * @param {Array<{label,unit,qty,unitPrice,kind,note}>} p.extras  added on site
+ * @param {string} p.note  "why it changed" — shown on the invoice
+ */
+export const adminAssessOrder = (orderId, { lines = [], extras = [], note = '' } = {}) =>
+  api.post(`/orders/${orderId}/assess`, { lines, extras, note }, true);
+
+/** Generate the final invoice and "send" it on the chosen channels (admin). */
+export const adminCreateInvoice = (orderId, { channels = ['email'], note = '' } = {}) =>
+  api.post(`/orders/${orderId}/invoice`, { channels, note }, true);
+
+/** Record an on-delivery balance payment: 'cash' | 'card' | 'waive' (admin). */
+export const adminRecordBalance = (orderId, method) =>
+  api.post(`/orders/${orderId}/record-balance`, { method }, true);

@@ -52,7 +52,7 @@ This is the heart of the business and the thing the current build does **not** y
 | Stage | What happens | Who | Money |
 |---|---|---|---|
 | **1. Estimate** | Customer builds an order (laundry items/loads, cleaning type + home size, or products). The app shows an **Estimated total**, clearly labelled. | Customer | — |
-| **2. Deposit** | At checkout the customer pays a **deposit — a % of the estimate** (recommend 30%) to confirm the booking. Balance shown as "due after service". | Customer | Deposit paid (card, Stripe) |
+| **2. Deposit** | At checkout the customer pays a **deposit — a % of the estimate** (recommend 50%) to confirm the booking. Balance shown as "due after service". | Customer | Deposit paid (card, Stripe) |
 | **3. Service** | Pickup / cleaning happens. Staff record the **actual** load weight, home size, and any extra services. | Staff/Admin | — |
 | **4. Invoice** | The app recomputes the **actual total**, admin reviews and sends an **invoice** showing estimate vs actual, line by line, and the remaining **balance**. | Admin | — |
 | **5. Balance** | Customer pays the balance — online via the invoice link, or on delivery (cash/card). Order closes as **Paid**. | Customer | Balance paid |
@@ -175,11 +175,11 @@ A guided, multi‑step flow with a progress bar. Works for both laundry and clea
 
 ### 4.6 Cart / estimate summary — CHANGE
 Two carts conceptually: **service estimate** (deposit model) and **shop cart** (pay in full). Keep them visually distinct.
-- Line items with edit/remove, running **Estimated total**, GST line, deposit (30%) and balance preview.
+- Line items with edit/remove, running **Estimated total**, GST line, deposit (50%) and balance preview.
 - Empty state that points back to services.
 
 ### 4.7 Deposit checkout `/checkout` — ADD
-- Summary: estimated total, **deposit due now (30%)**, balance later.
+- Summary: estimated total, **deposit due now (50%)**, balance later.
 - Stripe payment (card + Apple/Google Pay). Address confirm.
 - Reassurance: "You're only paying the deposit now. We'll send an invoice for the balance after your service, and explain any changes."
 - Success → confirmation.
@@ -268,7 +268,7 @@ flowchart TD
     C --> D[Schedule pickup + delivery window]
     D --> E[Enter address + access notes]
     E --> F[Review estimate, deposit and balance]
-    F --> G[Pay 30% deposit via Stripe]
+    F --> G[Pay 50% deposit via Stripe]
     G --> H{Payment ok?}
     H -- No --> F
     H -- Yes --> I[Order confirmed + receipt]

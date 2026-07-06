@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
 
 const CARDS = [
+  { to: '/admin/orders', title: 'Orders & bookings', desc: 'The work queue — assess jobs, send invoices, collect balances.' },
   { to: '/admin/services', title: 'Laundry services', desc: 'Edit laundry services, prices & delivery fee.' },
   { to: '/admin/cleaning', title: 'Cleaning services', desc: 'Edit cleaning services, prices & delivery fee.' },
   { to: '/admin/products', title: 'Shop', desc: 'Manage product inventory & delivery slots.' },
@@ -13,9 +14,9 @@ export default function AdminDashboard() {
       <AdminSectionHeader
         eyebrow="Admin"
         title="Dashboard"
-        subtitle="Manage your catalogue. Orders, schedule, customers and settings arrive in later phases."
+        subtitle="Run the day from here. Schedule, customers and settings arrive in later phases."
       />
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         {CARDS.map((c) => (
           <Link
             key={c.to}
