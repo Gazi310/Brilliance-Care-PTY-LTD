@@ -22,6 +22,10 @@ import AdminCleaning from '../pages/admin/Cleaning';
 import AdminProducts from '../pages/admin/Products';
 import AdminOrders from '../pages/admin/Orders';
 import AdminOrderDetail from '../pages/admin/OrderDetail';
+import AdminSchedule from '../pages/admin/Schedule';
+import AdminCustomers from '../pages/admin/Customers';
+import AdminCustomerDetail from '../pages/admin/CustomerDetail';
+import AdminSettings from '../pages/admin/Settings';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import NotFound from '../pages/NotFound';
@@ -100,9 +104,13 @@ export default function AppRoutes() {
         <Route index element={<AdminDashboard />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="orders/:id" element={<AdminOrderDetail />} />
+        <Route path="schedule" element={<AdminSchedule />} />
+        <Route path="customers" element={<AdminCustomers />} />
+        <Route path="customers/:id" element={<AdminCustomerDetail />} />
         <Route path="services" element={<AdminServices />} />
         <Route path="cleaning" element={<AdminCleaning />} />
         <Route path="products" element={<AdminProducts />} />
+        <Route path="settings" element={<AdminSettings />} />
       </Route>
 
       {/* Auth */}

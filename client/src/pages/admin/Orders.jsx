@@ -1,15 +1,24 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
 import AdminOrderRow from '../../components/admin/orders/AdminOrderRow.jsx';
 import { SEGMENTS } from '../../components/admin/orders/orderStatusMeta.js';
 import { adminListOrders, adminUpdateStatus } from '../../services/orderService.js';
 
+const SEGMENT_IDS = SEGMENTS.map((s) => s.id);
+
 /**
  * /admin/orders — the work queue (blueprint §5.2). Segment lenses across the
  * top, search, and rows that link into the Assess & Invoice screen.
+ * The active segment lives in the URL (?segment=) so the dashboard's
+ * needs-action cards can deep-link straight into a lens.
  */
 export default function AdminOrders() {
-  const [segment, setSegment] = useState('all');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlSegment = searchParams.get('segment');
+  const segment = SEGMENT_IDS.includes(urlSegment) ? urlSegment : 'all';
+  const setSegment = (id) =>
+    setSearchParams(id === 'all' ? {} : { segment: id }, { replace: true });
   const [kind, setKind] = useState('');
   const [qInput, setQInput] = useState('');
   const [q, setQ] = useState('');

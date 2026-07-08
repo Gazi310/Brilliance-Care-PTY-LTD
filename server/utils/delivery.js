@@ -25,6 +25,12 @@ export function toYMD(date) {
 
 export const isValidYMD = (s) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 
+// Parse 'YYYY-MM-DD' into a LOCAL-midnight Date (new Date(s) would give UTC).
+export function parseYMD(s) {
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
 // Midnight local time, today + offset days.
 export function dayFromToday(offset = 0) {
   const d = new Date();

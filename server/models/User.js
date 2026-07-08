@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
     },
     password: { type: String, required: true, minlength: 3 },
     isAdmin: { type: Boolean, default: false },
+    adminNote: { type: String, default: '' }, // private note shown only in /admin/customers
   },
   { timestamps: true }
 );

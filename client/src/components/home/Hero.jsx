@@ -1,18 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, StarIcon } from './icons';
+import { getSettings } from '../../services/settingsService';
 
 /**
  * Homepage hero: brand promise, primary + secondary CTAs, trust line,
- * and a postcode "do we service your area?" check (client-side for now).
+ * and a postcode "do we service your area?" check. When the admin has
+ * saved a service-area list in /admin/settings the check is real; with
+ * an empty list any valid AU postcode passes.
  */
 export default function Hero() {
   const [postcode, setPostcode] = useState('');
-  const [areaResult, setAreaResult] = useState(null); // null | 'ok' | 'invalid'
+  const [areaResult, setAreaResult] = useState(null); // null | 'ok' | 'out' | 'invalid'
+  const [serviceCodes, setServiceCodes] = useState([]);
+
+  useEffect(() => {
+    let on = true;
+    getSettings()
+      .then((s) => on && setServiceCodes(s.servicePostcodes || []))
+      .catch(() => {}); // offline → fall back to the format-only check
+    return () => {
+      on = false;
+    };
+  }, []);
 
   const checkArea = (e) => {
     e.preventDefault();
-    setAreaResult(/^\d{4}$/.test(postcode.trim()) ? 'ok' : 'invalid');
+    const pc = postcode.trim();
+    if (!/^\d{4}$/.test(pc)) return setAreaResult('invalid');
+    if (serviceCodes.length > 0 && !serviceCodes.includes(pc)) return setAreaResult('out');
+    setAreaResult('ok');
+  };
+
+  const AREA_MSG = {
+    ok: [`Great news — we service ${postcode}! Book a service to get started.`, 'text-emerald-600'],
+    out: [`We're not in ${postcode} just yet — we're expanding, so check back soon!`, 'text-amber-600'],
+    invalid: ['Please enter a valid 4-digit Australian postcode.', 'text-amber-600'],
   };
 
   return (
@@ -98,13 +121,9 @@ export default function Hero() {
         </form>
         {areaResult && (
           <p
-            className={`bc-fade-in mx-auto mt-2 max-w-xl px-3 text-center text-sm font-semibold ${
-              areaResult === 'ok' ? 'text-emerald-600' : 'text-amber-600'
-            }`}
+            className={`bc-fade-in mx-auto mt-2 max-w-xl px-3 text-center text-sm font-semibold ${AREA_MSG[areaResult][1]}`}
           >
-            {areaResult === 'ok'
-              ? `Great news — we service ${postcode}! Book a service to get started.`
-              : 'Please enter a valid 4-digit Australian postcode.'}
+            {AREA_MSG[areaResult][0]}
           </p>
         )}
       </section>

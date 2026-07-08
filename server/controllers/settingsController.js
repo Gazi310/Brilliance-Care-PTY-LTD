@@ -23,11 +23,30 @@ export async function getDepositPercent() {
   return typeof doc.depositPercent === 'number' ? doc.depositPercent : 50;
 }
 
+/**
+ * GST component INCLUDED in a GST-inclusive total (at 10%: total / 11).
+ * Returns 0 when GST is switched off in settings.
+ */
+export async function getGstAmount(total) {
+  const doc = await getSettingsDoc();
+  if (doc.gstEnabled === false) return 0;
+  const rate = typeof doc.gstRate === 'number' && doc.gstRate > 0 ? doc.gstRate : 0.1;
+  return round2((Number(total) * rate) / (1 + rate));
+}
+
 const publicShape = (doc) => ({
   deliveryFee: doc.deliveryFee,
   depositPercent: doc.depositPercent ?? 50,
+  gstEnabled: doc.gstEnabled !== false,
   gstRate: doc.gstRate ?? 0.1,
   currency: doc.currency || 'AUD',
+  businessName: doc.businessName || 'Brilliance Care PTY LTD',
+  abn: doc.abn || '',
+  businessPhone: doc.businessPhone || '',
+  businessEmail: doc.businessEmail || '',
+  businessAddress: doc.businessAddress || '',
+  businessHours: doc.businessHours || '',
+  servicePostcodes: doc.servicePostcodes || [],
 });
 
 // GET /api/settings  (public) — the bits the storefront needs.
@@ -36,9 +55,20 @@ export const getSettings = asyncHandler(async (req, res) => {
   res.json(publicShape(doc));
 });
 
+// Business text fields: name in the DB → { maxLen, label } for validation.
+const TEXT_FIELDS = {
+  businessName: { maxLen: 120, label: 'Business name' },
+  abn: { maxLen: 20, label: 'ABN' },
+  businessPhone: { maxLen: 30, label: 'Phone' },
+  businessEmail: { maxLen: 120, label: 'Email' },
+  businessAddress: { maxLen: 160, label: 'Address' },
+  businessHours: { maxLen: 120, label: 'Opening hours' },
+};
+
 // PUT /api/settings  (admin) — update the storefront knobs.
 export const updateSettings = asyncHandler(async (req, res) => {
   const doc = await getSettingsDoc();
+
   if (req.body.deliveryFee !== undefined) {
     const fee = Number(req.body.deliveryFee);
     if (!Number.isFinite(fee) || fee < 0) {
@@ -55,6 +85,33 @@ export const updateSettings = asyncHandler(async (req, res) => {
     }
     doc.depositPercent = round2(pct);
   }
+  if (req.body.gstEnabled !== undefined) {
+    doc.gstEnabled = Boolean(req.body.gstEnabled);
+  }
+
+  for (const [field, rule] of Object.entries(TEXT_FIELDS)) {
+    if (req.body[field] === undefined) continue;
+    const value = String(req.body[field]).trim();
+    if (value.length > rule.maxLen) {
+      res.status(400);
+      throw new Error(`${rule.label} must be ${rule.maxLen} characters or fewer`);
+    }
+    doc[field] = value;
+  }
+
+  if (req.body.servicePostcodes !== undefined) {
+    const raw = req.body.servicePostcodes;
+    // Accept an array or a comma/space separated string; keep valid 4-digit codes.
+    const parts = Array.isArray(raw) ? raw : String(raw).split(/[\s,;]+/);
+    const codes = parts.map((p) => String(p).trim()).filter(Boolean);
+    const bad = codes.find((c) => !/^\d{4}$/.test(c));
+    if (bad !== undefined) {
+      res.status(400);
+      throw new Error(`"${bad}" is not a valid 4-digit postcode`);
+    }
+    doc.servicePostcodes = [...new Set(codes)].sort();
+  }
+
   await doc.save();
   res.json(publicShape(doc));
 });

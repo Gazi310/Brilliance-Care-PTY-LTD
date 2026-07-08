@@ -3,10 +3,9 @@ import Order from '../models/Order.js';
 import Invoice from '../models/Invoice.js';
 import User from '../models/User.js';
 import { notifyInvoiceSent, notifyBalancePaid } from '../utils/notifications.js';
+import { getGstAmount } from './settingsController.js';
 
 const round2 = (n) => Math.round(n * 100) / 100;
-// Prices are GST-inclusive; at 10% GST the tax component is total / 11.
-const gstIncluded = (total) => round2(total / 11);
 const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
@@ -237,7 +236,7 @@ export const createInvoice = asyncHandler(async (req, res) => {
     user: order.user,
     lineItems: order.lineItems.map((l) => l.toObject()),
     subtotal: order.actualTotal,
-    gstAmount: gstIncluded(order.actualTotal),
+    gstAmount: await getGstAmount(order.actualTotal), // 0 when GST is off in settings
     total: order.actualTotal,
     estimatedTotal: order.estimatedTotal,
     depositApplied,

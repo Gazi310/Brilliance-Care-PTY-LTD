@@ -1,14 +1,17 @@
 import { NavLink, Link, Outlet } from 'react-router-dom';
+import AdminBottomTabBar from './AdminBottomTabBar.jsx';
 
-/* Live admin sections + future ones (shown greyed as "soon"). */
+/* Every admin section is live as of Phase 3. */
 const LIVE = [
   { to: '/admin', label: 'Dashboard', end: true },
   { to: '/admin/orders', label: 'Orders' },
+  { to: '/admin/schedule', label: 'Schedule' },
+  { to: '/admin/customers', label: 'Customers' },
   { to: '/admin/services', label: 'Laundry' },
   { to: '/admin/cleaning', label: 'Cleaning' },
   { to: '/admin/products', label: 'Shop' },
+  { to: '/admin/settings', label: 'Settings' },
 ];
-const SOON = ['Schedule', 'Customers', 'Settings'];
 
 /**
  * Shell for the /admin/* area. Guarded once (via PrivateRoute requireAdmin in
@@ -58,23 +61,14 @@ export default function AdminLayout() {
                 {l.label}
               </NavLink>
             ))}
-            {SOON.map((s) => (
-              <span
-                key={s}
-                title="Coming in a later phase"
-                className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm font-bold text-faint/70"
-              >
-                {s}
-                <span className="rounded-full bg-line px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-faint">
-                  soon
-                </span>
-              </span>
-            ))}
           </nav>
         </div>
       </div>
 
       <Outlet />
+
+      {/* Mobile-first admin nav: Dashboard · Orders · Schedule · More */}
+      <AdminBottomTabBar />
     </div>
   );
 }

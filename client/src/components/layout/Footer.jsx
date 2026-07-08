@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { getSettings } from '../../services/settingsService';
 
 /* Footer link groups. Routes marked (soon) render placeholder pages for now. */
 const SERVICES = [
@@ -42,6 +44,26 @@ function FooterCol({ title, links }) {
 export default function Footer() {
   const year = new Date().getFullYear();
 
+  // Business details come from /admin/settings; sensible fallbacks until set.
+  const [biz, setBiz] = useState(null);
+  useEffect(() => {
+    let on = true;
+    getSettings()
+      .then((s) => on && setBiz(s))
+      .catch(() => {}); // offline → keep fallbacks
+    return () => {
+      on = false;
+    };
+  }, []);
+
+  const email = biz?.businessEmail || 'hello@brilliancecare.com.au';
+  const phone = biz?.businessPhone || '';
+  const area = biz?.businessAddress || 'Australia';
+  const hours = biz?.businessHours || '';
+  const abn = biz?.abn || '';
+  const name = biz?.businessName || 'Brilliance Care Pty Ltd';
+  const codes = biz?.servicePostcodes || [];
+
   return (
     <footer className="bg-gradient-to-b from-navy to-navy-d text-white">
       <div className="mx-auto max-w-6xl px-4 pt-12 pb-28 sm:px-6 sm:pt-14 lg:pb-14">
@@ -64,22 +86,43 @@ export default function Footer() {
 
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/70">
               Laundry pickup &amp; delivery and home cleaning across{' '}
-              <span className="text-white/90">[Your City]</span>, Australia. Book in minutes, pay a
-              small deposit, and settle the balance once the work&rsquo;s done.
+              <span className="text-white/90">{area}</span>. Book in minutes, pay a small deposit,
+              and settle the balance once the work&rsquo;s done.
             </p>
 
-            {/* TODO: replace the bracketed placeholders with real business details */}
+            {/* Business details managed in /admin/settings */}
             <p className="mt-4 text-xs leading-relaxed text-white/55">
-              Servicing <span className="text-white/80">[list suburbs]</span> — check your postcode
-              when you book.
+              {codes.length > 0 ? (
+                <>
+                  Servicing postcodes{' '}
+                  <span className="text-white/80">
+                    {codes.slice(0, 6).join(', ')}
+                    {codes.length > 6 ? ` +${codes.length - 6} more` : ''}
+                  </span>{' '}
+                  — check yours when you book.
+                </>
+              ) : (
+                <>Check your postcode when you book.</>
+              )}
+              {hours && (
+                <>
+                  {' '}
+                  Open <span className="text-white/80">{hours}</span>.
+                </>
+              )}
               <br />
-              <a href="mailto:hello@brilliancecare.com.au" className="hover:text-white">
-                hello@brilliancecare.com.au
-              </a>{' '}
-              ·{' '}
-              <a href="tel:+61000000000" className="hover:text-white">
-                +61 0000 000 000
+              <a href={`mailto:${email}`} className="hover:text-white">
+                {email}
               </a>
+              {phone && (
+                <>
+                  {' '}
+                  ·{' '}
+                  <a href={`tel:${phone.replace(/\s+/g, '')}`} className="hover:text-white">
+                    {phone}
+                  </a>
+                </>
+              )}
             </p>
           </div>
 
@@ -90,8 +133,11 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-11 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/55 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {year} Brilliance Care Pty Ltd · ABN [00 000 000 000]</p>
-          <p>All prices in AUD, GST included.</p>
+          <p>
+            © {year} {name}
+            {abn ? ` · ABN ${abn}` : ''}
+          </p>
+          <p>All prices in AUD{biz?.gstEnabled === false ? '' : ', GST included'}.</p>
         </div>
       </div>
     </footer>

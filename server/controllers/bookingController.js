@@ -3,15 +3,12 @@ import LaundryService from '../models/LaundryService.js';
 import CleaningService from '../models/CleaningService.js';
 import Order from '../models/Order.js';
 import { resolveOpenSlot } from './deliveryController.js';
-import { getDepositPercent } from './settingsController.js';
+import { getDepositPercent, getGstAmount } from './settingsController.js';
 import { chargeDeposit } from '../utils/payments.js';
 
 const round2 = (n) => Math.round(n * 100) / 100;
 const digits = (s) => String(s || '').replace(/\D/g, '');
 const WINDOW_ORDER = ['morning', 'afternoon', 'evening'];
-
-// Prices are GST-inclusive; at 10% GST the tax component is total / 11.
-const gstIncluded = (total) => round2(total / 11);
 
 /** Collapse chosen slots into unique home visits (same date+window = one trip). */
 function dedupeVisits(entries) {
@@ -203,7 +200,7 @@ export const createBooking = asyncHandler(async (req, res) => {
   // --- Totals (service pricing includes pickup & delivery — no visit fee) ---
   estimatedSubtotal = round2(estimatedSubtotal);
   const estimatedTotal = estimatedSubtotal;
-  const gstAmount = gstIncluded(estimatedTotal);
+  const gstAmount = await getGstAmount(estimatedTotal); // 0 when GST is off in settings
   const depositPercent = await getDepositPercent();
   const depositAmount = round2((estimatedTotal * depositPercent) / 100);
 
