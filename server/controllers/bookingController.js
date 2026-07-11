@@ -161,8 +161,8 @@ export const createBooking = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error('Please choose both a pickup and a return window for your laundry');
     }
-    pickup = await resolveOpenSlot(res, pickupSlot);
-    dropoff = await resolveOpenSlot(res, returnSlot);
+    pickup = await resolveOpenSlot(res, pickupSlot, 'laundry');
+    dropoff = await resolveOpenSlot(res, returnSlot, 'laundry');
     assertReturnAfterPickup(res, pickup, dropoff);
   }
   if (hasCleaning) {
@@ -170,7 +170,7 @@ export const createBooking = asyncHandler(async (req, res) => {
       res.status(400);
       throw new Error('Please choose an appointment window for your cleaning');
     }
-    clean = await resolveOpenSlot(res, cleaningSlot);
+    clean = await resolveOpenSlot(res, cleaningSlot, 'cleaning');
   }
 
   // --- Details ---

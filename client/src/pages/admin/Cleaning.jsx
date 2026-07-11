@@ -6,6 +6,7 @@ import {
   deleteCleaningService,
 } from '../../services/cleaningService.js';
 import CleaningAdminPanel from '../../components/cleaning/CleaningAdminPanel.jsx';
+import DeliverySlotMenu from '../../components/products/DeliverySlotMenu.jsx';
 import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
 import ToastStack from '../../components/products/ToastStack.jsx';
 
@@ -83,6 +84,23 @@ export default function AdminCleaning() {
         title="Cleaning services"
         subtitle="Add services, set estimated charges, and the per-visit delivery fee."
       />
+
+      {/* Appointment availability (admin) — cleaning's own calendar */}
+      <div className="mb-5 rounded-2xl border border-line bg-white p-4 shadow-soft">
+        <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-faint">
+          Appointment availability
+        </p>
+        <DeliverySlotMenu
+          isAdmin
+          scope="cleaning"
+          icon="🫧"
+          label="Appointment availability"
+          accent="emerald"
+          selected={null}
+          onSelect={() => {}}
+          notify={notify}
+        />
+      </div>
 
       {error && (
         <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">

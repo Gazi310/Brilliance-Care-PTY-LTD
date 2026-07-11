@@ -5,11 +5,12 @@ import { api } from './api.js';
 /** Dashboard morning glance: today's jobs, needs-action counters, KPIs. */
 export const getAdminStats = () => api.get('/admin/stats', true);
 
-/** Day-by-day schedule: jobs per day + the three bookable windows. */
-export const getAdminSchedule = ({ start = '', days = 7 } = {}) => {
+/** Day-by-day schedule: jobs per day + the three bookable windows for `scope`. */
+export const getAdminSchedule = ({ start = '', days = 7, scope = 'shop' } = {}) => {
   const params = new URLSearchParams();
   if (start) params.set('start', start);
   if (days) params.set('days', String(days));
+  if (scope) params.set('scope', scope);
   const qs = params.toString();
   return api.get(`/admin/schedule${qs ? `?${qs}` : ''}`, true);
 };

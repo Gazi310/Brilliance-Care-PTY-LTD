@@ -6,7 +6,7 @@ import SlotCalendar from '../products/SlotCalendar.jsx';
  * SlotCalendar (the calendar system used across the app — chosen over the
  * wireframe's date-chip buttons). Shows the chosen slot inline once picked.
  */
-export default function SlotField({ icon, title, hint, accent = 'sky', value, onChange, defaultOpen = false }) {
+export default function SlotField({ icon, title, hint, accent = 'sky', value, onChange, defaultOpen = false, scope = 'shop' }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-soft">
@@ -58,6 +58,7 @@ export default function SlotField({ icon, title, hint, accent = 'sky', value, on
           <SlotCalendar
             value={value}
             accent={accent}
+            scope={scope}
             onChange={(s) => {
               onChange?.(s);
               if (s) setOpen(false);

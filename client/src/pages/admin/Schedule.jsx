@@ -15,13 +15,22 @@ function shiftYMD(ymd, n) {
   return `${d.getFullYear()}-${m}-${day}`;
 }
 
+/** The three independent availability calendars the windows panel can edit. */
+const SCOPES = [
+  { key: 'shop', label: 'Shop', icon: '🚚' },
+  { key: 'laundry', label: 'Laundry', icon: '🧺' },
+  { key: 'cleaning', label: 'Cleaning', icon: '🫧' },
+];
+
 /**
  * /admin/schedule — the week at a glance (blueprint §5.4). Pick a day to see
  * every home visit due, and open/close its booking windows (which is what
- * the customer slot picker feeds off).
+ * the customer slot picker feeds off). The windows panel edits one service
+ * calendar at a time (shop / laundry / cleaning); the visits list shows all.
  */
 export default function AdminSchedule() {
   const [start, setStart] = useState(''); // '' = week starting today
+  const [scope, setScope] = useState('shop'); // which availability calendar to edit
   const [data, setData] = useState(null);
   const [selected, setSelected] = useState('');
   const [loading, setLoading] = useState(true);
@@ -32,7 +41,7 @@ export default function AdminSchedule() {
     if (!silent) setLoading(true);
     setError('');
     try {
-      const d = await getAdminSchedule({ start, days: 7 });
+      const d = await getAdminSchedule({ start, days: 7, scope });
       setData(d);
       setSelected((cur) => (d.days.some((x) => x.date === cur) ? cur : d.days[0].date));
     } catch (err) {
@@ -45,7 +54,7 @@ export default function AdminSchedule() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [start]);
+  }, [start, scope]);
 
   /** Run a slot mutation, then silently refresh the week. */
   const mutate = async (fn) => {
@@ -105,6 +114,27 @@ export default function AdminSchedule() {
         )}
       </div>
 
+      {/* Which service calendar the booking-windows panel + day dots reflect */}
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-bold text-faint">Availability for:</span>
+        <div className="inline-flex rounded-xl border border-line bg-white p-0.5 shadow-soft">
+          {SCOPES.map((s) => (
+            <button
+              key={s.key}
+              type="button"
+              onClick={() => setScope(s.key)}
+              aria-pressed={scope === s.key}
+              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                scope === s.key ? 'bg-navy text-white shadow-soft' : 'text-navy hover:bg-surface'
+              }`}
+            >
+              <span className="mr-1">{s.icon}</span>
+              {s.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {error && (
         <div className="mb-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
           ⚠️ {error}
@@ -154,12 +184,12 @@ export default function AdminSchedule() {
                   day={day}
                   busy={busy}
                   onToggleWindow={(window, available, note) =>
-                    mutate(() => setDeliverySlot(day.date, window, available, note))
+                    mutate(() => setDeliverySlot(day.date, window, available, note, scope))
                   }
                   onSaveNote={(window, available, note) =>
-                    mutate(() => setDeliverySlot(day.date, window, available, note))
+                    mutate(() => setDeliverySlot(day.date, window, available, note, scope))
                   }
-                  onSetDay={(available) => mutate(() => setDeliveryDay(day.date, available))}
+                  onSetDay={(available) => mutate(() => setDeliveryDay(day.date, available, scope))}
                 />
               </div>
             </div>

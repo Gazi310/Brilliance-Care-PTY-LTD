@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { getProducts } from '../services/productService.js';
 import ProductCard from '../components/products/ProductCard.jsx';
-import CartDrawer from '../components/products/CartDrawer.jsx';
-import DeliverySlotMenu from '../components/products/DeliverySlotMenu.jsx';
 import ToastStack from '../components/products/ToastStack.jsx';
 
 export default function Products() {
-  const { add, count, deliverySlot, setDeliverySlot } = useCart();
+  const { add, count } = useCart();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +15,6 @@ export default function Products() {
 
   const [search, setSearch] = useState('');
 
-  const [cartOpen, setCartOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
 
   // ---- toasts ----
@@ -111,13 +109,8 @@ export default function Products() {
 
           {/* actions */}
           <div className="flex items-center gap-3">
-            <DeliverySlotMenu
-              selected={deliverySlot}
-              onSelect={setDeliverySlot}
-              notify={notify}
-            />
-            <button
-              onClick={() => setCartOpen(true)}
+            <Link
+              to="/cart"
               className="relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-fuchsia-500/25 transition hover:-translate-y-0.5 hover:shadow-lg active:scale-95"
             >
               <span className="text-lg">🛒</span> Cart
@@ -126,7 +119,7 @@ export default function Products() {
                   {count}
                 </span>
               )}
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -182,14 +175,6 @@ export default function Products() {
           </>
         )}
       </section>
-
-      {/* OVERLAYS */}
-      <CartDrawer
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        notify={notify}
-        onDone={load}
-      />
 
       <ToastStack toasts={toasts} onDismiss={dismiss} />
     </main>

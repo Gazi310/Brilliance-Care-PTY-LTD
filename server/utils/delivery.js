@@ -12,6 +12,18 @@ export const WINDOW_KEYS = DELIVERY_WINDOWS.map((w) => w.key);
 
 export const getWindowDef = (key) => DELIVERY_WINDOWS.find((w) => w.key === key) || null;
 
+// Each service line keeps its OWN independent availability calendar ("scope"):
+//   shop     → product delivery windows
+//   laundry  → laundry pickup / return windows
+//   cleaning → cleaning appointment windows
+// A (scope, date, window) triple is the unique key for one bookable slot.
+export const DELIVERY_SCOPES = ['shop', 'laundry', 'cleaning'];
+export const DEFAULT_SCOPE = 'shop';
+export const isValidScope = (s) => DELIVERY_SCOPES.includes(s);
+// Fall back to the shop calendar for missing/unknown scopes (keeps legacy
+// callers that never pass a scope working exactly as before).
+export const normalizeScope = (s) => (isValidScope(s) ? s : DEFAULT_SCOPE);
+
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

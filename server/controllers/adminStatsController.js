@@ -10,6 +10,7 @@ import {
   toYMD,
   isValidYMD,
   parseYMD,
+  normalizeScope,
 } from '../utils/delivery.js';
 
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -169,6 +170,9 @@ export const getAdminStats = asyncHandler(async (req, res) => {
 export const getAdminSchedule = asyncHandler(async (req, res) => {
   const days = Math.min(14, Math.max(1, Number(req.query.days) || 7));
   const start = isValidYMD(req.query.start) ? parseYMD(req.query.start) : dayFromToday(0);
+  // The booking-windows panel is per-scope (shop / laundry / cleaning); the
+  // visits list below is unaffected (visits come from orders, not slots).
+  const scope = normalizeScope(req.query.scope);
 
   const meta = Array.from({ length: days }, (_, i) => {
     const d = new Date(start);
@@ -179,7 +183,7 @@ export const getAdminSchedule = asyncHandler(async (req, res) => {
   const today = toYMD(dayFromToday(0));
 
   const [records, orders] = await Promise.all([
-    DeliverySlot.find({ date: { $in: dates } }),
+    DeliverySlot.find({ scope, date: { $in: dates } }),
     Order.find({ 'visits.date': { $in: dates }, status: { $ne: 'cancelled' } }).populate(
       'user',
       'name'
@@ -209,5 +213,5 @@ export const getAdminSchedule = asyncHandler(async (req, res) => {
     };
   });
 
-  res.json({ start: dates[0], today, windows: DELIVERY_WINDOWS, days: daysOut });
+  res.json({ scope, start: dates[0], today, windows: DELIVERY_WINDOWS, days: daysOut });
 });

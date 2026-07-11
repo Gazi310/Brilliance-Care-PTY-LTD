@@ -6,6 +6,9 @@ export function getProducts(params = {}) {
   return api.get(`/products${qs ? `?${qs}` : ''}`);
 }
 
+// Fetch a single product by id (for the product detail page).
+export const getProduct = (id) => api.get(`/products/${id}`);
+
 // Admin-only operations (require a valid admin token).
 export const setStock = (id, stock, available) =>
   api.patch(`/products/${id}/stock`, { stock, available }, true);

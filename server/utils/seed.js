@@ -8,27 +8,37 @@ import Settings from '../models/Settings.js';
 import { products as productSeed } from '../data/seedData.js';
 import { laundryServices as laundrySeed } from '../data/laundrySeed.js';
 import { cleaningServices as cleaningSeed } from '../data/cleaningSeed.js';
-import { dayFromToday, dayMeta } from './delivery.js';
+import { dayFromToday, dayMeta, DELIVERY_SCOPES } from './delivery.js';
 
 /**
- * Opens a sensible starter set of delivery slots so the calendar isn't empty
- * on first run: morning + afternoon on the next 3 upcoming weekdays. Admins can
- * adjust everything from the dropdown; slots are otherwise occupied by default.
+ * Opens a sensible starter set of delivery slots so the calendars aren't empty
+ * on first run: morning + afternoon on the next few upcoming weekdays, for each
+ * scope (shop / laundry / cleaning). Admins adjust everything from the admin
+ * pages; slots are otherwise occupied by default.
  */
 async function seedDeliverySlots(force = false) {
   if (force) await DeliverySlot.deleteMany({});
+
+  // Backfill: tag any legacy (pre-scope) records as the shop calendar so the
+  // new scoped queries still find them. Cheap no-op once every record is tagged.
+  await DeliverySlot.updateMany({ scope: { $exists: false } }, { $set: { scope: 'shop' } });
+
   if (!force && (await DeliverySlot.countDocuments()) > 0) return;
 
   const open = [];
-  for (let i = 1; i <= 14 && open.length < 6; i += 1) {
-    const m = dayMeta(dayFromToday(i));
-    if (m.isWeekend) continue; // weekdays only for the demo set
-    open.push({ date: m.date, window: 'morning', available: true });
-    open.push({ date: m.date, window: 'afternoon', available: true });
+  for (const scope of DELIVERY_SCOPES) {
+    let added = 0;
+    for (let i = 1; i <= 14 && added < 6; i += 1) {
+      const m = dayMeta(dayFromToday(i));
+      if (m.isWeekend) continue; // weekdays only for the demo set
+      open.push({ scope, date: m.date, window: 'morning', available: true });
+      open.push({ scope, date: m.date, window: 'afternoon', available: true });
+      added += 2;
+    }
   }
   if (open.length) {
     await DeliverySlot.insertMany(open);
-    console.log(`🚚 Seeded ${open.length} open delivery slots`);
+    console.log(`🚚 Seeded ${open.length} open delivery slots across ${DELIVERY_SCOPES.length} scopes`);
   }
 }
 

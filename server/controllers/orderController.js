@@ -108,43 +108,39 @@ export const createOrder = asyncHandler(async (req, res) => {
   }
 
   // --- 3) Resolve the required slots (each must currently be open) ---
-  let delivery = null;
+  // Shop products are delivered on the seller's schedule, so customers no
+  // longer pick a delivery slot — deliverySlot is ignored for products.
   let pickup = null;
   let dropoff = null;
   let cleaning = null;
 
-  if (hasProducts) {
-    if (!deliverySlot) {
-      res.status(400);
-      throw new Error('Please choose a delivery slot for your products');
-    }
-    delivery = await resolveOpenSlot(res, deliverySlot);
-  }
   if (hasLaundry) {
     if (!laundryPickupSlot || !laundryReturnSlot) {
       res.status(400);
       throw new Error('Please choose both a pickup and a return slot for your laundry');
     }
-    pickup = await resolveOpenSlot(res, laundryPickupSlot);
-    dropoff = await resolveOpenSlot(res, laundryReturnSlot);
+    pickup = await resolveOpenSlot(res, laundryPickupSlot, 'laundry');
+    dropoff = await resolveOpenSlot(res, laundryReturnSlot, 'laundry');
   }
   if (hasCleaning) {
     if (!cleaningSlot) {
       res.status(400);
       throw new Error('Please choose an appointment slot for your cleaning');
     }
-    cleaning = await resolveOpenSlot(res, cleaningSlot);
+    cleaning = await resolveOpenSlot(res, cleaningSlot, 'cleaning');
   }
 
   // --- 4) De-duplicate visits and price delivery once per unique visit ---
   const visits = dedupeVisits([
-    { slot: delivery, role: 'delivery' },
     { slot: pickup, role: 'pickup' },
     { slot: dropoff, role: 'return' },
     { slot: cleaning, role: 'cleaning' },
   ]);
   const fee = await getDeliveryFee();
-  const deliveryTotal = round2(fee * visits.length);
+  // One flat delivery fee for the (seller-scheduled) product drop-off, plus one
+  // per unique service visit.
+  const productDeliveries = hasProducts ? 1 : 0;
+  const deliveryTotal = round2(fee * (visits.length + productDeliveries));
   subtotal = round2(subtotal);
   const total = round2(subtotal + deliveryTotal);
 
@@ -159,7 +155,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     items: productLines,
     laundryItems: laundryLines,
     cleaningItems: cleaningLines,
-    deliverySlot: delivery,
+    deliverySlot: null,
     laundryPickupSlot: pickup,
     laundryReturnSlot: dropoff,
     cleaningSlot: cleaning,

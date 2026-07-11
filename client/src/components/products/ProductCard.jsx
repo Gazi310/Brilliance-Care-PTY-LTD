@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Per-category colour theming.
 const CATEGORY_STYLES = {
@@ -24,8 +25,12 @@ export default function ProductCard({ product, index = 0, mounted = true, onAdd,
   const low = !outOfStock && stock <= 5;
   const photo = isPhoto(product.image);
   const [added, setAdded] = useState(false);
+  const navigate = useNavigate();
 
-  const handleAdd = () => {
+  const openDetail = () => navigate(`/products/${product._id}`);
+
+  const handleAdd = (e) => {
+    e?.stopPropagation?.();
     if (outOfStock) return;
     onAdd?.(product);
     setAdded(true);
@@ -34,8 +39,18 @@ export default function ProductCard({ product, index = 0, mounted = true, onAdd,
 
   return (
     <div
+      onClick={openDetail}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openDetail();
+        }
+      }}
+      aria-label={`View details for ${product.name}`}
       style={{ transitionDelay: `${index * 70}ms` }}
-      className={`group relative transition-all duration-500 ease-out will-change-transform ${
+      className={`group relative cursor-pointer transition-all duration-500 ease-out will-change-transform ${
         mounted ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
       }`}
     >

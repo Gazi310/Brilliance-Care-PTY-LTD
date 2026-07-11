@@ -93,7 +93,7 @@ export default function AdminProducts() {
         <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-faint">
           Delivery availability
         </p>
-        <DeliverySlotMenu isAdmin selected={deliverySlot} onSelect={setDeliverySlot} notify={notify} />
+        <DeliverySlotMenu isAdmin scope="shop" selected={deliverySlot} onSelect={setDeliverySlot} notify={notify} />
       </div>
 
       {error && (

@@ -5,6 +5,8 @@ import LaundryServices from '../pages/LaundryServices';
 import LaundryBook from '../pages/LaundryBook';
 import CleaningServices from '../pages/CleaningServices';
 import Products from '../pages/Products';
+import ProductDetail from '../pages/ProductDetail';
+import Cart from '../pages/Cart';
 import Booking from '../pages/Booking';
 import Pricing from '../pages/Pricing';
 import Contact from '../pages/Contact';
@@ -41,6 +43,8 @@ export default function AppRoutes() {
       <Route path="/laundry/book" element={<LaundryBook />} />
       <Route path="/cleaning" element={<CleaningServices />} />
       <Route path="/products" element={<Products />} />
+      <Route path="/products/:id" element={<ProductDetail />} />
+      <Route path="/cart" element={<Cart />} />
       <Route path="/book" element={<Booking />} />
       <Route path="/book/:service" element={<Booking />} />
       <Route path="/pricing" element={<Pricing />} />

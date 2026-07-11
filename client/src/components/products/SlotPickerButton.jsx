@@ -25,6 +25,7 @@ export default function SlotPickerButton({
   accent = 'emerald',
   align = 'right',
   block = false,
+  scope = 'shop',
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
@@ -105,7 +106,7 @@ export default function SlotPickerButton({
             align === 'left' ? 'left-0 origin-top-left' : 'right-0 origin-top-right'
           }`}
         >
-          <SlotCalendar isAdmin={isAdmin} value={value} onChange={handleChange} notify={notify} accent={accent} />
+          <SlotCalendar isAdmin={isAdmin} value={value} onChange={handleChange} notify={notify} accent={accent} scope={scope} />
         </div>
       )}
     </div>

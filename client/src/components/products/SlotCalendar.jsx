@@ -42,6 +42,7 @@ export default function SlotCalendar({
   notify,
   daysAhead = 45,
   accent = 'emerald',
+  scope = 'shop',
 }) {
   const a = ACCENTS[accent] || ACCENTS.emerald;
 
@@ -62,14 +63,14 @@ export default function SlotCalendar({
     setLoading(true);
     setError('');
     try {
-      const res = await getDeliverySlots(daysAhead);
+      const res = await getDeliverySlots(daysAhead, scope);
       setData(res);
     } catch (err) {
       setError(err.message || 'Could not load availability');
     } finally {
       setLoading(false);
     }
-  }, [daysAhead]);
+  }, [daysAhead, scope]);
 
   useEffect(() => {
     load();
@@ -166,7 +167,7 @@ export default function SlotCalendar({
     setSavingKey(key);
     patchSlot(day.date, slot.window, next);
     try {
-      await setDeliverySlot(day.date, slot.window, next);
+      await setDeliverySlot(day.date, slot.window, next, '', scope);
     } catch (err) {
       notify?.(err.message, 'error');
       load();
@@ -178,7 +179,7 @@ export default function SlotCalendar({
     setSavingKey(`day|${day.date}`);
     patchDay(day.date, available);
     try {
-      await setDeliveryDay(day.date, available);
+      await setDeliveryDay(day.date, available, scope);
     } catch (err) {
       notify?.(err.message, 'error');
       load();

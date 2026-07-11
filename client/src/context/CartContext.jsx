@@ -80,11 +80,10 @@ export function CartProvider({ children }) {
   const subtotal = useMemo(() => round2(items.reduce((s, i) => s + i.price * i.qty, 0)), [items]);
 
   const hasProducts = items.length > 0;
-  const deliveryTotal = hasProducts && deliverySlot ? round2(deliveryFee) : 0;
+  // Products are delivered on the seller's schedule (customers no longer pick a
+  // slot), but a flat delivery fee still applies to every shop order.
+  const deliveryTotal = hasProducts ? round2(deliveryFee) : 0;
   const grandTotal = round2(subtotal + deliveryTotal);
-
-  // Is the slot the cart needs actually chosen?
-  const slotsReady = !hasProducts || !!deliverySlot;
 
   const value = {
     items,
@@ -101,7 +100,6 @@ export function CartProvider({ children }) {
     deliveryFee,
     deliveryTotal,
     grandTotal,
-    slotsReady,
     hasProducts,
   };
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

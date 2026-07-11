@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { useCart } from '../../context/CartContext.jsx';
 
 /* ------------------------------------------------------------------ */
 /*  Inline SVG icons - standard 24x24 stroke icons (inherit currentColor) */
@@ -47,14 +46,6 @@ const BagIcon = (p) => (
   <svg {...base} {...p}>
     <path d="M6 7h12l-1 13.2a1 1 0 0 1-1 .8H8a1 1 0 0 1-1-.8L6 7z" />
     <path d="M9 7V6a3 3 0 0 1 6 0v1" />
-  </svg>
-);
-
-const CartIcon = (p) => (
-  <svg {...base} {...p}>
-    <circle cx="9" cy="20" r="1.4" />
-    <circle cx="17" cy="20" r="1.4" />
-    <path d="M3 4h2l2.3 11.3a1 1 0 0 0 1 .8h7.7a1 1 0 0 0 1-.8L20.5 7H6" />
   </svg>
 );
 
@@ -120,7 +111,6 @@ const NAV = [
 /* ------------------------------------------------------------------ */
 export default function Header() {
   const { user, logout } = useAuth();
-  const { count } = useCart();
   const navigate = useNavigate();
 
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -194,21 +184,6 @@ export default function Header() {
 
         {/* Right-side actions */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Cart (live count) */}
-          <Link
-            to="/products"
-            onClick={closeMenus}
-            aria-label={count ? `Cart, ${count} items` : 'Cart'}
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
-          >
-            <CartIcon />
-            {count > 0 && (
-              <span className="bc-pop absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[11px] font-bold text-white ring-2 ring-white">
-                {count > 99 ? '99+' : count}
-              </span>
-            )}
-          </Link>
-
           {/* Account / Login - desktop */}
           <div className="relative hidden lg:block">
             {user ? (

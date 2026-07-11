@@ -38,6 +38,7 @@ export default function StepSchedule({
             title="Laundry pickup"
             hint="When should we collect?"
             accent="sky"
+            scope="laundry"
             value={pickupSlot}
             onChange={setPickupSlot}
             defaultOpen={!pickupSlot}
@@ -47,6 +48,7 @@ export default function StepSchedule({
             title="Laundry return"
             hint="When should we bring it back?"
             accent="amber"
+            scope="laundry"
             value={returnSlot}
             onChange={setReturnSlot}
           />
@@ -64,6 +66,7 @@ export default function StepSchedule({
           title="Cleaning appointment"
           hint="When should we come to clean?"
           accent="emerald"
+          scope="cleaning"
           value={cleaningSlot}
           onChange={setCleaningSlot}
           defaultOpen={!hasLaundry && !cleaningSlot}
