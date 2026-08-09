@@ -1,51 +1,46 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { checkout } from '../services/orderService.js';
+import Band from '../components/ui/Band.jsx';
+import Container from '../components/ui/Container.jsx';
+import PageHero from '../components/ui/PageHero.jsx';
+import Card from '../components/ui/Card.jsx';
+import Button from '../components/ui/Button.jsx';
+import IconBadge from '../components/ui/IconBadge.jsx';
+import CartLine from '../components/products/CartLine.jsx';
+import CartSummary from '../components/products/CartSummary.jsx';
+import DeliveryNotice from '../components/products/DeliveryNotice.jsx';
+import RelatedProducts from '../components/products/RelatedProducts.jsx';
 import ToastStack from '../components/products/ToastStack.jsx';
-
-const isPhoto = (img) =>
-  typeof img === 'string' &&
-  (/^https?:\/\//.test(img) || img.startsWith('data:') || img.startsWith('/') || /\.(png|jpe?g|webp|gif|avif|svg)$/i.test(img));
-
-function Line({ item, setQty, remove }) {
-  return (
-    <li className="flex gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-      <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-50 text-4xl">
-        {isPhoto(item.image) ? <img src={item.image} alt="" className="h-full w-full object-cover" /> : item.image}
-      </div>
-      <div className="flex flex-1 flex-col">
-        <div className="flex items-start justify-between gap-2">
-          <p className="font-semibold leading-tight text-gray-800">{item.name}</p>
-          <button onClick={() => remove(item.id)} className="text-gray-300 transition hover:text-red-500" aria-label="Remove">✕</button>
-        </div>
-        <p className="text-xs text-gray-400">${item.price.toFixed(2)} each</p>
-        <div className="mt-auto flex items-center justify-between pt-3">
-          <div className="inline-flex items-center rounded-lg border border-gray-200">
-            <button onClick={() => setQty(item.id, item.qty - 1)} className="px-3 py-1.5 text-gray-500 transition hover:text-gray-900">−</button>
-            <span className="w-9 text-center text-sm font-semibold">{item.qty}</span>
-            <button
-              onClick={() => setQty(item.id, item.qty + 1)}
-              disabled={item.qty >= (item.stock ?? 99)}
-              className="px-3 py-1.5 text-gray-500 transition hover:text-gray-900 disabled:opacity-30"
-            >
-              +
-            </button>
-          </div>
-          <span className="font-bold text-gray-900">${(item.price * item.qty).toFixed(2)}</span>
-        </div>
-      </div>
-    </li>
-  );
-}
+import { CartIcon, CheckIcon } from '../components/products/icons.jsx';
 
 /**
- * The SHOP cart as a full page (route: /cart) — products only, paid in full.
- * Delivery is handled on the seller's schedule (no slot to pick); a flat
- * delivery fee is added automatically. Laundry & cleaning are booked via /book.
+ * /cart — the SHOP cart. Products only, paid in full.
+ *
+ * Restructured for v2: rows in one <Card> instead of a stack of
+ * floating cards, a sticky <SummaryCard> that shares its money layout
+ * with checkout and the invoice, and an "add to your order" row under
+ * the fold. Laundry and cleaning still go through /book — this page has
+ * deliberately never known about the estimate → deposit model.
+ *
+ * The order-placing logic is untouched from v1. Restructuring the
+ * revenue path's *appearance* is this phase's job; changing what it
+ * does is not.
  */
 export default function Cart() {
-  const { items, setQty, remove, clear, count, subtotal, deliveryTotal, grandTotal } = useCart();
+  const {
+    items,
+    add,
+    setQty,
+    remove,
+    clear,
+    count,
+    subtotal,
+    deliveryTotal,
+    gstAmount,
+    grandTotal,
+    deliveryFee,
+  } = useCart();
 
   const [submitting, setSubmitting] = useState(false);
   const [placed, setPlaced] = useState(null);
@@ -66,6 +61,7 @@ export default function Cart() {
       const order = await checkout({ products: items });
       clear();
       setPlaced(order);
+      window.scrollTo({ top: 0 });
     } catch (err) {
       notify(err.message, 'error');
     } finally {
@@ -73,116 +69,143 @@ export default function Cart() {
     }
   };
 
-  // ---- Success state ----
+  /* ---------------- Placed ---------------- */
   if (placed) {
     return (
-      <main className="flex-1 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 px-4 pt-4 pb-28 sm:px-6 sm:pt-6 lg:pb-10">
-        <div className="mx-auto mt-10 max-w-lg rounded-3xl border border-emerald-100 bg-white p-8 text-center shadow-lg">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl text-emerald-600">✓</div>
-          <h1 className="mt-4 text-2xl font-extrabold text-gray-900">Order placed!</h1>
-          <p className="mt-1 text-gray-500">
-            Thanks — we've got your order and will deliver it at the earliest suitable time.
-          </p>
-          <p className="mt-4 text-3xl font-extrabold text-gray-900">${Number(placed.total).toFixed(2)}</p>
-          <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Link
-              to="/products"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg"
-            >
-              Continue shopping
-            </Link>
-            <Link
-              to="/account/orders"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 px-6 py-3 text-sm font-bold text-gray-700 transition hover:bg-gray-50"
-            >
-              View my orders
-            </Link>
-          </div>
-        </div>
+      <main>
+        <Band tone="sky">
+          <Container width="prose">
+            <Card className="text-center">
+              <IconBadge
+                icon={<CheckIcon width={28} height={28} />}
+                tone="gold"
+                className="mx-auto"
+              />
+              <h1 className="bc-h2">Order placed</h1>
+              <p className="bc-lead mt-3 text-muted">
+                Thanks — we've got it. We'll deliver at the earliest suitable time and
+                message you on the way.
+              </p>
+              <p className="mt-6 font-display text-[34px] font-bold text-navy-900">
+                ${Number(placed.total).toFixed(2)}
+              </p>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <Button to="/account/orders" variant="gold">
+                  View my orders
+                </Button>
+                <Button to="/products" variant="outline">
+                  Keep shopping
+                </Button>
+              </div>
+            </Card>
+          </Container>
+        </Band>
       </main>
     );
   }
 
-  return (
-    <main className="flex-1 min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 px-4 pt-4 pb-28 sm:px-6 sm:pt-6 lg:pb-10">
-      {/* Top bar */}
-      <div className="mx-auto mb-6 flex max-w-5xl items-center justify-between">
-        <Link
-          to="/products"
-          className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-gray-600 transition hover:bg-white hover:text-gray-900"
-        >
-          <span className="text-base">←</span> Continue shopping
-        </Link>
-        <h1 className="flex items-center gap-2 text-lg font-extrabold text-gray-900">
-          <span className="text-xl">🛒</span> Your Cart
-          {count > 0 && (
-            <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-bold text-violet-700">{count}</span>
-          )}
-        </h1>
-      </div>
+  /* ---------------- Empty ---------------- */
+  if (empty) {
+    return (
+      <main>
+        <PageHero
+          title="Your cart"
+          sub="Shop products are paid in full. Laundry and cleaning bookings go through the estimate flow instead."
+          crumbs={[
+            { label: 'Home', to: '/' },
+            { label: 'Shop', to: '/products' },
+            { label: 'Cart' },
+          ]}
+        />
 
-      {empty ? (
-        <div className="mx-auto flex max-w-lg flex-col items-center justify-center rounded-3xl border border-gray-100 bg-white py-20 text-center shadow-sm">
-          <span className="bc-float text-6xl">🛒</span>
-          <p className="mt-4 text-lg font-semibold text-gray-600">Your cart is empty</p>
-          <p className="text-sm text-gray-400">Add products from the shop to get started.</p>
-          <Link
-            to="/products"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg"
-          >
-            Browse the shop
-          </Link>
-        </div>
-      ) : (
-        <div className="mx-auto grid max-w-5xl items-start gap-6 lg:grid-cols-3">
-          {/* Items */}
-          <section className="lg:col-span-2">
-            <p className="mb-2 px-1 text-xs font-bold uppercase tracking-wide text-gray-400">🛍️ Products</p>
-            <ul className="space-y-3">
-              {items.map((i) => (
-                <Line key={i.id} item={i} setQty={setQty} remove={remove} />
-              ))}
-            </ul>
-          </section>
-
-          {/* Summary */}
-          <aside className="lg:sticky lg:top-24">
-            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-              <h2 className="text-sm font-bold uppercase tracking-wide text-gray-400">Order summary</h2>
-              <div className="mt-3 space-y-1.5 text-sm">
-                <div className="flex items-center justify-between text-gray-500">
-                  <span>Subtotal</span>
-                  <span className="font-semibold text-gray-700">${subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex items-center justify-between text-gray-500">
-                  <span>Delivery</span>
-                  <span className="font-semibold text-gray-700">${deliveryTotal.toFixed(2)}</span>
-                </div>
-                <div className="mt-1 flex items-center justify-between border-t border-gray-100 pt-2">
-                  <span className="text-gray-500">Total</span>
-                  <span className="text-2xl font-extrabold text-gray-900">${grandTotal.toFixed(2)}</span>
-                </div>
-              </div>
-
-              <button
-                onClick={placeOrder}
-                disabled={submitting}
-                className="mt-4 w-full rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 py-3.5 font-semibold text-white shadow-lg transition hover:shadow-xl active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {submitting ? 'Processing…' : `Checkout · $${grandTotal.toFixed(2)}`}
-              </button>
-
-              <div className="mt-3 flex items-start gap-2 rounded-xl border border-emerald-100 bg-emerald-50/60 px-3 py-2.5">
-                <span className="text-base">🚚</span>
-                <p className="text-[12px] leading-relaxed text-emerald-700/90">
-                  No slot to pick — we'll deliver at the earliest suitable time. A flat delivery fee is
-                  included above.
-                </p>
+        <Band tone="white">
+          <Container width="prose">
+            <div className="rounded-card border border-line bg-sky-50 px-6 py-16 text-center lg:py-20">
+              <IconBadge
+                icon={<CartIcon width={28} height={28} />}
+                tone="gold"
+                className="mx-auto"
+              />
+              <h2 className="bc-h3">Your cart is empty</h2>
+              <p className="bc-body mx-auto mt-2 max-w-[420px] text-muted">
+                Add something from the shop, or book a laundry or cleaning job and we'll
+                bring the products with us.
+              </p>
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">
+                <Button to="/products" variant="gold">
+                  Browse the shop
+                </Button>
+                <Button to="/book" variant="outline">
+                  Get an estimate
+                </Button>
               </div>
             </div>
-          </aside>
-        </div>
-      )}
+          </Container>
+        </Band>
+
+        <ToastStack toasts={toasts} onDismiss={dismiss} />
+      </main>
+    );
+  }
+
+  /* ---------------- Cart ---------------- */
+  return (
+    <main>
+      <PageHero
+        title="Your cart"
+        sub="Shop products are paid in full. Laundry and cleaning bookings go through the estimate flow instead."
+        crumbs={[
+          { label: 'Home', to: '/' },
+          { label: 'Shop', to: '/products' },
+          { label: 'Cart' },
+        ]}
+      />
+
+      <Band tone="white">
+        <Container>
+          <div className="grid items-start gap-8 lg:grid-cols-[1.6fr_1fr] lg:gap-12">
+            {/* Lines */}
+            <div>
+              <Card className="!p-0">
+                <ul className="m-0 list-none px-6 lg:px-8">
+                  {items.map((i) => (
+                    <CartLine key={i.id} item={i} setQty={setQty} remove={remove} />
+                  ))}
+                </ul>
+              </Card>
+
+              <DeliveryNotice fee={deliveryFee} className="mt-6" />
+
+              <div className="mt-6">
+                <Button to="/products" variant="ghost">
+                  ← Keep shopping
+                </Button>
+              </div>
+            </div>
+
+            {/* Money */}
+            <CartSummary
+              count={count}
+              subtotal={subtotal}
+              deliveryTotal={deliveryTotal}
+              gstAmount={gstAmount}
+              grandTotal={grandTotal}
+              submitting={submitting}
+              onCheckout={placeOrder}
+            />
+          </div>
+        </Container>
+      </Band>
+
+      <RelatedProducts
+        tone="sand"
+        title="Add to your order"
+        excludeIds={items.map((i) => i.id)}
+        onAdd={(p) => {
+          add(p);
+          notify(`${p.name} added to cart`);
+        }}
+      />
 
       <ToastStack toasts={toasts} onDismiss={dismiss} />
     </main>

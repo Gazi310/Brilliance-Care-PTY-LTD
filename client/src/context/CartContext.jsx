@@ -32,10 +32,25 @@ export function CartProvider({ children }) {
 
   // Per-visit delivery fee, loaded from store settings.
   const [deliveryFee, setDeliveryFee] = useState(DEFAULT_FEE);
+
+  // GST is display-only here. Prices are stored GST-INCLUSIVE, so the cart
+  // never adds tax — it just breaks out how much of the total already is
+  // tax, which is what an AU customer expects to see on a receipt. The
+  // server recomputes its own gstAmount when the order is written, so a
+  // stale settings read can't affect what's actually charged.
+  const [gst, setGst] = useState({ enabled: true, rate: 0.1 });
+
   useEffect(() => {
     let active = true;
     getSettings()
-      .then((s) => active && typeof s.deliveryFee === 'number' && setDeliveryFee(s.deliveryFee))
+      .then((s) => {
+        if (!active) return;
+        if (typeof s.deliveryFee === 'number') setDeliveryFee(s.deliveryFee);
+        setGst({
+          enabled: s.gstEnabled !== false,
+          rate: typeof s.gstRate === 'number' && s.gstRate > 0 ? s.gstRate : 0.1,
+        });
+      })
       .catch(() => {});
     return () => {
       active = false;
@@ -85,6 +100,10 @@ export function CartProvider({ children }) {
   const deliveryTotal = hasProducts ? round2(deliveryFee) : 0;
   const grandTotal = round2(subtotal + deliveryTotal);
 
+  // GST already inside a GST-inclusive total: at 10%, total / 11.
+  // Mirrors getGstAmount() in the server's settingsController.
+  const gstAmount = gst.enabled ? round2(grandTotal - grandTotal / (1 + gst.rate)) : 0;
+
   const value = {
     items,
     add,
@@ -101,6 +120,10 @@ export function CartProvider({ children }) {
     deliveryTotal,
     grandTotal,
     hasProducts,
+    // gst (display only — see the note above)
+    gstEnabled: gst.enabled,
+    gstRate: gst.rate,
+    gstAmount,
   };
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
