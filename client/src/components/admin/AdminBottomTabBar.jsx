@@ -75,6 +75,12 @@ const CogIcon = (p) => (
     <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19" />
   </svg>
 );
+const MailIcon = (p) => (
+  <svg {...base} {...p}>
+    <rect x="3" y="5" width="18" height="14" rx="2" />
+    <path d="M3.5 6.5l8.5 6 8.5-6" />
+  </svg>
+);
 const GlobeIcon = (p) => (
   <svg {...base} {...p}>
     <circle cx="12" cy="12" r="9" />
@@ -91,6 +97,7 @@ const TABS = [
 /* Everything that lives behind the "More" sheet. */
 const MORE_LINKS = [
   { to: '/admin/customers', label: 'Customers', Icon: UsersIcon },
+  { to: '/admin/messages', label: 'Messages', Icon: MailIcon },
   { to: '/admin/services', label: 'Laundry services', Icon: BasketIcon },
   { to: '/admin/cleaning', label: 'Cleaning services', Icon: SparkleIcon },
   { to: '/admin/products', label: 'Shop & inventory', Icon: BoxIcon },

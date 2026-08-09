@@ -61,6 +61,27 @@ export async function notifyInvoiceSent(order, invoice, channels = ['email'], us
   return records;
 }
 
+/**
+ * Tell the business a contact-form enquiry has landed.
+ *
+ * The message is already stored before this runs, so a failure here costs a
+ * heads-up, not the enquiry — the admin inbox at /admin/messages remains the
+ * source of truth. Recipient is left to the provider swap: a real
+ * implementation reads Settings.businessEmail.
+ */
+export async function notifyContactReceived(msg) {
+  return [
+    await send({
+      channel: 'email',
+      to: 'inbox',
+      subject: `New enquiry — ${msg.topic}`,
+      body: `${msg.name} <${msg.email}>${msg.phone ? ` · ${msg.phone}` : ''}: ${String(
+        msg.message
+      ).slice(0, 160)}`,
+    }),
+  ];
+}
+
 /** Receipt after the balance is settled (any method). */
 export async function notifyBalancePaid(order, invoice, user = null) {
   return [

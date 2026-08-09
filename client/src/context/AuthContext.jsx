@@ -4,6 +4,7 @@ import {
   login as loginSvc,
   register as registerSvc,
   logout as logoutSvc,
+  updateProfile as updateProfileSvc,
   fetchMe,
 } from '../services/authService.js';
 
@@ -44,7 +45,15 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
-  const value = { user, isAdmin: !!user?.isAdmin, loading, login, register, logout };
+  // Profile edits go through the context so the header greeting and any
+  // prefilled booking fields update the moment a card is saved, without a reload.
+  const updateProfile = async (fields) => {
+    const u = await updateProfileSvc(fields);
+    setUser(u);
+    return u;
+  };
+
+  const value = { user, isAdmin: !!user?.isAdmin, loading, login, register, logout, updateProfile };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

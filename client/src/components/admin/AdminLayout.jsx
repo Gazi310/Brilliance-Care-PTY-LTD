@@ -8,6 +8,7 @@ const LIVE = [
   { to: '/admin/orders', label: 'Orders' },
   { to: '/admin/schedule', label: 'Schedule' },
   { to: '/admin/customers', label: 'Customers' },
+  { to: '/admin/messages', label: 'Messages' },
   { to: '/admin/services', label: 'Laundry' },
   { to: '/admin/cleaning', label: 'Cleaning' },
   { to: '/admin/products', label: 'Shop' },

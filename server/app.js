@@ -10,6 +10,7 @@ import deliveryRoutes from './routes/deliveryRoutes.js';
 import laundryRoutes from './routes/laundryRoutes.js';
 import cleaningRoutes from './routes/cleaningRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
+import contactRoutes from './routes/contactRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
@@ -32,6 +33,7 @@ app.use('/api/delivery-slots', deliveryRoutes);
 app.use('/api/laundry-services', laundryRoutes);
 app.use('/api/cleaning-services', cleaningRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.use(notFound);

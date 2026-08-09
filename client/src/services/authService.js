@@ -17,6 +17,18 @@ export async function fetchMe() {
   return data.user;
 }
 
+/**
+ * Patch the signed-in customer's profile.
+ *
+ * Send only the keys you're changing — the server merges rather than
+ * replaces, so each card on /account/profile saves on its own without
+ * blanking the others.
+ */
+export async function updateProfile(fields) {
+  const data = await api.put('/auth/profile', fields, true);
+  return data.user;
+}
+
 export function logout() {
   setToken(null);
 }

@@ -1,3 +1,5 @@
+import { isValidElement } from 'react';
+
 /**
  * PriceTable — the public price list.
  *
@@ -7,8 +9,13 @@
  * worse than a swipe.
  *
  * columns: [{ key, label, align }]
- * rows:    [{ id, ...cellsByKey }] — a cell can be a string or
- *          { value, note } to get the smaller grey second line.
+ * rows:    [{ id, ...cellsByKey }] — a cell can be a string, a React
+ *          node, or { value, note } to get the smaller grey second line.
+ *
+ * The `isValidElement` guard matters: a React element is also a plain
+ * `typeof 'object'`, so without it a cell holding JSX (a loading
+ * skeleton, a linked service name) would be read as the { value, note }
+ * shape and render nothing at all.
  */
 export default function PriceTable({ columns = [], rows = [], caption, className = '' }) {
   return (
@@ -35,7 +42,7 @@ export default function PriceTable({ columns = [], rows = [], caption, className
             <tr key={row.id} className="last:[&>td]:border-b-0">
               {columns.map((c) => {
                 const cell = row[c.key];
-                const isObj = cell && typeof cell === 'object';
+                const isObj = cell && typeof cell === 'object' && !isValidElement(cell);
                 const right = c.align === 'right';
 
                 return (

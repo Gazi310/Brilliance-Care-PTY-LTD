@@ -27,6 +27,7 @@ import AdminOrderDetail from '../pages/admin/OrderDetail';
 import AdminSchedule from '../pages/admin/Schedule';
 import AdminCustomers from '../pages/admin/Customers';
 import AdminCustomerDetail from '../pages/admin/CustomerDetail';
+import AdminMessages from '../pages/admin/Messages';
 import AdminSettings from '../pages/admin/Settings';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
@@ -111,6 +112,7 @@ export default function AppRoutes() {
         <Route path="schedule" element={<AdminSchedule />} />
         <Route path="customers" element={<AdminCustomers />} />
         <Route path="customers/:id" element={<AdminCustomerDetail />} />
+        <Route path="messages" element={<AdminMessages />} />
         <Route path="services" element={<AdminServices />} />
         <Route path="cleaning" element={<AdminCleaning />} />
         <Route path="products" element={<AdminProducts />} />

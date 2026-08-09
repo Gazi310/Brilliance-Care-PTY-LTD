@@ -60,8 +60,8 @@ const LogoutIcon = (p) => (
 
 /* ------------------------------------------------------------------ */
 /*  Nav config — matches the wireframe's seven top-level links.        */
-/*  /pricing, /how-it-works and /contact are still ComingSoon stubs    */
-/*  until Phase 3; the routes exist, so linking them now is safe.      */
+/*  Every one of these is a real page as of Phase 3; nothing in the    */
+/*  top nav lands on a placeholder any more.                           */
 /* ------------------------------------------------------------------ */
 const NAV = [
   { to: '/', label: 'Home', end: true },

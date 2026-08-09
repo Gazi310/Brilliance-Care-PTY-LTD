@@ -1,8 +1,7 @@
 import Band from '../ui/Band.jsx';
 import Container from '../ui/Container.jsx';
 import SectionHead from '../ui/SectionHead.jsx';
-import Card from '../ui/Card.jsx';
-import IconBadge from '../ui/IconBadge.jsx';
+import PromiseGrid from '../marketing/PromiseGrid.jsx';
 import { TruckIcon, LeafIcon, ShieldIcon, ReceiptIcon } from './icons';
 
 /**
@@ -56,15 +55,7 @@ export default function WhyUs() {
       <Container>
         <SectionHead eyebrow="Why Brilliance Care" title="Why people stay with us" />
 
-        <div className="grid gap-4 lg:grid-cols-4 lg:gap-6">
-          {REASONS.map(({ icon, title, body }) => (
-            <Card key={title}>
-              <IconBadge icon={icon} />
-              <h3 className="bc-h3 mb-2.5">{title}</h3>
-              <p className="bc-body text-muted">{body}</p>
-            </Card>
-          ))}
-        </div>
+        <PromiseGrid items={REASONS} />
       </Container>
     </Band>
   );
