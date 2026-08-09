@@ -46,3 +46,19 @@ export const TruckIcon = (p) => (
     <circle cx="17.5" cy="18" r="1.6" />
   </svg>
 );
+
+/* Invoice/receipt — the "no-surprise invoicing" promise. */
+export const ReceiptIcon = (p) => (
+  <svg {...base} {...p}>
+    <path d="M6 3h12v17l-3-2-3 2-3-2-3 2z" />
+    <path d="M9.5 8h5M9.5 12h5" />
+  </svg>
+);
+
+/* Standalone tick for the hero's trust row. Heavier stroke than the
+   rest of the set because it renders at 16px, where 1.8 disappears. */
+export const CheckIcon = (p) => (
+  <svg {...base} strokeWidth={2.4} {...p}>
+    <path d="M4 12l5 5L20 6" />
+  </svg>
+);

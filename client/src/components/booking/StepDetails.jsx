@@ -38,7 +38,7 @@ export default function StepDetails({ details, setDetails }) {
                 id="bk-suburb"
                 type="text"
                 autoComplete="address-level2"
-                placeholder="e.g. Parramatta"
+                placeholder="e.g. Box Hill"
                 value={details.suburb}
                 onChange={(e) => setDetails({ suburb: e.target.value })}
                 className={inputCls}

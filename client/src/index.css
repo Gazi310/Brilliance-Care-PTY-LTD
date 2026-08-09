@@ -144,6 +144,17 @@ body {
 .bc-on-navy .bc-h4 { color: #fff; }
 .bc-on-navy .bc-eyebrow { color: var(--color-gold-500); }
 
+/* …but a WHITE card sitting on a navy band has to opt back out, or its
+   headings are white on white. The wireframes have exactly this bug in
+   the how-it-works step cards. Card and StepCard carry `bc-card-light`
+   so it can't happen again; add it to any light surface you nest on a
+   dark band. Three classes deep, so it beats the invert above. */
+.bc-on-navy .bc-card-light .bc-h1,
+.bc-on-navy .bc-card-light .bc-h2,
+.bc-on-navy .bc-card-light .bc-h3,
+.bc-on-navy .bc-card-light .bc-h4 { color: var(--color-navy-900); }
+.bc-on-navy .bc-card-light .bc-eyebrow { color: var(--color-navy-500); }
+
 /* ---- Brilliance Care animations & helpers ---- */
 @keyframes bc-fade-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes bc-fade-in { from { opacity: 0; } to { opacity: 1; } }

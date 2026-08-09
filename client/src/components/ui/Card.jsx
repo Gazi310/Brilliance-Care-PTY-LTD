@@ -19,7 +19,7 @@ export default function Card({
 }) {
   return (
     <Tag
-      className={`rounded-card border border-line bg-white ${
+      className={`bc-card-light rounded-card border border-line bg-white ${
         flat ? 'p-[26px]' : 'p-6 shadow-card lg:p-8'
       } ${className}`}
       {...rest}

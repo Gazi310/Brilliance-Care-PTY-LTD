@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getSettings } from '../../services/settingsService';
+import { useSettings } from '../../hooks/useSettings';
 import BrandMark from './BrandMark.jsx';
 import Container from '../ui/Container.jsx';
 
@@ -48,16 +47,10 @@ function FooterCol({ title, links }) {
 export default function Footer() {
   const year = new Date().getFullYear();
 
-  const [biz, setBiz] = useState(null);
-  useEffect(() => {
-    let on = true;
-    getSettings()
-      .then((s) => on && setBiz(s))
-      .catch(() => {}); // offline → keep fallbacks
-    return () => {
-      on = false;
-    };
-  }, []);
+  // Shared with the homepage's postcode checks and closing CTA — the
+  // hook memoises the request so /api/settings is fetched once, not
+  // once per component that happens to need a business detail.
+  const biz = useSettings();
 
   const email = biz?.businessEmail || 'hello@brilliancecare.com.au';
   const phone = biz?.businessPhone || '';
