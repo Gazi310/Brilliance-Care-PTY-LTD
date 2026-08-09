@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Brilliance Care — Log in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css">
+<style>
+  .authbody{display:none} .authbody.on{display:block}
+  .authtabs{display:flex;gap:6px;background:var(--sky-50);padding:5px;border-radius:var(--r-pill);margin-bottom:28px}
+  .authtabs button{flex:1;border:0;background:none;padding:12px;border-radius:var(--r-pill);
+    font:700 15px/1 var(--body);color:var(--muted);cursor:pointer}
+  .authtabs button.on{background:var(--navy-900);color:#fff}
+</style>
+</head>
+<body data-page="login" data-title="Log in / Register" data-nav="index">
+<main>
+
+<section class="band b-white" style="padding-top:64px">
+  <div class="container split mid">
+
+    <div style="flex:0 0 460px;max-width:100%">
+      <div class="card">
+        <div class="authtabs">
+          <button class="on" data-auth="in">Log in</button>
+          <button data-auth="up">Create account</button>
+        </div>
+
+        <!-- LOG IN -->
+        <div class="authbody on" data-auth="in">
+          <h1 class="h1" style="font-size:30px;margin-bottom:8px">Welcome back</h1>
+          <p class="p muted" style="margin-bottom:26px">Your addresses and preferences are already saved.</p>
+          <div class="fgroup" style="margin-bottom:16px"><label class="label" for="e1">Email</label>
+            <input class="field" id="e1" type="email" placeholder="you@example.com"></div>
+          <div class="fgroup" style="margin-bottom:10px"><label class="label" for="p1">Password</label>
+            <input class="field" id="p1" type="password" placeholder="••••••••"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:10px">
+            <label class="tgl" style="color:var(--ink);font-size:14px"><input type="checkbox" checked> Keep me signed in</label>
+            <a class="btn-ghost" href="#" style="font-size:14px">Forgot password?</a>
+          </div>
+          <button class="btn btn-gold btn-block">Log in</button>
+        </div>
+
+        <!-- REGISTER -->
+        <div class="authbody" data-auth="up">
+          <h1 class="h1" style="font-size:30px;margin-bottom:8px">Create your account</h1>
+          <p class="p muted" style="margin-bottom:26px">Takes about thirty seconds. You can also book as a guest.</p>
+          <div class="form-grid" style="gap:16px">
+            <div class="fgroup"><label class="label" for="r1">First name</label><input class="field" id="r1" placeholder="Priya"></div>
+            <div class="fgroup"><label class="label" for="r2">Last name</label><input class="field" id="r2" placeholder="Mehta"></div>
+            <div class="fgroup full"><label class="label" for="r3">Email</label><input class="field" id="r3" type="email" placeholder="you@example.com"></div>
+            <div class="fgroup full"><label class="label" for="r4">Mobile</label><input class="field" id="r4" type="tel" placeholder="04XX XXX XXX"></div>
+            <div class="fgroup full"><label class="label" for="r5">Password</label>
+              <input class="field" id="r5" type="password" placeholder="At least 8 characters">
+              <p class="hint">Eight characters or more. A phrase works better than a word.</p></div>
+          </div>
+          <label class="tgl" style="color:var(--ink);font-size:14px;margin:18px 0 22px">
+            <input type="checkbox"> I accept the terms and privacy policy</label>
+          <button class="btn btn-gold btn-block">Create account</button>
+        </div>
+
+        <p class="meta muted center" style="margin-top:22px">
+          In a hurry? <a href="book.html" class="btn-ghost" style="font-size:14px">Book as a guest</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- reassurance -->
+    <div class="stack">
+      <p class="eyebrow">Why bother with an account?</p>
+      <h2 class="h2">Two taps instead of a form</h2>
+      <ul class="incl one" style="gap:18px">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>
+          <div><strong>Addresses and access notes saved</strong><p class="meta muted">No re-typing the lockbox code every time.</p></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>
+          <div><strong>Every invoice in one place</strong><p class="meta muted">Download a PDF whenever you need it.</p></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>
+          <div><strong>Rebook a past job in one tap</strong><p class="meta muted">Same services, same slot, new date.</p></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>
+          <div><strong>Track where your order is</strong><p class="meta muted">Live status from pickup through to delivery.</p></div></li>
+      </ul>
+      <div class="notice notice-info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/></svg>
+        <div>Guest bookings work fine — we match them to your phone number, so you can claim them later by signing up with the same number.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<script src="shell.js"></script>
+<script>
+document.querySelectorAll('[data-auth]').forEach(function(el){
+  if(el.tagName!=='BUTTON') return;
+  el.addEventListener('click',function(){
+    var k=el.getAttribute('data-auth');
+    document.querySelectorAll('.authtabs button').forEach(function(b){b.classList.toggle('on',b===el)});
+    document.querySelectorAll('.authbody').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-auth')===k)});
+  });
+});
+</script>
+</body>
+</html>

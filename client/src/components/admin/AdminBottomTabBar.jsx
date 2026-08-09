@@ -41,6 +41,47 @@ const MoreIcon = (p) => (
   </svg>
 );
 
+/* v2 replaces the emoji in the More sheet with real icons — emoji
+   render differently on every platform, can't be recoloured, and
+   the client named them as a reason the app looked unfinished. */
+const UsersIcon = (p) => (
+  <svg {...base} {...p}>
+    <circle cx="9" cy="8" r="3" />
+    <path d="M2 20c1.2-3.2 3.6-4.8 7-4.8s5.8 1.6 7 4.8" />
+    <path d="M16 5.5a3 3 0 010 5.6M18 20c-.3-1.5-.8-2.7-1.6-3.7" />
+  </svg>
+);
+const BasketIcon = (p) => (
+  <svg {...base} {...p}>
+    <rect x="4" y="2.5" width="16" height="19" rx="2.5" />
+    <path d="M4 7h16" />
+    <circle cx="12" cy="14" r="4.2" />
+  </svg>
+);
+const SparkleIcon = (p) => (
+  <svg {...base} {...p}>
+    <path d="M12 3.2l1.7 4.6 4.6 1.7-4.6 1.7L12 15.8l-1.7-4.6L5.7 9.5l4.6-1.7L12 3.2z" />
+  </svg>
+);
+const BoxIcon = (p) => (
+  <svg {...base} {...p}>
+    <path d="M3 8l9-5 9 5v8l-9 5-9-5z" />
+    <path d="M3 8l9 5 9-5" />
+  </svg>
+);
+const CogIcon = (p) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="12" r="3.2" />
+    <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5 5l2.1 2.1M16.9 16.9L19 19M19 5l-2.1 2.1M7.1 16.9L5 19" />
+  </svg>
+);
+const GlobeIcon = (p) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18" />
+  </svg>
+);
+
 const TABS = [
   { to: '/admin', label: 'Dashboard', Icon: DashIcon, end: true },
   { to: '/admin/orders', label: 'Orders', Icon: OrdersIcon },
@@ -49,12 +90,12 @@ const TABS = [
 
 /* Everything that lives behind the "More" sheet. */
 const MORE_LINKS = [
-  { to: '/admin/customers', label: 'Customers', emoji: '👥' },
-  { to: '/admin/services', label: 'Laundry services', emoji: '🧺' },
-  { to: '/admin/cleaning', label: 'Cleaning services', emoji: '🫧' },
-  { to: '/admin/products', label: 'Shop & inventory', emoji: '🛍️' },
-  { to: '/admin/settings', label: 'Settings', emoji: '⚙️' },
-  { to: '/', label: 'View customer site', emoji: '🌐' },
+  { to: '/admin/customers', label: 'Customers', Icon: UsersIcon },
+  { to: '/admin/services', label: 'Laundry services', Icon: BasketIcon },
+  { to: '/admin/cleaning', label: 'Cleaning services', Icon: SparkleIcon },
+  { to: '/admin/products', label: 'Shop & inventory', Icon: BoxIcon },
+  { to: '/admin/settings', label: 'Settings', Icon: CogIcon },
+  { to: '/', label: 'View customer site', Icon: GlobeIcon },
 ];
 
 function Tab({ to, label, Icon, end }) {
@@ -66,8 +107,8 @@ function Tab({ to, label, Icon, end }) {
     >
       {({ isActive }) => (
         <>
-          <Icon width={23} height={23} className={isActive ? 'text-navy' : 'text-faint'} />
-          <span className={`text-[10px] font-bold ${isActive ? 'text-navy' : 'text-faint'}`}>
+          <Icon width={23} height={23} className={isActive ? 'text-navy-900' : 'text-muted'} />
+          <span className={`text-[10px] font-bold ${isActive ? 'text-navy-900' : 'text-muted'}`}>
             {label}
           </span>
         </>
@@ -96,31 +137,32 @@ export default function AdminBottomTabBar() {
             type="button"
             aria-label="Close menu"
             onClick={() => setOpen(false)}
-            className="fixed inset-0 z-0 bg-navy-d/30 backdrop-blur-[2px]"
+            className="fixed inset-0 z-0 bg-navy-900/30 backdrop-blur-[2px]"
           />
           <div className="relative z-10 mx-auto max-w-lg px-3 pb-2">
-            <div className="rounded-2xl border border-line bg-white p-2 shadow-cta">
-              {MORE_LINKS.map((l) => (
-                <Link
-                  key={l.to}
-                  to={l.to}
-                  onClick={() => setOpen(false)}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition ${
-                    l.to !== '/' && pathname.startsWith(l.to)
-                      ? 'bg-navy text-white'
-                      : 'text-ink hover:bg-surface'
-                  }`}
-                >
-                  <span aria-hidden="true">{l.emoji}</span>
-                  {l.label}
-                </Link>
-              ))}
+            <div className="rounded-card border border-line bg-white p-2 shadow-lift">
+              {MORE_LINKS.map((l) => {
+                const active = l.to !== '/' && pathname.startsWith(l.to);
+                return (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    onClick={() => setOpen(false)}
+                    className={`flex items-center gap-3 rounded-btn px-3 py-2.5 text-sm font-bold transition-colors ${
+                      active ? 'bg-navy-900 text-white' : 'text-ink hover:bg-sky-50'
+                    }`}
+                  >
+                    <l.Icon width={19} height={19} aria-hidden="true" />
+                    {l.label}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </>
       )}
 
-      <div className="relative z-10 mx-auto flex max-w-lg items-end justify-between gap-1 border-t border-line bg-white/95 px-3 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_24px_rgba(11,58,102,0.08)] backdrop-blur-md">
+      <div className="relative z-10 mx-auto flex max-w-lg items-end justify-between gap-1 border-t border-line bg-white/95 px-3 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_24px_rgba(4,30,96,0.08)] backdrop-blur-md">
         {TABS.map((t) => (
           <Tab key={t.to} {...t} />
         ))}
@@ -134,10 +176,10 @@ export default function AdminBottomTabBar() {
           <MoreIcon
             width={23}
             height={23}
-            className={open || moreActive ? 'text-navy' : 'text-faint'}
+            className={open || moreActive ? 'text-navy-900' : 'text-muted'}
           />
           <span
-            className={`text-[10px] font-bold ${open || moreActive ? 'text-navy' : 'text-faint'}`}
+            className={`text-[10px] font-bold ${open || moreActive ? 'text-navy-900' : 'text-muted'}`}
           >
             More
           </span>

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Brilliance Care — Customers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css">
+</head>
+<body data-page="admin-customers" data-title="Admin — customers (accounts + guests)" data-shell="admin">
+<main>
+<div class="adminwrap">
+  <div data-aside="customers"></div>
+  <div class="amain">
+
+    <div class="ahead">
+      <div><p class="eyebrow">Customers</p><h1 class="h2" style="font-size:32px;margin-top:6px">482 customers</h1></div>
+      <div style="display:flex;gap:10px">
+        <input class="field" placeholder="Search name, phone or suburb…" style="height:44px;font-size:14px;width:280px">
+        <button class="btn btn-out btn-sm">Export</button>
+      </div>
+    </div>
+
+    <div class="segbar">
+      <span class="chip on">All (482)</span>
+      <span class="chip">Accounts (301)</span>
+      <span class="chip">Guests (181)</span>
+      <span class="chip">Outstanding balance (9)</span>
+      <span class="chip">Recurring (44)</span>
+    </div>
+
+    <div class="notice notice-info" style="margin-bottom:22px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/></svg>
+      <div><strong>Guests are grouped by phone number.</strong> They show with a <code>guest:</code> prefix and merge automatically into an account if someone later signs up with the same number.</div>
+    </div>
+
+    <div class="split" style="gap:24px">
+      <div style="flex:1.5">
+        <div class="panel">
+          <h3>All customers</h3>
+          <table class="dtable">
+            <thead><tr><th>Customer</th><th>Suburb</th><th>Orders</th><th>Lifetime</th><th style="text-align:right">Outstanding</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Priya Mehta</strong><br><span class="muted">0412 345 678 · account</span></td><td>Box Hill</td><td>17</td><td class="num">$2,418</td><td class="num"><span class="tag tag-warn">$118.23</span></td></tr>
+              <tr><td><strong>Helen Tran</strong><br><span class="muted">0433 887 221 · account</span></td><td>Camberwell</td><td>24</td><td class="num">$3,902</td><td class="num"><span class="tag tag-warn">$148.50</span></td></tr>
+              <tr><td><strong>guest:0455119887</strong><br><span class="muted">Guest · no account</span></td><td>Kew</td><td>3</td><td class="num">$611</td><td class="num"><span class="tag tag-bad">$210.75</span></td></tr>
+              <tr><td><strong>Anh Nguyen</strong><br><span class="muted">0401 776 231 · account</span></td><td>Blackburn</td><td>31</td><td class="num">$4,180</td><td class="num">—</td></tr>
+              <tr><td><strong>Marcus Ordway</strong><br><span class="muted">0466 210 554 · account</span></td><td>Glen Waverley</td><td>9</td><td class="num">$1,102</td><td class="num">—</td></tr>
+              <tr><td><strong>Tom Whelan</strong><br><span class="muted">0478 332 019 · account</span></td><td>Ringwood</td><td>4</td><td class="num">$988</td><td class="num">—</td></tr>
+              <tr><td><strong>Sarah Kellett</strong><br><span class="muted">0490 118 776 · account</span></td><td>Mount Waverley</td><td>2</td><td class="num">$338</td><td class="num">—</td></tr>
+              <tr><td><strong>guest:0433221100</strong><br><span class="muted">Guest · no account</span></td><td>Blackburn</td><td>1</td><td class="num">$0</td><td class="num"><span class="tag tag-bad">Deposit unpaid</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- detail preview -->
+      <div>
+        <div class="panel">
+          <h3>Priya Mehta</h3>
+          <div style="padding:20px 24px">
+            <ul class="lines">
+              <li><span class="n">Phone</span><span class="v">0412 345 678</span></li>
+              <li><span class="n">Email</span><span class="v">priya@example.com</span></li>
+              <li><span class="n">Address</span><span class="v" style="text-align:right">12 Station St,<br>Box Hill 3128</span></li>
+              <li><span class="n">Customer since</span><span class="v">Mar 2025</span></li>
+              <li><span class="n">Orders</span><span class="v">17</span></li>
+              <li><span class="n">Lifetime value</span><span class="v">$2,418</span></li>
+              <li><span class="n">Outstanding</span><span class="v" style="color:var(--warn)">$118.23</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Internal note</h3>
+          <div style="padding:20px 24px">
+            <textarea class="field" style="min-height:100px">Lockbox 4417. Prefers fragrance-free. Small dog — friendly but bolts, keep the gate shut.</textarea>
+            <button class="btn btn-gold btn-sm" style="margin-top:12px">Save note</button>
+            <p class="hint" style="margin-top:10px">Staff-only. Never shown to the customer.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Recent orders</h3>
+          <table class="dtable">
+            <tbody>
+              <tr><td><strong>BC-1042</strong><br><span class="muted">10 Aug</span></td><td class="num"><span class="tag tag-warn">Balance due</span></td></tr>
+              <tr><td><strong>BC-1029</strong><br><span class="muted">28 Jul</span></td><td class="num"><span class="tag tag-ok">Paid</span></td></tr>
+              <tr><td><strong>BC-1017</strong><br><span class="muted">14 Jul</span></td><td class="num"><span class="tag tag-ok">Paid</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</main>
+<script src="shell.js"></script>
+</body>
+</html>

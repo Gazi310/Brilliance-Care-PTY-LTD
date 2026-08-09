@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Brilliance Care — My orders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css">
+<style>
+  .ocard{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+  .ocard .top{display:flex;align-items:center;gap:16px;padding:22px 26px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .ocard .top .g{flex:1;min-width:0}
+  .ocard .bot{padding:20px 26px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--sky-50)}
+  .ocard .bot .sp{flex:1}
+</style>
+</head>
+<body data-page="account-orders" data-title="My orders — /account/orders" data-nav="index"
+      data-crumb="Home / Account / Orders" data-hero-title="My orders"
+      data-hero-sub="Everything you've booked, with what's owing and what's next."
+      data-hero-img="customer checking their phone at the door">
+<main>
+
+<section class="band b-white">
+  <div class="container">
+
+    <div class="segbar">
+      <span class="chip on">Active (2)</span>
+      <span class="chip">Past (14)</span>
+      <span class="chip">Shop orders (3)</span>
+    </div>
+
+    <!-- awaiting balance -->
+    <div class="ocard">
+      <div class="top">
+        <div class="g">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <h3 class="h3">BC-1042</h3><span class="tag tag-warn">Balance due</span>
+          </div>
+          <p class="meta muted" style="margin-top:6px">Laundry + cleaning · booked Mon 10 Aug</p>
+        </div>
+        <div style="text-align:right">
+          <div class="price">$119.48<small>balance owing</small></div>
+        </div>
+      </div>
+      <div style="padding:22px 26px">
+        <ul class="lines">
+          <li><span class="n">Estimate</span><span class="v">$238.97</span></li>
+          <li><span class="n">Deposit paid 10 Aug</span><span class="v" style="color:var(--ok)">− $119.49</span></li>
+          <li><span class="n">Assessed total</span><span class="v">$238.97</span></li>
+        </ul>
+        <p class="meta muted" style="margin-top:14px">Delivery Thu 13 Aug, 4:00–6:00pm. Pay now or settle with the driver.</p>
+      </div>
+      <div class="bot">
+        <a class="btn btn-gold btn-sm" href="invoice.html">View invoice &amp; pay balance</a>
+        <a class="btn btn-out btn-sm" href="#">Reschedule delivery</a>
+        <div class="sp"></div>
+        <a class="btn-ghost" href="#" style="font-size:14px">Need help?</a>
+      </div>
+    </div>
+
+    <!-- awaiting pickup -->
+    <div class="ocard">
+      <div class="top">
+        <div class="g">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <h3 class="h3">BC-1051</h3><span class="tag tag-info">Scheduled</span>
+          </div>
+          <p class="meta muted" style="margin-top:6px">Deep clean · 3 bed / 2 bath</p>
+        </div>
+        <div style="text-align:right"><div class="price">$249.00<small>estimate</small></div></div>
+      </div>
+      <div style="padding:22px 26px">
+        <ul class="tl">
+          <li class="done"><div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></div>
+            <div class="g"><strong>Deposit paid</strong><p class="meta muted">$124.50 · 8 Aug</p></div></li>
+          <li class="now"><div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></div>
+            <div class="g"><strong>Cleaning visit</strong><p class="meta muted">Sat 16 Aug, 10:00am–1:00pm</p></div></li>
+          <li><div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v17l-3-2-3 2-3-2-3 2z"/></svg></div>
+            <div class="g"><strong>Final invoice</strong><p class="meta muted">After the visit</p></div></li>
+        </ul>
+      </div>
+      <div class="bot">
+        <a class="btn btn-out btn-sm" href="#">Reschedule</a>
+        <a class="btn btn-out btn-sm" href="#">Add access notes</a>
+        <div class="sp"></div>
+        <a class="btn-ghost" href="#" style="font-size:14px">Cancel booking</a>
+      </div>
+    </div>
+
+    <!-- unpaid deposit -->
+    <div class="ocard">
+      <div class="top">
+        <div class="g">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <h3 class="h3">BC-1053</h3><span class="tag tag-bad">Deposit unpaid</span>
+          </div>
+          <p class="meta muted" style="margin-top:6px">Wash &amp; fold × 3 · slot held until 6pm today</p>
+        </div>
+        <div style="text-align:right"><div class="price">$37.49<small>deposit due</small></div></div>
+      </div>
+      <div class="bot">
+        <a class="btn btn-gold btn-sm" href="checkout.html">Pay deposit</a>
+        <div class="sp"></div>
+        <a class="btn-ghost" href="#" style="font-size:14px">Discard booking</a>
+      </div>
+    </div>
+
+    <!-- past -->
+    <h2 class="h2" style="margin:52px 0 22px;font-size:28px">Recently completed</h2>
+    <table class="ptable">
+      <thead><tr><th>Order</th><th>Service</th><th>Date</th><th>Status</th><th style="text-align:right">Total</th></tr></thead>
+      <tbody>
+        <tr><td><strong>BC-1029</strong></td><td>Wash &amp; fold × 2</td><td>28 Jul 2026</td><td><span class="tag tag-ok">Paid</span></td><td class="num">$49.98</td></tr>
+        <tr><td><strong>BC-1017</strong></td><td>Standard clean · 3/2</td><td>14 Jul 2026</td><td><span class="tag tag-ok">Paid</span></td><td class="num">$159.00</td></tr>
+        <tr><td><strong>BC-1004</strong></td><td>Wash &amp; fold × 2, ironing × 6</td><td>30 Jun 2026</td><td><span class="tag tag-ok">Paid</span></td><td class="num">$70.98</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="band b-sky band-sm center">
+  <div class="container stack" style="max-width:720px">
+    <h2 class="h2">Book your next one</h2>
+    <p class="lead muted">Your address and preferences are already saved.</p>
+    <div><a class="btn btn-gold btn-pill" href="book.html">Get my estimate</a></div>
+  </div>
+</section>
+
+</main>
+<script src="shell.js"></script>
+</body>
+</html>

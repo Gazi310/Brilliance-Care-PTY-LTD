@@ -1,7 +1,68 @@
 @import "tailwindcss";
 
-/* ---- Brilliance Care design tokens — "Fresh Aqua & Navy" ---- */
+/* ============================================================
+   Brilliance Care design tokens
+
+   TWO PALETTES LIVE HERE ON PURPOSE.
+
+   v2 ("Navy & Gold") is the approved direction. v1 ("Fresh Aqua
+   & Navy") stays until every page has migrated, so unmigrated
+   pages keep rendering correctly mid-migration. The names don't
+   collide — v2 is always numbered (navy-900), v1 is always bare
+   or -d suffixed (navy, navy-d).
+
+   Phase 9 deletes the v1 block. Anything still pointing at it
+   breaks loudly at that moment, which is the intended signal.
+   ============================================================ */
 @theme {
+  /* ---------------- v2 — Navy & Gold (current) ---------------- */
+
+  /* Navy carries structure: nav, footer, dark bands, headings. */
+  --color-navy-900: #041E60;
+  --color-navy-800: #0A2A73;
+  --color-navy-700: #123A8C;
+  --color-navy-500: #2E5AAE;
+
+  /* Gold is the ONLY action colour — and only ever as a fill.
+     #EAAA22 on white is 2.04:1 and fails WCAG; gold-600 only
+     reaches 2.83:1. Gold text is legal on navy (7.56:1) and
+     nowhere else. See the rule note at the bottom of this file. */
+  --color-gold-500: #EAAA22;
+  --color-gold-600: #C98F14;
+  --color-gold-100: #FDF1D6;
+
+  /* Light bands. sky-100 is the tinted band, sky-50 the softest
+     wash (it replaces v1 `surface`), sand-50 warms the service band. */
+  --color-sky-100: #DCEEF9;
+  --color-sky-50:  #F1F8FD;
+  --color-sand-50: #FFFBF3;
+
+  /* Status. Only used by Tag / Notice / Timeline states. */
+  --color-ok:      #0F8F6B;
+  --color-ok-bg:   #E3F6EF;
+  --color-warn:    #B45309;
+  --color-warn-bg: #FEF3C7;
+  --color-bad:     #C2312B;
+  --color-bad-bg:  #FDECEA;
+
+  /* Shared with v1 — identical values, no migration needed. */
+  --color-ink:   #0F2436;
+  --color-muted: #5A6B7B;
+  --color-line:  #E2E9F0;
+
+  /* Type. Poppins for display, Inter for body — loaded in index.html. */
+  --font-display: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Radii. Cards are softer than buttons; images softer still. */
+  --radius-card: 16px;
+  --radius-btn:  12px;
+  --radius-img:  20px;
+
+  --shadow-card: 0 12px 32px rgba(4, 30, 96, .08);
+  --shadow-lift: 0 24px 56px rgba(4, 30, 96, .18);
+
+  /* ---------------- v1 — retire in Phase 9 ---------------- */
   --color-navy: #0E4D8B;
   --color-navy-d: #0B3A66;
   --color-aqua: #16B4C4;
@@ -9,15 +70,79 @@
   --color-mint: #7FE3D6;
   --color-teal: #12A5A8;
   --color-teal-d: #0E7C7B;
-  --color-ink: #0F2436;
-  --color-muted: #5A6B7B;
   --color-faint: #93A4B3;
-  --color-line: #E2E9F0;
   --color-surface: #EDF3F8;
 
   --shadow-soft: 0 1px 2px rgba(11, 58, 102, .06), 0 8px 24px rgba(11, 58, 102, .07);
   --shadow-cta: 0 14px 40px rgba(14, 77, 139, .24);
 }
+
+/* ---- v2 base ----
+   Body font + the gold focus ring from kit.css. The ring is gold
+   on purpose: it's the one place gold-on-white is acceptable,
+   because an outline isn't text and isn't subject to 4.5:1. */
+body {
+  font-family: var(--font-body);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-gold-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   v2 TYPE SCALE
+
+   Written as CSS rather than Tailwind utilities because every
+   heading in the app needs five or six classes otherwise, and
+   the mobile/desktop pair has to stay locked together. Mobile is
+   the base; 1024px (Tailwind's `lg`) is the desktop breakpoint —
+   the wireframes switch at 900px via container queries, which
+   don't translate to React, and `lg` is the nearest stop.
+
+   Prefixed `bc-` to match the existing animation helpers below
+   and to stay greppable. Inside <Band tone="navy"> these all
+   flip to white automatically.
+   ============================================================ */
+.bc-h1, .bc-h2, .bc-h3, .bc-h4 {
+  font-family: var(--font-display);
+  color: var(--color-navy-900);
+  margin: 0;
+}
+.bc-h1 { font-size: 34px; line-height: 1.08; letter-spacing: -.5px; font-weight: 700; }
+.bc-h2 { font-size: 28px; line-height: 1.15; letter-spacing: -.3px; font-weight: 700; }
+.bc-h3 { font-size: 19px; line-height: 1.35; font-weight: 600; }
+.bc-h4 { font-size: 17px; line-height: 1.4;  font-weight: 600; }
+
+/* `lt` = light tail — the second line of a mixed-weight H1. */
+.bc-h1 .lt { font-weight: 300; display: block; }
+
+.bc-lead    { font-size: 18px; line-height: 1.6;  margin: 0; }
+.bc-body    { font-size: 16px; line-height: 1.65; margin: 0; }
+.bc-meta    { font-size: 13px; line-height: 1.45; font-weight: 500; margin: 0; }
+.bc-eyebrow {
+  font-size: 12px; font-weight: 800; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--color-navy-500); margin: 0;
+}
+
+@media (min-width: 1024px) {
+  .bc-h1 { font-size: 60px; line-height: 1.05; }
+  .bc-h2 { font-size: 44px; }
+  .bc-h3 { font-size: 22px; }
+  .bc-h4 { font-size: 18px; }
+  .bc-lead { font-size: 21px; }
+  .bc-body { font-size: 17px; }
+  .bc-meta { font-size: 14px; }
+}
+
+/* Dark bands invert the whole scale. <Band tone="navy"> sets this. */
+.bc-on-navy .bc-h1,
+.bc-on-navy .bc-h2,
+.bc-on-navy .bc-h3,
+.bc-on-navy .bc-h4 { color: #fff; }
+.bc-on-navy .bc-eyebrow { color: var(--color-gold-500); }
 
 /* ---- Brilliance Care animations & helpers ---- */
 @keyframes bc-fade-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
@@ -43,4 +168,20 @@
 
 @media (prefers-reduced-motion: reduce) {
   .bc-fade-up, .bc-fade-in, .bc-pop, .bc-float, .bc-toast-in { animation: none; }
+  * { animation: none !important; transition: none !important; }
 }
+
+/* ============================================================
+   TWO RULES THAT ARE EASY TO BREAK BY ACCIDENT
+
+   1. GOLD IS NEVER TEXT ON A LIGHT BACKGROUND.
+      text-gold-500 on white = 2.04:1. text-gold-600 = 2.83:1.
+      Both fail WCAG AA (4.5:1). Gold is for button fills, icon
+      badge fills, and text sitting ON navy-900 (7.56:1).
+      On a white or sky band, the accent colour is navy-500.
+
+   2. ONE GOLD BUTTON PER VIEWPORT.
+      If a screen needs three CTAs, one is <Button variant="gold">
+      and the rest are variant="outline" or "ghost". Gold stops
+      meaning "the next step" the moment it's everywhere.
+   ============================================================ */

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Brilliance Care — Admin dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css">
+</head>
+<body data-page="admin-dashboard" data-title="Admin — dashboard" data-shell="admin">
+<main>
+<div class="adminwrap">
+  <div data-aside="dashboard"></div>
+  <div class="amain">
+
+    <div class="ahead">
+      <div>
+        <p class="eyebrow">Sunday, 9 August</p>
+        <h1 class="h2" style="font-size:32px;margin-top:6px">Good morning, Sam</h1>
+      </div>
+      <div style="display:flex;gap:10px">
+        <a class="btn btn-out btn-sm" href="admin-schedule.html">Open schedule</a>
+        <a class="btn btn-gold btn-sm" href="admin-orders.html">Work queue</a>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="k">Revenue today</div><div class="v">$1,284</div><div class="d up">▲ 12% vs last Sunday</div></div>
+      <div class="kpi"><div class="k">Deposits taken</div><div class="v">$642</div><div class="d">7 new bookings</div></div>
+      <div class="kpi"><div class="k">Balances outstanding</div><div class="v">$2,317</div><div class="d down">9 invoices unpaid</div></div>
+      <div class="kpi"><div class="k">Bookings this week</div><div class="v">38</div><div class="d up">▲ 4 vs last week</div></div>
+    </div>
+
+    <div class="panel">
+      <h3>Needs action <span class="tag tag-warn">6</span></h3>
+      <table class="dtable">
+        <tbody>
+          <tr><td style="width:120px"><span class="tag tag-bad">Assess</span></td>
+            <td><strong>BC-1042</strong> · Priya Mehta · Box Hill</td>
+            <td class="muted">Picked up yesterday, not yet weighed</td>
+            <td class="num"><a class="btn btn-gold btn-sm" href="admin-assess.html">Assess &amp; invoice</a></td></tr>
+          <tr><td><span class="tag tag-bad">Assess</span></td>
+            <td><strong>BC-1039</strong> · Tom Whelan · Ringwood</td>
+            <td class="muted">Deep clean completed 3:20pm</td>
+            <td class="num"><a class="btn btn-gold btn-sm" href="admin-assess.html">Assess &amp; invoice</a></td></tr>
+          <tr><td><span class="tag tag-warn">Unpaid</span></td>
+            <td><strong>BC-1031</strong> · Helen Tran · Camberwell</td>
+            <td class="muted">Invoice sent 4 days ago · $148.50</td>
+            <td class="num"><a class="btn btn-out btn-sm" href="#">Send reminder</a></td></tr>
+          <tr><td><span class="tag tag-warn">Unpaid</span></td>
+            <td><strong>BC-1028</strong> · guest:0433221100 · Blackburn</td>
+            <td class="muted">Deposit never paid · slot expires 6pm</td>
+            <td class="num"><a class="btn btn-out btn-sm" href="#">Call customer</a></td></tr>
+          <tr><td><span class="tag tag-info">Slot</span></td>
+            <td>Cleaning calendar · Thu 13 Aug</td>
+            <td class="muted">No windows open — nothing bookable</td>
+            <td class="num"><a class="btn btn-out btn-sm" href="admin-schedule.html">Open windows</a></td></tr>
+          <tr><td><span class="tag tag-info">Stock</span></td>
+            <td>Wool &amp; Delicates Gentle Wash</td>
+            <td class="muted">18 left · below reorder point</td>
+            <td class="num"><a class="btn btn-out btn-sm" href="admin-settings.html">Update stock</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>Today's jobs <a class="btn-ghost" href="admin-schedule.html" style="font-size:14px">Full schedule →</a></h3>
+      <table class="dtable">
+        <thead><tr><th>Window</th><th>Job</th><th>Customer</th><th>Team</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody>
+          <tr><td><strong>8:00–10:00</strong></td><td>Laundry pickup</td><td>Priya Mehta · Box Hill</td><td>Van 1 · Dev</td><td class="num"><span class="tag tag-ok">Done</span></td></tr>
+          <tr><td><strong>10:00–1:00</strong></td><td>Standard clean · 3/2</td><td>Anh Nguyen · Blackburn</td><td>Team A</td><td class="num"><span class="tag tag-ok">Done</span></td></tr>
+          <tr><td><strong>1:00–3:00</strong></td><td>Laundry delivery</td><td>Marcus Ordway · Glen Waverley</td><td>Van 1 · Dev</td><td class="num"><span class="tag tag-warn">In progress</span></td></tr>
+          <tr><td><strong>2:00–5:00</strong></td><td>Deep clean · 4/2</td><td>Tom Whelan · Ringwood</td><td>Team B</td><td class="num"><span class="tag tag-warn">In progress</span></td></tr>
+          <tr><td><strong>4:00–6:00</strong></td><td>Laundry pickup</td><td>Helen Tran · Camberwell</td><td>Van 2 · Sam</td><td class="num"><span class="tag tag-info">Scheduled</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid2">
+      <div class="panel" style="margin:0">
+        <h3>This week</h3>
+        <table class="dtable">
+          <tbody>
+            <tr><td>Laundry loads processed</td><td class="num">96</td></tr>
+            <tr><td>Cleaning visits completed</td><td class="num">23</td></tr>
+            <tr><td>Average invoice vs estimate</td><td class="num" style="color:var(--ok)">− 4.2%</td></tr>
+            <tr><td>Shop orders dispatched</td><td class="num">11</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel" style="margin:0">
+        <h3>New customers</h3>
+        <table class="dtable">
+          <tbody>
+            <tr><td><strong>Sarah Kellett</strong><br><span class="muted">Mount Waverley · account</span></td><td class="num">2 orders</td></tr>
+            <tr><td><strong>guest:0455119887</strong><br><span class="muted">Kew · guest</span></td><td class="num">1 order</td></tr>
+            <tr><td><strong>Jonas Reid</strong><br><span class="muted">Surrey Hills · account</span></td><td class="num">1 order</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+</main>
+<script src="shell.js"></script>
+</body>
+</html>

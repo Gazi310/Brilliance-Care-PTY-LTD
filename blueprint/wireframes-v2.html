@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Brilliance Care — Homepage Wireframe v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS — these drop straight into client/src/index.css
+   ============================================================ */
+:root{
+  --navy-900:#041E60; --navy-800:#0A2A73; --navy-700:#123A8C; --navy-500:#2E5AAE;
+  --gold-500:#EAAA22; --gold-600:#C98F14; --gold-100:#FDF1D6;
+  --sky-100:#DCEEF9;  --sky-50:#F1F8FD;   --sand-50:#FFFBF3;
+  --ink:#0F2436;      --muted:#5A6B7B;    --line:#E2E9F0;  --white:#fff;
+
+  --r-card:16px; --r-btn:12px; --r-pill:999px; --r-img:20px;
+  --shadow:0 12px 32px rgba(4,30,96,.08);
+  --shadow-lg:0 24px 56px rgba(4,30,96,.18);
+
+  --display:'Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#0a1330;font-family:var(--body);color:var(--ink)}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold-500);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ============================================================
+   REVIEW CHROME — not part of the product
+   ============================================================ */
+.toolbar{position:sticky;top:0;z-index:100;background:#08102a;border-bottom:1px solid rgba(255,255,255,.1);
+  padding:12px 20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;color:#fff}
+.toolbar .tb-brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.toolbar .tb-mark{width:32px;height:32px;border-radius:50%;background:var(--gold-500);color:var(--navy-900);
+  display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:15px}
+.toolbar .tb-t{font-size:13.5px;font-weight:700;letter-spacing:-.1px}
+.toolbar .tb-s{font-size:11px;color:#8ea3c9;font-weight:500}
+.seg{display:flex;background:rgba(255,255,255,.08);border-radius:var(--r-pill);padding:3px}
+.seg button{border:0;background:none;color:#c3d2ee;font:700 12.5px/1 var(--body);padding:8px 16px;
+  border-radius:var(--r-pill);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--gold-500);color:var(--navy-900)}
+.tgl{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:#c3d2ee;cursor:pointer;user-select:none}
+.tgl input{accent-color:var(--gold-500);width:15px;height:15px;cursor:pointer}
+.tb-open{position:relative}
+.tb-open summary{list-style:none;cursor:pointer;font:700 12px/1 var(--body);color:var(--navy-900);
+  background:var(--gold-500);padding:8px 14px;border-radius:var(--r-pill)}
+.tb-open summary::-webkit-details-marker{display:none}
+.tb-open .pop{position:absolute;right:0;top:calc(100% + 10px);width:330px;background:#fff;color:var(--ink);
+  border-radius:14px;padding:16px 18px;box-shadow:var(--shadow-lg);font-size:13px;line-height:1.55}
+.tb-open .pop h4{margin:0 0 8px;font:800 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--navy-500)}
+.tb-open .pop ol{margin:0;padding-left:18px}
+.tb-open .pop li+li{margin-top:8px}
+
+.stagewrap{display:flex;justify-content:center;padding:26px 20px 60px}
+.stage{width:100%;max-width:1440px;container-type:inline-size;background:#fff;
+  border-radius:12px;overflow:hidden;box-shadow:var(--shadow-lg)}
+.stage.is-mobile{max-width:390px;border-radius:34px;padding:0;border:11px solid #0b1220;
+  box-shadow:0 30px 70px rgba(0,0,0,.5)}
+
+/* annotation layer */
+[data-q]{position:relative}
+[data-q]::before{content:attr(data-q);position:absolute;left:0;top:0;z-index:20;
+  font:800 10.5px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;
+  background:var(--gold-500);color:var(--navy-900);padding:6px 12px;border-radius:0 0 10px 0;
+  display:none;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+body.notes [data-q]::before{display:block}
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+.page{--sec-y:112px; --edge:80px; --container:1280px; background:#fff;font-size:17px;line-height:1.65}
+.band{position:relative;padding:var(--sec-y) var(--edge)}
+.container{max-width:var(--container);margin:0 auto;width:100%}
+
+.b-white{background:var(--white)}
+.b-sky{background:var(--sky-100)}
+.b-sand{background:var(--sand-50)}
+.b-navy{background:var(--navy-900);color:#fff}
+
+/* type */
+.h1{font-family:var(--display);font-size:60px;line-height:1.05;letter-spacing:-.5px;font-weight:700;
+  color:var(--navy-900);margin:0}
+.h1 .lt{font-weight:300;display:block}
+.h2{font-family:var(--display);font-size:44px;line-height:1.15;letter-spacing:-.3px;font-weight:700;
+  color:var(--navy-900);margin:0}
+.b-navy .h2{color:#fff}
+.h3{font-family:var(--display);font-size:22px;line-height:1.35;font-weight:600;color:var(--navy-900);margin:0}
+.lead{font-size:21px;line-height:1.6;margin:0}
+.p{font-size:17px;line-height:1.65;margin:0}
+.meta{font-size:14px;line-height:1.45;font-weight:500;margin:0}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--navy-500);margin:0}
+.b-navy .eyebrow{color:var(--gold-500)}
+.muted{color:var(--muted)}
+.center{text-align:center}
+.stack>*+*{margin-top:18px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:0;cursor:pointer;
+  font:700 16px/1 var(--body);padding:17px 26px;border-radius:var(--r-btn);text-decoration:none;transition:.16s}
+.btn-gold{background:var(--gold-500);color:var(--navy-900)}
+.btn-gold:hover{background:var(--gold-600)}
+.btn-pill{border-radius:var(--r-pill);padding:18px 42px}
+.btn-ghost{background:transparent;color:var(--navy-500);font-weight:700;padding:0;text-decoration:underline;
+  text-underline-offset:4px;text-decoration-thickness:2px}
+.field{flex:1;min-width:0;height:58px;border:1px solid var(--line);border-radius:var(--r-btn);background:#fff;
+  padding:0 18px;font:400 17px/1 var(--body);color:var(--ink)}
+.field::placeholder{color:#93a4b3}
+
+/* image placeholders */
+.imgph{border:1.5px dashed #b9cbdd;background:var(--sky-50);border-radius:var(--r-img);
+  display:grid;place-items:center;text-align:center;padding:22px}
+.imgph span{font:500 13px/1.5 var(--body);color:var(--muted);max-width:280px}
+.imgph b{display:block;font:800 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--navy-500);margin-bottom:8px}
+
+/* ---------- nav ---------- */
+.nav{background:var(--navy-900);padding:0 var(--edge);height:88px;display:flex;align-items:center;gap:32px;position:relative;z-index:10}
+.brand{display:flex;align-items:center;gap:13px;flex:none}
+.brand .mark{width:56px;height:56px;border-radius:50%;background:#fff;display:grid;place-items:center;
+  box-shadow:0 6px 18px rgba(0,0,0,.25);position:relative;z-index:2}
+.nav .brand .mark{margin-bottom:-24px}  /* signature: logo breaks the nav's bottom edge */
+.brand .mark svg{width:30px;height:30px;color:var(--gold-500)}
+.brand .wm{font:800 16px/1.15 var(--body);color:#fff;letter-spacing:.02em}
+.brand .wm small{display:block;font:500 10.5px/1.4 var(--body);letter-spacing:.14em;color:var(--sky-100);margin-top:3px}
+.navlinks{display:flex;gap:26px;margin-left:auto;font-size:15px;font-weight:500;color:#fff}
+.navlinks a{text-decoration:none;opacity:.88}
+.navlinks a:hover{opacity:1;text-decoration:underline;text-underline-offset:5px}
+.navcta{display:flex;align-items:center;gap:18px;flex:none}
+.navcta .ph{font-size:14px;font-weight:600;color:var(--sky-100);white-space:nowrap}
+.navcta .btn{padding:14px 24px}
+.burger{display:none;margin-left:auto;background:none;border:0;color:#fff;cursor:pointer}
+.burger svg{width:26px;height:26px}
+
+/* ---------- hero ---------- */
+.hero{padding-top:96px}
+.hero .container{display:flex;gap:64px;align-items:center}
+.hero .col{flex:1;min-width:0}
+.hero .h1{margin:6px 0 0}
+.pcode{display:flex;gap:12px;max-width:520px}
+.pcode .btn{flex:none;height:58px;padding:0 26px}
+.ticks{display:flex;gap:22px;flex-wrap:wrap;color:var(--muted)}
+.ticks span{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:500}
+.ticks svg{width:16px;height:16px;color:var(--navy-500);flex:none}
+.hero .imgph{aspect-ratio:7/6}
+
+/* ---------- who we are ---------- */
+.who .container{max-width:900px;text-align:center}
+.who .sig{color:var(--navy-500);font-weight:600}
+
+/* ---------- credibility + why (shared white band) ---------- */
+.b-proof{padding-top:0}
+.statcard{background:var(--navy-900);border-radius:var(--r-card);box-shadow:var(--shadow-lg);
+  margin-top:-64px;position:relative;z-index:5;padding:44px 40px;display:flex}
+.statcard .s{flex:1;text-align:center;padding:0 16px}
+.statcard .s+.s{border-left:1px solid var(--navy-700)}
+.statcard .n{font-family:var(--display);font-size:44px;line-height:1;font-weight:700;color:var(--gold-500)}
+.statcard .l{font-size:14px;font-weight:500;color:var(--sky-100);margin-top:10px}
+.why{padding-top:100px}
+.why .head{text-align:center;max-width:720px;margin:0 auto 52px}
+.why .head .h2{margin-top:10px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.grid4c{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:32px;box-shadow:var(--shadow)}
+.badge{width:64px;height:64px;border-radius:50%;background:var(--gold-100);display:grid;place-items:center;margin-bottom:20px}
+.badge svg{width:28px;height:28px;color:var(--navy-500)}
+.card .h3{margin-bottom:10px}
+
+/* ---------- services ---------- */
+.svc .head{text-align:center;max-width:760px;margin:0 auto 56px}
+.svc .head .h2{margin-top:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+.scard{background:#fff;border-radius:var(--r-card);overflow:hidden;box-shadow:var(--shadow);
+  display:flex;flex-direction:column}
+.scard .imgph{border-radius:0;border-width:0 0 1px 0;aspect-ratio:17/10}
+.scard .body{padding:28px;display:flex;flex-direction:column;gap:12px;flex:1}
+.scard .foot{margin-top:auto;padding-top:18px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.price{font-family:var(--display);font-size:22px;font-weight:700;color:var(--navy-900);line-height:1.2}
+.price small{display:block;font:500 13px/1.4 var(--body);color:var(--muted);margin-top:3px}
+.circ{width:48px;height:48px;border-radius:50%;background:var(--gold-500);color:var(--navy-900);
+  display:grid;place-items:center;flex:none;border:0;cursor:pointer}
+.circ svg{width:20px;height:20px}
+
+/* ---------- how it works ---------- */
+.how .head{text-align:center;max-width:720px;margin:0 auto 56px}
+.how .head .h2{margin-top:10px}
+.stepcard{background:#fff;border-radius:var(--r-card);padding:28px;display:flex;flex-direction:column;gap:12px}
+.pill{align-self:flex-start;background:var(--gold-100);color:var(--navy-900);border-radius:var(--r-pill);
+  padding:7px 15px;font:800 11.5px/1 var(--body);letter-spacing:.12em}
+.how .after{text-align:center;margin-top:52px}
+.how .after .meta{color:var(--sky-100);margin-top:16px}
+
+/* ---------- reviews ---------- */
+.rev .head{text-align:center;max-width:720px;margin:0 auto 52px}
+.rev .head .h2{margin-top:10px}
+.rcard{background:#fff;border:1px solid var(--line);border-radius:var(--r-card);padding:28px;
+  display:flex;flex-direction:column;gap:16px}
+.stars{display:flex;gap:3px}
+.stars svg{width:18px;height:18px;color:var(--gold-500);fill:currentColor}
+.rcard .q{font-size:16.5px;line-height:1.6;margin:0}
+.rcard .who2{font-size:14px;font-weight:600;color:var(--navy-500);margin:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- service area ---------- */
+.area .container{display:flex;gap:64px;align-items:flex-start}
+.area .col{flex:1;min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips span{background:#fff;border-radius:var(--r-pill);padding:9px 16px;font-size:14px;font-weight:500}
+.area .imgph{aspect-ratio:4/3}
+
+/* ---------- faq ---------- */
+.faq .container{max-width:880px}
+.faq .h2{text-align:center;margin-bottom:44px}
+details.q{border-bottom:1px solid var(--line)}
+details.q summary{list-style:none;cursor:pointer;padding:24px 0;display:flex;align-items:center;
+  justify-content:space-between;gap:20px;font-family:var(--display);font-size:22px;font-weight:600;color:var(--navy-900)}
+details.q summary::-webkit-details-marker{display:none}
+details.q summary svg{width:24px;height:24px;color:var(--navy-500);flex:none;transition:transform .2s}
+details.q[open] summary svg{transform:rotate(180deg)}
+details.q .a{padding:0 0 26px;max-width:760px}
+.faq .more{text-align:center;margin-top:40px}
+
+/* ---------- closing cta ---------- */
+.cta{padding-top:140px;padding-bottom:140px;text-align:center}
+.cta .container{max-width:780px}
+.cta .lead{color:var(--sky-100)}
+.cta .meta{color:var(--sky-100)}
+
+/* ---------- footer ---------- */
+.foot{background:var(--navy-900);color:#fff;padding:80px var(--edge) 40px}
+.fgrid{display:flex;gap:40px}
+.fgrid .c1{flex:1.6;min-width:0}
+.fgrid .col{flex:1;min-width:0}
+.foot h4{font:800 12px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--gold-500);margin:0 0 20px}
+.foot ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.foot a{color:var(--sky-100);text-decoration:none;font-size:16px}
+.foot a:hover{text-decoration:underline;text-underline-offset:4px}
+.foot .blurb{color:var(--sky-100);margin:20px 0 0;font-size:16px}
+.foot .abn{color:#8fa9d6;margin-top:14px}
+.news{display:flex;gap:8px;margin-top:16px}
+.news .field{height:50px;font-size:15px}
+.news .btn{padding:0 20px;height:50px;flex:none;font-size:15px}
+.fbar{border-top:1px solid var(--navy-700);margin-top:56px;padding-top:26px;display:flex;
+  justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--sky-100);font-size:14px}
+
+/* ---------- sticky rail (desktop only) ---------- */
+.rail{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:60;
+  display:flex;flex-direction:column;gap:8px}
+.rail a{display:flex;align-items:center;gap:10px;background:var(--navy-900);color:#fff;text-decoration:none;
+  border-radius:var(--r-pill);padding:14px 20px;font:600 14px/1 var(--body);box-shadow:var(--shadow-lg);white-space:nowrap}
+.rail svg{width:17px;height:17px;color:var(--gold-500);flex:none}
+.stage.is-mobile .rail{display:none}
+
+/* ---------- mobile tab bar ---------- */
+.tabbar{display:none;background:#fff;border-top:1px solid var(--line);padding:10px 6px 14px;
+  position:sticky;bottom:0;z-index:40}
+.tabbar div{flex:1;text-align:center;font:600 10.5px/1.3 var(--body);color:var(--muted)}
+.tabbar div svg{width:22px;height:22px;margin:0 auto 5px;color:var(--muted)}
+.tabbar div.on,.tabbar div.on svg{color:var(--navy-900)}
+
+/* ============================================================
+   MOBILE — container queries, so the phone frame reflows
+   ============================================================ */
+@container (max-width:900px){
+  .page{--sec-y:64px;--edge:20px;font-size:16px}
+  .h1{font-size:34px;line-height:1.08}
+  .h2{font-size:28px}
+  .h3{font-size:19px}
+  .lead{font-size:18px}
+  .p,.field{font-size:16px}
+  .meta{font-size:13px}
+  .btn{font-size:15px;padding:16px 22px}
+
+  .nav{height:64px;gap:12px}
+  .brand .mark{width:42px;height:42px;margin-bottom:-14px}
+  .brand .mark svg{width:22px;height:22px}
+  .brand .wm{font-size:14px}
+  .brand .wm small{font-size:9px;letter-spacing:.1em}
+  .navlinks,.navcta{display:none}
+  .burger{display:block}
+
+  .hero{padding-top:40px}
+  .hero .container,.area .container{flex-direction:column;gap:36px}
+  .pcode{flex-direction:column;max-width:none}
+  .pcode .btn{width:100%;height:56px}
+  .ticks{gap:12px}
+  .hero .imgph{aspect-ratio:5/4;width:100%}
+
+  .statcard{margin-top:-40px;padding:28px 20px;flex-wrap:wrap;gap:26px 0}
+  .statcard .s{flex:0 0 50%;padding:0 8px}
+  .statcard .s+.s{border-left:0}
+  .statcard .s:nth-child(3),.statcard .s:nth-child(4){padding-top:26px;border-top:1px solid var(--navy-700)}
+  .statcard .n{font-size:34px}
+  .why{padding-top:64px}
+  .why .head{margin-bottom:32px}
+
+  .grid4{grid-template-columns:1fr;gap:16px}
+  .card{padding:24px}
+  .badge{width:54px;height:54px;margin-bottom:16px}
+
+  /* horizontal carousels */
+  .grid3,.grid4c{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;
+    margin:0 calc(var(--edge) * -1);padding:4px var(--edge) 20px}
+  .grid3>*,.grid4c>*{flex:0 0 290px;scroll-snap-align:start}
+  .svc .head,.how .head,.rev .head{margin-bottom:28px;text-align:left}
+  .how .after{margin-top:32px}
+  .how .after .btn{width:100%}
+  .stepcard{flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px 14px}
+  .stepcard .pill{order:1}
+  .stepcard .h3{order:2;flex:1;min-width:0}
+  .stepcard .p{order:3;flex-basis:100%}
+
+  .area .imgph{aspect-ratio:4/3;width:100%}
+  .faq .h2{text-align:left;margin-bottom:20px}
+  details.q summary{font-size:18px;padding:20px 0}
+  .faq .more{text-align:left}
+
+  .cta{padding-top:80px;padding-bottom:80px}
+  .foot{padding:56px var(--edge) 30px}
+  .fgrid{flex-direction:column;gap:34px}
+  .fbar{flex-direction:column;gap:8px;margin-top:36px}
+  .tabbar{display:flex}
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="tb-brand">
+    <div class="tb-mark">B</div>
+    <div>
+      <div class="tb-t">Brilliance Care — Homepage wireframe v2</div>
+      <div class="tb-s">Navy &amp; gold · "who we are" first · desktop 1440 / mobile 390</div>
+    </div>
+  </div>
+
+  <div class="seg" role="group" aria-label="Viewport">
+    <button id="vDesk" aria-pressed="true">Desktop</button>
+    <button id="vMob" aria-pressed="false">Mobile</button>
+  </div>
+
+  <label class="tgl"><input type="checkbox" id="notes"> Show what each section answers</label>
+
+  <details class="tb-open">
+    <summary>3 decisions needed</summary>
+    <div class="pop">
+      <h4>Before this goes to build</h4>
+      <ol>
+        <li><b>Stat numbers moved onto a navy card.</b> Gold on white measures 2.04:1 and fails accessibility. On navy it's 7.56:1. The card straddling the two bands is the fix — needs your OK.</li>
+        <li><b>Phone number and ABN</b> are still placeholders, used in the nav, closing CTA and footer.</li>
+        <li><b>Prices</b> ($24.99/load, $89/visit) come from the seed data — confirm they're the right public anchors.</li>
+      </ol>
+    </div>
+  </details>
+</div>
+
+<div class="stagewrap">
+<div class="stage" id="stage">
+<div class="page">
+
+  <!-- ============ NAV ============ -->
+  <nav class="nav">
+    <div class="brand">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.6 6.5L21 11l-6.4 2.5L12 20l-2.6-6.5L3 11l6.4-2.5z"/></svg>
+      </div>
+      <div class="wm">BRILLIANCE CARE<small>LAUNDRY &amp; CLEANING</small></div>
+    </div>
+    <div class="navlinks">
+      <a href="#">Home</a><a href="#">Laundry</a><a href="#">Cleaning</a>
+      <a href="#">Shop</a><a href="#">Pricing</a><a href="#">How it works</a><a href="#">Contact</a>
+    </div>
+    <div class="navcta">
+      <span class="ph">03 XXXX XXXX</span>
+      <a class="btn btn-gold" href="#">Book a service</a>
+    </div>
+    <button class="burger" aria-label="Menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+  </nav>
+
+  <!-- ============ 1 · HERO ============ -->
+  <section class="band b-white hero" data-q="What is this?">
+    <div class="container">
+      <div class="col stack">
+        <p class="eyebrow">Melbourne's eastern suburbs</p>
+        <h1 class="h1"><span class="lt">Fresh laundry and a spotless home,</span>without lifting a finger.</h1>
+        <p class="lead muted">Family-run pickup-and-delivery laundry, plus home and end-of-lease cleaning, right across Melbourne's eastern suburbs. Free pickup and delivery, a price up front, and no surprises on the invoice.</p>
+        <div class="pcode">
+          <label class="sr" for="pc">Postcode</label>
+          <input class="field" id="pc" placeholder="Enter your postcode" inputmode="numeric">
+          <button class="btn btn-gold">Check my area</button>
+        </div>
+        <div class="ticks">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Free pickup &amp; delivery</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Fully insured</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>Seven days a week</span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="imgph"><span><b>Photo</b>Team member handing back folded laundry at a front door · 7:6</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2 · WHO WE ARE ============ -->
+  <section class="band b-sky who" data-q="Who am I dealing with?">
+    <div class="container stack">
+      <p class="eyebrow">Who we are</p>
+      <h2 class="h2">Welcome to Brilliance Care.</h2>
+      <p class="lead">We're a family-run laundry and cleaning service based in Melbourne, looking after homes right across the eastern suburbs. We started Brilliance Care in 2023 and brought more than six years in the trade with us — and we still treat every basket, and every home, like it's our own.</p>
+      <p class="p muted">No call centres. No rotating contractors. Just a small team that turns up when we say we will.</p>
+      <p class="meta sig">— The Brilliance Care family</p>
+    </div>
+  </section>
+
+  <!-- ============ 3 + 4 · CREDIBILITY / WHY (shared white band) ============ -->
+  <section class="band b-white b-proof">
+    <div class="container">
+
+      <div class="statcard" data-q="Are these people legit?">
+        <div class="s"><div class="n">4.9 ★</div><div class="l">Average customer rating</div></div>
+        <div class="s"><div class="n">2,000+</div><div class="l">Happy customers</div></div>
+        <div class="s"><div class="n">30+</div><div class="l">Suburbs serviced</div></div>
+        <div class="s"><div class="n">100%</div><div class="l">Insured &amp; police-checked</div></div>
+      </div>
+
+      <div class="why" data-q="Why you and not someone cheaper?">
+        <div class="head">
+          <p class="eyebrow">Why Brilliance Care</p>
+          <h2 class="h2">Why people stay with us</h2>
+        </div>
+        <div class="grid4">
+          <div class="card">
+            <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/></svg></div>
+            <h3 class="h3">Free pickup &amp; delivery</h3>
+            <p class="p muted">We collect from your door and bring everything back folded, on a day that suits you. No delivery fee on laundry and cleaning bookings.</p>
+          </div>
+          <div class="card">
+            <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c0-8 6-14 16-16 0 10-6 16-16 16z"/><path d="M9 15c2-3 5-5 8-6"/></svg></div>
+            <h3 class="h3">Eco-friendly products</h3>
+            <p class="p muted">Gentle, low-tox detergents and cleaning products that are safe around kids, pets and sensitive skin.</p>
+          </div>
+          <div class="card">
+            <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+            <h3 class="h3">Insured &amp; police-checked</h3>
+            <p class="p muted">Every member of our team is fully insured and police-checked before they set foot in your home.</p>
+          </div>
+          <div class="card">
+            <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v17l-3-2-3 2-3-2-3 2z"/><path d="M9.5 8h5M9.5 12h5"/></svg></div>
+            <h3 class="h3">No-surprise invoicing</h3>
+            <p class="p muted">You get an estimate up front and pay a 50% deposit. We only invoice the balance once we've weighed and assessed the real job — so you never overpay.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ 5 · SERVICES ============ -->
+  <section class="band b-sand svc" data-q="What can I buy?">
+    <div class="container">
+      <div class="head">
+        <p class="eyebrow">Our services</p>
+        <h2 class="h2">What we can take off your hands</h2>
+      </div>
+      <div class="grid3">
+        <article class="scard">
+          <div class="imgph"><span><b>Photo</b>Folded laundry stack, warm light · 17:10</span></div>
+          <div class="body">
+            <h3 class="h3">Laundry</h3>
+            <p class="p muted">Wash, dry, fold and ironing, collected from your door and back within 48 hours. Priced by the load or by the item — whichever suits you.</p>
+            <div class="foot">
+              <div class="price">from $24.99<small>a load</small></div>
+              <button class="circ" aria-label="See laundry services"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 6l6 6-6 6"/></svg></button>
+            </div>
+          </div>
+        </article>
+        <article class="scard">
+          <div class="imgph"><span><b>Photo</b>Cleaner at work in a bright living room · 17:10</span></div>
+          <div class="body">
+            <h3 class="h3">Cleaning</h3>
+            <p class="p muted">Regular home cleans, deep cleans and end-of-lease bond cleans. Priced on the size of your home, not a guess over the phone.</p>
+            <div class="foot">
+              <div class="price">from $89<small>a visit</small></div>
+              <button class="circ" aria-label="See cleaning services"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 6l6 6-6 6"/></svg></button>
+            </div>
+          </div>
+        </article>
+        <article class="scard">
+          <div class="imgph"><span><b>Photo</b>Eco detergent bottles on a shelf · 17:10</span></div>
+          <div class="body">
+            <h3 class="h3">Shop</h3>
+            <p class="p muted">Eco detergents, wool dryer balls and laundry essentials, delivered with your next order.</p>
+            <div class="foot">
+              <div class="price">Browse<small>the shop</small></div>
+              <button class="circ" aria-label="Browse the shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M12 6l6 6-6 6"/></svg></button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6 · HOW IT WORKS ============ -->
+  <section class="band b-navy how" data-q="What happens after I click?">
+    <div class="container">
+      <div class="head">
+        <p class="eyebrow">How it works</p>
+        <h2 class="h2">Booking takes about two minutes</h2>
+      </div>
+      <div class="grid4">
+        <div class="stepcard"><span class="pill">STEP 1</span><h3 class="h3">Get your estimate</h3><p class="p muted">Tell us what you need and when. You'll see a price estimate straight away.</p></div>
+        <div class="stepcard"><span class="pill">STEP 2</span><h3 class="h3">Pay a 50% deposit</h3><p class="p muted">Lock the booking in with half up front. The rest waits until the job's done.</p></div>
+        <div class="stepcard"><span class="pill">STEP 3</span><h3 class="h3">We pick up and get to work</h3><p class="p muted">We collect at your chosen time, weigh and assess the real job, then do it properly.</p></div>
+        <div class="stepcard"><span class="pill">STEP 4</span><h3 class="h3">Final invoice, then delivery</h3><p class="p muted">You're invoiced for the actual amount, minus your deposit, and we bring everything back.</p></div>
+      </div>
+      <div class="after">
+        <a class="btn btn-gold btn-pill" href="#">Get my estimate</a>
+        <p class="meta">No card needed to see your price.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 7 · REVIEWS ============ -->
+  <section class="band b-white rev" data-q="Do real people like it?">
+    <div class="container">
+      <div class="head">
+        <p class="eyebrow">Reviews</p>
+        <h2 class="h2">2,000 customers, 4.9 stars</h2>
+      </div>
+      <div class="grid4c">
+        <div class="rcard">
+          <div class="stars" role="img" aria-label="5 out of 5"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg></div>
+          <p class="q">"They picked up Tuesday and everything was back Thursday, folded better than I'd ever manage. I haven't done a wash in four months."</p>
+          <p class="who2">Priya M. · Box Hill</p>
+        </div>
+        <div class="rcard">
+          <div class="stars" role="img" aria-label="5 out of 5"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg></div>
+          <p class="q">"Booked an end-of-lease clean two days before handover and got the full bond back. The agent actually commented on it."</p>
+          <p class="who2">Daniel R. · Ringwood</p>
+        </div>
+        <div class="rcard">
+          <div class="stars" role="img" aria-label="5 out of 5"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg></div>
+          <p class="q">"Same two people every fortnight, which matters to me. They know where things go now."</p>
+          <p class="who2">Helen T. · Camberwell</p>
+        </div>
+        <div class="rcard">
+          <div class="stars" role="img" aria-label="5 out of 5"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9z"/></svg></div>
+          <p class="q">"The estimate was $140 and the final invoice came to $128, because the load was lighter than we thought. First time a service has charged me less than quoted."</p>
+          <p class="who2">Marcus O. · Glen Waverley</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 8 · SERVICE AREA ============ -->
+  <section class="band b-sky area" data-q="Do you come to me?">
+    <div class="container">
+      <div class="col stack">
+        <p class="eyebrow">Service area</p>
+        <h2 class="h2">We cover Melbourne's eastern suburbs</h2>
+        <p class="p muted">If you're inside the ring on the map, we'll pick up from your door. Not sure? Pop your postcode in and we'll tell you straight away.</p>
+        <div class="pcode">
+          <label class="sr" for="pc2">Postcode</label>
+          <input class="field" id="pc2" placeholder="Enter your postcode" inputmode="numeric">
+          <button class="btn btn-gold">Check</button>
+        </div>
+        <div class="chips">
+          <span>Box Hill</span><span>Camberwell</span><span>Doncaster</span><span>Ringwood</span>
+          <span>Glen Waverley</span><span>Blackburn</span><span>Balwyn</span><span>Mount Waverley</span>
+          <span>Kew</span><span>Nunawading</span><span>Vermont</span><span>Burwood</span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="imgph"><span><b>Map</b>Melbourne east with the service radius highlighted · 4:3</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 9 · FAQ ============ -->
+  <section class="band b-white faq" data-q="What about my edge case?">
+    <div class="container">
+      <h2 class="h2">Questions we get a lot</h2>
+      <details class="q" open>
+        <summary>How does the deposit work?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <p class="a p muted">You pay 50% when you book, based on your estimate. Once we've collected and assessed the real job we send a final invoice for the balance — which is often less than the estimate. You settle that on delivery.</p>
+      </details>
+      <details class="q">
+        <summary>How long does laundry take?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <p class="a p muted">Standard turnaround is 48 hours from pickup. Express 24-hour wash is available if you need it sooner.</p>
+      </details>
+      <details class="q">
+        <summary>Which suburbs do you cover?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <p class="a p muted">More than 30 suburbs across Melbourne's east. Check your postcode above for an instant answer.</p>
+      </details>
+      <details class="q">
+        <summary>Are your products safe for sensitive skin?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <p class="a p muted">Yes. We use low-tox, fragrance-free detergents as standard, and you can flag allergies on your booking.</p>
+      </details>
+      <details class="q">
+        <summary>Can I book a regular fortnightly clean?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></summary>
+        <p class="a p muted">You can. Recurring bookings keep the same team where possible, and you're charged per visit rather than up front.</p>
+      </details>
+      <div class="more"><a class="btn btn-ghost" href="#">See all FAQs →</a></div>
+    </div>
+  </section>
+
+  <!-- ============ 10 · CLOSING CTA ============ -->
+  <section class="band b-navy cta" data-q="Ready?">
+    <div class="container stack">
+      <h2 class="h2">Ready for your last laundry day?</h2>
+      <p class="lead">Get a price in under two minutes. Free pickup and delivery right across the eastern suburbs.</p>
+      <div><a class="btn btn-gold btn-pill" href="#">Get my estimate</a></div>
+      <p class="meta">Or call us on 03 XXXX XXXX, 7am to 7pm, seven days.</p>
+    </div>
+  </section>
+
+  <!-- ============ 11 · FOOTER ============ -->
+  <footer class="foot">
+    <div class="container">
+      <div class="fgrid">
+        <div class="c1">
+          <div class="brand">
+            <div class="mark"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.6 6.5L21 11l-6.4 2.5L12 20l-2.6-6.5L3 11l6.4-2.5z"/></svg></div>
+            <div class="wm">BRILLIANCE CARE<small>LAUNDRY &amp; CLEANING</small></div>
+          </div>
+          <p class="blurb">Family-run laundry and cleaning, looking after Melbourne's eastern suburbs since 2023.</p>
+          <p class="meta abn">ABN XX XXX XXX XXX</p>
+        </div>
+        <div class="col">
+          <h4>Services</h4>
+          <ul><li><a href="#">Laundry</a></li><li><a href="#">Cleaning</a></li><li><a href="#">End of lease</a></li><li><a href="#">Shop</a></li><li><a href="#">Pricing</a></li></ul>
+        </div>
+        <div class="col">
+          <h4>Company</h4>
+          <ul><li><a href="#">About us</a></li><li><a href="#">How it works</a></li><li><a href="#">Service area</a></li><li><a href="#">FAQ</a></li><li><a href="#">Contact</a></li></ul>
+        </div>
+        <div class="col">
+          <h4>Get in touch</h4>
+          <ul><li><a href="#">03 XXXX XXXX</a></li><li><a href="#">hello@brilliancecare.com.au</a></li><li>7am – 7pm, seven days</li></ul>
+          <div class="news">
+            <label class="sr" for="nl">Email address</label>
+            <input class="field" id="nl" placeholder="Your email">
+            <button class="btn btn-gold">Sign up</button>
+          </div>
+        </div>
+      </div>
+      <div class="fbar">
+        <span>© 2026 Brilliance Care Pty Ltd. All prices AUD, GST included.</span>
+        <span>Privacy · Terms</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ MOBILE TAB BAR ============ -->
+  <div class="tabbar">
+    <div class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9H4z"/></svg>Home</div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v14H4z"/><path d="M4 10h16"/></svg>Services</div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Book</div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v17l-3-2-3 2-3-2-3 2z"/></svg>Orders</div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.5-3.6 4-5.4 7-5.4s5.5 1.8 7 5.4"/></svg>Account</div>
+  </div>
+
+  <!-- ============ STICKY RAIL (desktop) ============ -->
+  <div class="rail">
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h14v16H5z"/><path d="M9 2v4M15 2v4M5 10h14"/></svg>Book online</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Pricing</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h4l2 5-2.5 1.5a12 12 0 006 6L17 13l5 2v4a2 2 0 01-2 2A17 17 0 013 6a2 2 0 012-2z"/></svg>Contact</a>
+  </div>
+
+</div><!-- /page -->
+</div><!-- /stage -->
+</div>
+
+<script>
+(function(){
+  var stage=document.getElementById('stage'),
+      d=document.getElementById('vDesk'), m=document.getElementById('vMob');
+  function set(mob){
+    stage.classList.toggle('is-mobile',mob);
+    d.setAttribute('aria-pressed',String(!mob));
+    m.setAttribute('aria-pressed',String(mob));
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  d.addEventListener('click',function(){set(false)});
+  m.addEventListener('click',function(){set(true)});
+  document.getElementById('notes').addEventListener('change',function(e){
+    document.body.classList.toggle('notes',e.target.checked);
+  });
+})();
+</script>
+</body>
+</html>

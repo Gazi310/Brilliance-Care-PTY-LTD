@@ -1,0 +1,25 @@
+# Line endings
+#
+# Without this file, an editor or tool on Windows can silently rewrite a
+# file from LF to CRLF, and git reports every single line as changed.
+# That happened once already: 71 files across client/ and server/ showed
+# as modified when nothing in them had actually changed.
+#
+# `text=auto eol=lf` means: git decides what's text, stores it with LF,
+# and checks it out with LF. One convention everywhere, including on
+# Windows. This matches Vite, ESLint and Prettier defaults.
+
+* text=auto eol=lf
+
+# Binary formats — git must never try to normalise these.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.pdf   binary

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Brilliance Care — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css">
+</head>
+<body data-page="profile" data-title="Profile — /account/profile" data-nav="index"
+      data-crumb="Home / Account / Profile" data-hero-title="Your details"
+      data-hero-sub="Saved so booking takes two taps next time."
+      data-hero-img="customer at their front door">
+<main>
+
+<section class="band b-white">
+  <div class="container split">
+
+    <!-- side nav -->
+    <div style="flex:0 0 230px">
+      <div class="summary" style="background:var(--sky-50)">
+        <p class="eyebrow" style="margin-bottom:14px">Account</p>
+        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px">
+          <li><a href="account-orders.html" class="btn btn-sm btn-block" style="background:transparent;color:var(--navy-900);justify-content:flex-start">My orders</a></li>
+          <li><a href="invoice.html" class="btn btn-sm btn-block" style="background:transparent;color:var(--navy-900);justify-content:flex-start">Invoices</a></li>
+          <li><a href="profile.html" class="btn btn-sm btn-block btn-navy" style="justify-content:flex-start">Profile</a></li>
+        </ul>
+        <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--line)">
+          <a class="btn-ghost" href="login.html" style="font-size:14px">Log out</a>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1.6">
+      <div class="card" style="margin-bottom:20px">
+        <h3 class="h3" style="margin-bottom:20px">Personal details</h3>
+        <div class="form-grid">
+          <div class="fgroup"><label class="label" for="f1">First name</label><input class="field" id="f1" value="Priya"></div>
+          <div class="fgroup"><label class="label" for="f2">Last name</label><input class="field" id="f2" value="Mehta"></div>
+          <div class="fgroup"><label class="label" for="f3">Email</label><input class="field" id="f3" value="priya@example.com"></div>
+          <div class="fgroup"><label class="label" for="f4">Mobile</label><input class="field" id="f4" value="0412 345 678"></div>
+        </div>
+        <button class="btn btn-gold btn-sm" style="margin-top:20px">Save changes</button>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <h3 class="h3" style="margin-bottom:6px">Service address</h3>
+        <p class="meta muted" style="margin-bottom:20px">Where we pick up from and deliver to by default.</p>
+        <div class="form-grid">
+          <div class="fgroup full"><label class="label" for="a1">Street address</label><input class="field" id="a1" value="12 Station Street"></div>
+          <div class="fgroup"><label class="label" for="a2">Suburb</label><input class="field" id="a2" value="Box Hill"></div>
+          <div class="fgroup"><label class="label" for="a3">Postcode</label><input class="field" id="a3" value="3128"></div>
+          <div class="fgroup full"><label class="label" for="a4">Access notes</label>
+            <textarea class="field" id="a4" style="min-height:100px">Lockbox on the gate, code 4417. Small dog in the yard — friendly.</textarea></div>
+        </div>
+        <button class="btn btn-gold btn-sm" style="margin-top:20px">Save address</button>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <h3 class="h3" style="margin-bottom:6px">Laundry preferences</h3>
+        <p class="meta muted" style="margin-bottom:20px">Applied to every booking unless you change it at checkout.</p>
+        <div class="form-grid">
+          <div class="fgroup"><label class="label" for="p1">Detergent</label>
+            <select class="field" id="p1"><option>Fragrance-free (default)</option><option>Lavender Bloom</option><option>I'll supply my own</option></select></div>
+          <div class="fgroup"><label class="label" for="p2">Shirts returned</label>
+            <select class="field" id="p2"><option>Folded</option><option selected>On hangers</option></select></div>
+          <div class="fgroup full"><label class="label" for="p3">Allergies or fabrics to avoid</label>
+            <input class="field" id="p3" placeholder="e.g. no wool wash, sensitive to enzymes"></div>
+        </div>
+        <button class="btn btn-gold btn-sm" style="margin-top:20px">Save preferences</button>
+      </div>
+
+      <div class="card">
+        <h3 class="h3" style="margin-bottom:20px">Notifications</h3>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <label class="tgl" style="color:var(--ink);font-size:15.5px"><input type="checkbox" checked> Text me when the driver is on the way</label>
+          <label class="tgl" style="color:var(--ink);font-size:15.5px"><input type="checkbox" checked> Email me the final invoice</label>
+          <label class="tgl" style="color:var(--ink);font-size:15.5px"><input type="checkbox" checked> Remind me the night before a booking</label>
+          <label class="tgl" style="color:var(--ink);font-size:15.5px"><input type="checkbox"> Occasional offers and seasonal reminders</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<script src="shell.js"></script>
+</body>
+</html>

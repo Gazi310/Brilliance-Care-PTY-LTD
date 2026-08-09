@@ -66,8 +66,8 @@ function Tab({ to, label, Icon, end }) {
     >
       {({ isActive }) => (
         <>
-          <Icon width={23} height={23} className={isActive ? 'text-navy' : 'text-faint'} />
-          <span className={`text-[10px] font-bold ${isActive ? 'text-navy' : 'text-faint'}`}>
+          <Icon width={23} height={23} className={isActive ? 'text-navy-900' : 'text-muted'} />
+          <span className={`text-[10px] font-bold ${isActive ? 'text-navy-900' : 'text-muted'}`}>
             {label}
           </span>
         </>
@@ -87,23 +87,24 @@ export default function BottomTabBar() {
       aria-label="Primary"
       className="fixed inset-x-0 bottom-0 z-50 lg:hidden"
     >
-      <div className="mx-auto flex max-w-lg items-end justify-between gap-1 border-t border-line bg-white/95 px-3 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_24px_rgba(11,58,102,0.08)] backdrop-blur-md">
+      <div className="mx-auto flex max-w-lg items-end justify-between gap-1 border-t border-line bg-white/95 px-3 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-2 shadow-[0_-8px_24px_rgba(4,30,96,0.08)] backdrop-blur-md">
         {LEFT.map((t) => (
           <Tab key={t.to} {...t} />
         ))}
 
-        {/* Raised centre Book button */}
+        {/* Raised centre Book button — the money path, and the one
+            gold element on this bar. */}
         <NavLink to="/book" className="flex flex-1 flex-col items-center">
           {({ isActive }) => (
             <>
               <span
-                className={`-mt-7 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-navy to-aqua text-white shadow-cta ring-4 ring-white transition-transform ${
+                className={`-mt-7 flex h-14 w-14 items-center justify-center rounded-full bg-gold-500 text-navy-900 shadow-lift ring-4 ring-white transition-transform ${
                   isActive ? 'scale-105' : 'hover:scale-105'
                 }`}
               >
                 <PlusIcon width={26} height={26} />
               </span>
-              <span className="mt-1 text-[10px] font-extrabold text-navy">Book</span>
+              <span className="mt-1 text-[10px] font-extrabold text-navy-900">Book</span>
             </>
           )}
         </NavLink>

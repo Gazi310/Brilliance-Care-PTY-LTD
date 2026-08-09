@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Brilliance Care — Work queue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css">
+</head>
+<body data-page="admin-orders" data-title="Admin — work queue" data-shell="admin">
+<main>
+<div class="adminwrap">
+  <div data-aside="orders"></div>
+  <div class="amain">
+
+    <div class="ahead">
+      <div><p class="eyebrow">Orders</p><h1 class="h2" style="font-size:32px;margin-top:6px">Work queue</h1></div>
+      <div style="display:flex;gap:10px">
+        <input class="field" placeholder="Search order, name or phone…" style="height:44px;font-size:14px;width:260px">
+        <button class="btn btn-out btn-sm">Export</button>
+      </div>
+    </div>
+
+    <div class="segbar">
+      <span class="chip on">Needs assessment (2)</span>
+      <span class="chip">Awaiting deposit (1)</span>
+      <span class="chip">Scheduled (12)</span>
+      <span class="chip">Invoiced, unpaid (9)</span>
+      <span class="chip">Completed (140)</span>
+      <span class="chip">All</span>
+    </div>
+
+    <div class="panel">
+      <h3>Needs assessment</h3>
+      <table class="dtable">
+        <thead><tr><th>Order</th><th>Customer</th><th>Job</th><th>Collected</th><th>Estimate</th><th style="text-align:right">Action</th></tr></thead>
+        <tbody>
+          <tr><td><strong>BC-1042</strong></td><td>Priya Mehta<br><span class="muted">Box Hill 3128</span></td>
+            <td>Wash &amp; fold × 2, duvet × 1<br><span class="muted">+ standard clean 3/2</span></td>
+            <td>Yesterday 8:40am</td><td class="num">$238.97</td>
+            <td class="num"><a class="btn btn-gold btn-sm" href="admin-assess.html">Assess</a></td></tr>
+          <tr><td><strong>BC-1039</strong></td><td>Tom Whelan<br><span class="muted">Ringwood 3134</span></td>
+            <td>Deep clean 4/2</td><td>Today 3:20pm</td><td class="num">$349.00</td>
+            <td class="num"><a class="btn btn-gold btn-sm" href="admin-assess.html">Assess</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>Awaiting deposit</h3>
+      <table class="dtable">
+        <thead><tr><th>Order</th><th>Customer</th><th>Job</th><th>Slot held until</th><th>Deposit</th><th style="text-align:right">Action</th></tr></thead>
+        <tbody>
+          <tr><td><strong>BC-1053</strong></td><td>guest:0433221100<br><span class="muted">Blackburn 3130</span></td>
+            <td>Wash &amp; fold × 3</td><td><span class="tag tag-bad">6:00pm today</span></td><td class="num">$37.49</td>
+            <td class="num"><a class="btn btn-out btn-sm" href="#">Send link</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>Invoiced, unpaid</h3>
+      <table class="dtable">
+        <thead><tr><th>Invoice</th><th>Customer</th><th>Sent</th><th>Balance</th><th>Reminders</th><th style="text-align:right">Action</th></tr></thead>
+        <tbody>
+          <tr><td><strong>BC-INV-0081</strong></td><td>Helen Tran</td><td>4 days ago</td><td class="num">$148.50</td><td>1 sent</td>
+            <td class="num"><a class="btn btn-out btn-sm" href="#">Remind</a></td></tr>
+          <tr><td><strong>BC-INV-0079</strong></td><td>Jonas Reid</td><td>6 days ago</td><td class="num">$92.00</td><td>2 sent</td>
+            <td class="num"><a class="btn btn-out btn-sm" href="#">Call</a></td></tr>
+          <tr><td><strong>BC-INV-0074</strong></td><td>guest:0455119887</td><td>9 days ago</td><td class="num">$210.75</td><td>2 sent</td>
+            <td class="num"><a class="btn btn-out btn-sm" href="#">Call</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h3>Scheduled</h3>
+      <table class="dtable">
+        <thead><tr><th>Order</th><th>Customer</th><th>Job</th><th>Window</th><th>Team</th><th style="text-align:right">Status</th></tr></thead>
+        <tbody>
+          <tr><td><strong>BC-1051</strong></td><td>Sarah Kellett</td><td>Deep clean 3/2</td><td>Sat 16 Aug, 10–1</td><td>Team A</td><td class="num"><span class="tag tag-info">Deposit paid</span></td></tr>
+          <tr><td><strong>BC-1049</strong></td><td>Anh Nguyen</td><td>Wash &amp; fold × 4</td><td>Mon 11 Aug, 8–10</td><td>Van 1</td><td class="num"><span class="tag tag-info">Deposit paid</span></td></tr>
+          <tr><td><strong>BC-1047</strong></td><td>Marcus Ordway</td><td>End of lease 2/1</td><td>Tue 12 Aug, 8–4</td><td>Team B</td><td class="num"><span class="tag tag-info">Deposit paid</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+</main>
+<script src="shell.js"></script>
+</body>
+</html>

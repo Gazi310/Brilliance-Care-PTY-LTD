@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Brilliance Care — Invoice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css">
+</head>
+<body data-page="invoice" data-title="Invoice + pay balance — /account/invoices/:id" data-nav="index"
+      data-crumb="Home / Account / Orders / Invoice" data-hero-title="Invoice BC-INV-0087"
+      data-hero-sub="Order BC-1042 · issued 12 August 2026"
+      data-hero-img="invoice on a bench">
+<main>
+
+<section class="band b-white">
+  <div class="container split">
+
+    <div style="flex:1.6">
+      <div class="notice notice-ok" style="margin-bottom:26px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>
+        <div><strong>Your laundry came in lighter than estimated.</strong> We've charged for 1.6 loads instead of 2, so this invoice is $12.49 below your estimate.</div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px">
+          <div>
+            <p class="eyebrow">Billed to</p>
+            <p class="p" style="margin-top:8px">Priya Mehta<br>12 Station Street<br>Box Hill VIC 3128</p>
+          </div>
+          <div style="text-align:right">
+            <p class="eyebrow">Brilliance Care Pty Ltd</p>
+            <p class="meta muted" style="margin-top:8px">ABN XX XXX XXX XXX<br>hello@brilliancecare.com.au<br>03 XXXX XXXX</p>
+          </div>
+        </div>
+
+        <table class="ptable" style="box-shadow:none;border:1px solid var(--line)">
+          <thead><tr><th>Line</th><th>Estimated</th><th style="text-align:right">Actual</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Wash &amp; Fold</strong><small>Estimated 2 loads · weighed at 12.8kg = 1.6 loads</small></td><td>$49.98</td><td class="num" style="color:var(--ok)">$39.98</td></tr>
+            <tr><td><strong>Duvet &amp; Bedding</strong><small>1 king doona</small></td><td>$29.99</td><td class="num">$29.99</td></tr>
+            <tr><td><strong>Standard Home Clean</strong><small>3 bedrooms / 2 bathrooms</small></td><td>$159.00</td><td class="num">$159.00</td></tr>
+            <tr><td><strong>Bathroom descaler</strong><small>Extra product used — agreed on site</small></td><td>—</td><td class="num">$8.75</td></tr>
+            <tr><td><strong>Pickup &amp; delivery</strong></td><td>Free</td><td class="num" style="color:var(--ok)">Free</td></tr>
+          </tbody>
+        </table>
+
+        <ul class="lines" style="margin-top:22px">
+          <li><span class="n">Original estimate</span><span class="v">$238.97</span></li>
+          <li><span class="n">Assessed total (incl. GST)</span><span class="v">$237.72</span></li>
+          <li><span class="n">GST included</span><span class="v">$21.61</span></li>
+          <li><span class="n">Deposit paid 10 Aug</span><span class="v" style="color:var(--ok)">− $119.49</span></li>
+          <li class="total"><span>Balance due</span><span>$118.23</span></li>
+        </ul>
+      </div>
+
+      <div style="margin-top:22px;display:flex;gap:12px;flex-wrap:wrap">
+        <a class="btn btn-out btn-sm" href="#">Download PDF</a>
+        <a class="btn btn-out btn-sm" href="#">Email me a copy</a>
+        <a class="btn-ghost" href="account-orders.html" style="font-size:14px;align-self:center">← Back to orders</a>
+      </div>
+    </div>
+
+    <!-- pay -->
+    <div>
+      <div class="summary">
+        <p class="eyebrow">Settle your balance</p>
+        <div class="price" style="font-size:38px;margin:12px 0 6px">$118.23</div>
+        <p class="meta muted" style="margin-bottom:22px">Due on delivery — Thu 13 Aug, 4:00–6:00pm</p>
+
+        <div class="fgroup" style="margin-bottom:14px"><label class="label" for="cn">Card number</label>
+          <input class="field" id="cn" placeholder="1234 5678 9012 3456" style="height:52px;font-size:16px"></div>
+        <div style="display:flex;gap:10px">
+          <div class="fgroup" style="flex:1"><label class="label" for="ce">Expiry</label>
+            <input class="field" id="ce" placeholder="MM / YY" style="height:52px;font-size:16px"></div>
+          <div class="fgroup" style="flex:1"><label class="label" for="cv">CVC</label>
+            <input class="field" id="cv" placeholder="123" style="height:52px;font-size:16px"></div>
+        </div>
+        <button class="btn btn-gold btn-block" style="margin-top:18px">Pay $118.23</button>
+
+        <div style="margin-top:20px;padding-top:18px;border-top:1px solid var(--line)">
+          <p class="meta muted">Prefer not to pay online? Settle by card or cash with the driver at delivery — just leave this open.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<script src="shell.js"></script>
+</body>
+</html>

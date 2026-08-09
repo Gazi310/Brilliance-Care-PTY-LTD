@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Brilliance Care — Pay deposit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css">
+</head>
+<body data-page="checkout" data-title="Deposit checkout — /checkout/:orderId" data-nav="index">
+<main>
+
+<section class="band b-white" style="padding-top:56px">
+  <div class="container">
+
+    <div class="crumb" style="color:var(--muted);margin-bottom:26px">
+      <a href="book.html">Review</a><span class="sep">›</span><span>Payment</span>
+    </div>
+
+    <div class="split">
+      <div style="flex:1.4">
+        <h1 class="h1" style="font-size:38px">Pay your deposit</h1>
+        <p class="lead muted" style="margin:14px 0 32px">Order <strong>BC-1042</strong>. This holds your slots — the balance comes after we've assessed the job.</p>
+
+        <div class="card">
+          <h3 class="h3" style="margin-bottom:20px">Card details</h3>
+          <div class="form-grid">
+            <div class="fgroup full"><label class="label" for="cn">Card number</label>
+              <input class="field" id="cn" placeholder="1234 5678 9012 3456" inputmode="numeric"></div>
+            <div class="fgroup"><label class="label" for="ce">Expiry</label><input class="field" id="ce" placeholder="MM / YY"></div>
+            <div class="fgroup"><label class="label" for="cv">Security code</label><input class="field" id="cv" placeholder="123" inputmode="numeric"></div>
+            <div class="fgroup full"><label class="label" for="cnm">Name on card</label><input class="field" id="cnm" placeholder="P Mehta"></div>
+          </div>
+          <div class="notice notice-info" style="margin-top:22px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V8a6 6 0 1112 0v2"/><path d="M5 10h14v10H5z"/></svg>
+            <div>Payments are handled by our payment provider. Card details never touch our servers.</div>
+          </div>
+          <button class="btn btn-gold btn-block" style="margin-top:24px">Pay $119.49 deposit</button>
+          <p class="hint center" style="margin-top:14px">By paying you accept our terms and cancellation policy.</p>
+        </div>
+
+        <div class="card" style="margin-top:20px">
+          <h3 class="h3" style="margin-bottom:14px">Billing address</h3>
+          <label class="tgl" style="color:var(--ink);font-size:15px;margin-bottom:14px">
+            <input type="checkbox" checked> Same as the service address</label>
+          <p class="meta muted">12 Station Street, Box Hill VIC 3128</p>
+        </div>
+      </div>
+
+      <div>
+        <div class="summary">
+          <p class="eyebrow">Order BC-1042</p>
+          <ul class="lines" style="margin-top:14px">
+            <li><span class="n">Wash &amp; Fold × 2</span><span class="v">$49.98</span></li>
+            <li><span class="n">Duvet &amp; Bedding × 1</span><span class="v">$29.99</span></li>
+            <li><span class="n">Standard Clean · 3/2</span><span class="v">$159.00</span></li>
+            <li><span class="n">Pickup &amp; delivery</span><span class="v" style="color:var(--ok)">Free</span></li>
+            <li class="total"><span>Estimate</span><span>$238.97</span></li>
+            <li class="due"><span class="n" style="color:var(--navy-900);font-weight:700">Due today (50%)</span><span class="v">$119.49</span></li>
+          </ul>
+
+          <div style="margin-top:22px;padding-top:20px;border-top:1px solid var(--line)">
+            <p class="meta" style="font-weight:600;margin-bottom:10px">Your slots</p>
+            <p class="meta muted">Laundry pickup · Tue 11 Aug, 8–10am</p>
+            <p class="meta muted">Cleaning · Wed 12 Aug, 10am–1pm</p>
+            <p class="meta muted">Delivery · Thu 13 Aug, 4–6pm</p>
+          </div>
+
+          <p class="meta muted" style="margin-top:18px">Balance of $119.48 is invoiced after assessment, then settled on delivery — by card, or cash to the driver.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+<script src="shell.js"></script>
+</body>
+</html>

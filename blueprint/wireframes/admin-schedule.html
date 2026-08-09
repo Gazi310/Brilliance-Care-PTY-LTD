@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Brilliance Care — Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css">
+<style>
+  .slotrow{display:flex;align-items:center;gap:14px;padding:14px 24px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .slotrow:last-child{border-bottom:0}
+  .slotrow .w{font-family:var(--display);font-weight:700;width:130px;flex:none;color:var(--navy-900)}
+  .slotrow .g{flex:1;min-width:140px}
+  .cap{height:8px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:8px}
+  .cap i{display:block;height:100%;background:var(--gold-500)}
+</style>
+</head>
+<body data-page="admin-schedule" data-title="Admin — schedule &amp; slot windows" data-shell="admin">
+<main>
+<div class="adminwrap">
+  <div data-aside="schedule"></div>
+  <div class="amain">
+
+    <div class="ahead">
+      <div><p class="eyebrow">Schedule</p><h1 class="h2" style="font-size:32px;margin-top:6px">Week of 10 August</h1></div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <select class="field" style="height:44px;font-size:14px;width:auto">
+          <option>Laundry calendar</option><option>Cleaning calendar</option><option>Shop delivery</option>
+        </select>
+        <button class="btn btn-out btn-sm">‹ Prev</button>
+        <button class="btn btn-out btn-sm">Next ›</button>
+      </div>
+    </div>
+
+    <div class="notice notice-info" style="margin-bottom:22px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/></svg>
+      <div><strong>Three independent calendars.</strong> Laundry, cleaning and shop delivery each have their own availability, because they're run by different teams. Opening a window here only affects the calendar selected above.</div>
+    </div>
+
+    <div class="week">
+      <div class="day"><div class="dw">Mon</div><div class="dd">10</div><div class="dc">6 jobs</div></div>
+      <div class="day on"><div class="dw">Tue</div><div class="dd">11</div><div class="dc">8 jobs</div></div>
+      <div class="day"><div class="dw">Wed</div><div class="dd">12</div><div class="dc">7 jobs</div></div>
+      <div class="day"><div class="dw">Thu</div><div class="dd">13</div><div class="dc">5 jobs</div></div>
+      <div class="day"><div class="dw">Fri</div><div class="dd">14</div><div class="dc">9 jobs</div></div>
+      <div class="day"><div class="dw">Sat</div><div class="dd">15</div><div class="dc">11 jobs</div></div>
+      <div class="day"><div class="dw">Sun</div><div class="dd">16</div><div class="dc">Closed</div></div>
+    </div>
+
+    <div class="split" style="gap:24px">
+      <div style="flex:1.4">
+        <div class="panel">
+          <h3>Tuesday 11 August · jobs</h3>
+          <table class="dtable">
+            <thead><tr><th>Window</th><th>Job</th><th>Customer</th><th>Team</th><th style="text-align:right">Status</th></tr></thead>
+            <tbody>
+              <tr><td><strong>8:00–10:00</strong></td><td>Pickup</td><td>Priya Mehta · Box Hill</td><td>Van 1</td><td class="num"><span class="tag tag-info">Scheduled</span></td></tr>
+              <tr><td><strong>8:00–10:00</strong></td><td>Pickup</td><td>Anh Nguyen · Blackburn</td><td>Van 1</td><td class="num"><span class="tag tag-info">Scheduled</span></td></tr>
+              <tr><td><strong>10:00–12:00</strong></td><td>Pickup</td><td>Jonas Reid · Surrey Hills</td><td>Van 2</td><td class="num"><span class="tag tag-info">Scheduled</span></td></tr>
+              <tr><td><strong>12:00–2:00</strong></td><td>Delivery</td><td>Helen Tran · Camberwell</td><td>Van 1</td><td class="num"><span class="tag tag-warn">Balance due</span></td></tr>
+              <tr><td><strong>2:00–4:00</strong></td><td>Delivery</td><td>Sarah Kellett · Mount Waverley</td><td>Van 2</td><td class="num"><span class="tag tag-info">Scheduled</span></td></tr>
+              <tr><td><strong>4:00–6:00</strong></td><td>Pickup</td><td>Marcus Ordway · Glen Waverley</td><td>Van 1</td><td class="num"><span class="tag tag-info">Scheduled</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <h3>Booking windows <button class="btn btn-gold btn-sm">+ Add</button></h3>
+          <div class="slotrow"><div class="w">8:00–10:00</div>
+            <div class="g"><span class="meta muted">2 of 4 booked</span><div class="cap"><i style="width:50%"></i></div></div>
+            <label class="tgl" style="color:var(--ink)"><input type="checkbox" checked> Open</label></div>
+          <div class="slotrow"><div class="w">10:00–12:00</div>
+            <div class="g"><span class="meta muted">1 of 4 booked</span><div class="cap"><i style="width:25%"></i></div></div>
+            <label class="tgl" style="color:var(--ink)"><input type="checkbox" checked> Open</label></div>
+          <div class="slotrow"><div class="w">12:00–2:00</div>
+            <div class="g"><span class="meta muted">4 of 4 booked</span><div class="cap"><i style="width:100%"></i></div></div>
+            <label class="tgl" style="color:var(--ink)"><input type="checkbox" checked> Open</label></div>
+          <div class="slotrow"><div class="w">2:00–4:00</div>
+            <div class="g"><span class="meta muted">1 of 4 booked</span><div class="cap"><i style="width:25%"></i></div></div>
+            <label class="tgl" style="color:var(--ink)"><input type="checkbox" checked> Open</label></div>
+          <div class="slotrow"><div class="w">4:00–6:00</div>
+            <div class="g"><span class="meta muted">1 of 4 booked</span><div class="cap"><i style="width:25%"></i></div></div>
+            <label class="tgl" style="color:var(--ink)"><input type="checkbox" checked> Open</label></div>
+          <div class="slotrow"><div class="w">6:00–8:00</div>
+            <div class="g"><span class="meta muted">Closed — no team rostered</span><div class="cap"><i style="width:0"></i></div></div>
+            <label class="tgl" style="color:var(--ink)"><input type="checkbox"> Open</label></div>
+        </div>
+
+        <div class="panel">
+          <h3>Capacity</h3>
+          <table class="dtable">
+            <tbody>
+              <tr><td>Vans rostered</td><td class="num">2</td></tr>
+              <tr><td>Jobs per window</td><td class="num">4</td></tr>
+              <tr><td>Utilisation today</td><td class="num">58%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</main>
+<script src="shell.js"></script>
+</body>
+</html>

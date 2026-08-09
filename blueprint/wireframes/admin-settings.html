@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Brilliance Care — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css">
+</head>
+<body data-page="admin-settings" data-title="Admin — settings, pricing &amp; catalogue" data-shell="admin">
+<main>
+<div class="adminwrap">
+  <div data-aside="settings"></div>
+  <div class="amain">
+
+    <div class="ahead">
+      <div><p class="eyebrow">Settings</p><h1 class="h2" style="font-size:32px;margin-top:6px">Business settings</h1></div>
+      <button class="btn btn-gold btn-sm">Save all changes</button>
+    </div>
+
+    <div class="split" style="gap:24px">
+      <div style="flex:1.4">
+
+        <div class="panel">
+          <h3>Pricing &amp; tax</h3>
+          <div style="padding:22px 24px">
+            <div class="form-grid">
+              <div class="fgroup"><label class="label" for="dep">Deposit percentage</label>
+                <input class="field" id="dep" value="50"><p class="hint">Percent of the estimate taken at booking.</p></div>
+              <div class="fgroup"><label class="label" for="gst">GST rate</label>
+                <input class="field" id="gst" value="10"><p class="hint">Applied when GST is switched on below.</p></div>
+              <div class="fgroup"><label class="label" for="dfee">Shop delivery fee</label>
+                <input class="field" id="dfee" value="9.95"><p class="hint">Flat fee on shop-only orders. Free when attached to a booking.</p></div>
+              <div class="fgroup"><label class="label" for="cap">Jobs per window</label>
+                <input class="field" id="cap" value="4"><p class="hint">Default capacity for new booking windows.</p></div>
+            </div>
+            <div style="margin-top:22px;padding-top:20px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:14px">
+              <label class="tgl" style="color:var(--ink);font-size:15.5px"><input type="checkbox" checked> Business is registered for GST</label>
+              <p class="hint" style="margin:0">Switching this off sets GST to $0 across estimates, invoices and the footer — it does not change the displayed prices.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Business details</h3>
+          <div style="padding:22px 24px">
+            <div class="form-grid">
+              <div class="fgroup full"><label class="label" for="bn">Trading name</label><input class="field" id="bn" value="Brilliance Care Pty Ltd"></div>
+              <div class="fgroup"><label class="label" for="abn">ABN</label><input class="field" id="abn" placeholder="XX XXX XXX XXX"></div>
+              <div class="fgroup"><label class="label" for="ph">Phone</label><input class="field" id="ph" placeholder="03 XXXX XXXX"></div>
+              <div class="fgroup full"><label class="label" for="eml">Email</label><input class="field" id="eml" value="hello@brilliancecare.com.au"></div>
+              <div class="fgroup full"><label class="label" for="hrs">Opening hours</label><input class="field" id="hrs" value="7am – 7pm, seven days"></div>
+            </div>
+            <p class="hint" style="margin-top:14px">These feed the site footer, invoices, and the closing call-to-action on every marketing page.</p>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Service area</h3>
+          <div style="padding:22px 24px">
+            <label class="label">Postcodes served</label>
+            <div class="chips" style="margin:12px 0 16px">
+              <span class="chip">3128 ✕</span><span class="chip">3124 ✕</span><span class="chip">3108 ✕</span>
+              <span class="chip">3134 ✕</span><span class="chip">3150 ✕</span><span class="chip">3130 ✕</span>
+              <span class="chip">3103 ✕</span><span class="chip">3149 ✕</span><span class="chip">3101 ✕</span>
+              <span class="chip">3131 ✕</span><span class="chip">3133 ✕</span><span class="chip">3125 ✕</span>
+            </div>
+            <div style="display:flex;gap:10px;max-width:360px">
+              <input class="field" placeholder="Add a postcode" inputmode="numeric" style="height:48px">
+              <button class="btn btn-out btn-sm" style="flex:none">Add</button>
+            </div>
+            <p class="hint" style="margin-top:12px">Drives the postcode checker in the hero, the service-area section and the footer.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="panel">
+          <h3>Catalogue <a class="btn-ghost" href="#" style="font-size:14px">Manage →</a></h3>
+          <table class="dtable">
+            <tbody>
+              <tr><td>Laundry services</td><td class="num">6 live</td></tr>
+              <tr><td>Cleaning services</td><td class="num">7 live</td></tr>
+              <tr><td>Shop products</td><td class="num">12 live</td></tr>
+              <tr><td>Out of stock</td><td class="num" style="color:var(--warn)">1</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h3>Notifications</h3>
+          <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+            <label class="tgl" style="color:var(--ink);font-size:15px"><input type="checkbox" checked> Email customers on invoice send</label>
+            <label class="tgl" style="color:var(--ink);font-size:15px"><input type="checkbox" checked> SMS on driver dispatch</label>
+            <label class="tgl" style="color:var(--ink);font-size:15px"><input type="checkbox" checked> Night-before booking reminder</label>
+            <label class="tgl" style="color:var(--ink);font-size:15px"><input type="checkbox"> Weekly summary to owners</label>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Cancellation policy</h3>
+          <div style="padding:20px 24px">
+            <div class="fgroup" style="margin-bottom:14px"><label class="label" for="cw">Free cancellation window</label>
+              <select class="field" id="cw"><option>24 hours before</option><option>12 hours before</option><option>48 hours before</option></select></div>
+            <div class="fgroup"><label class="label" for="cf">Retained inside the window</label>
+              <select class="field" id="cf"><option>50% of deposit</option><option>100% of deposit</option><option>Nothing</option></select></div>
+            <p class="hint" style="margin-top:12px">Shown on the FAQ and how-it-works pages, and at checkout.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</main>
+<script src="shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Brilliance Care — Contact</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@300;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css">
+</head>
+<body data-page="contact" data-title="Contact + service area" data-nav="contact"
+      data-crumb="Home / Contact" data-hero-title="Get in touch"
+      data-hero-sub="A person answers the phone, seven days a week. Or send a message and we'll come back within one business day."
+      data-hero-img="team member on the phone in the depot">
+<main>
+
+  <section class="band b-white" data-q="How do I reach a human?">
+    <div class="container split">
+
+      <!-- form -->
+      <div style="flex:1.4">
+        <h2 class="h2">Send us a message</h2>
+        <p class="p muted" style="margin:14px 0 32px">For a price, the <a href="book.html">estimator</a> is faster — it gives you a number instantly.</p>
+        <div class="form-grid">
+          <div class="fgroup"><label class="label" for="fn">First name</label><input class="field" id="fn" placeholder="Priya"></div>
+          <div class="fgroup"><label class="label" for="ln">Last name</label><input class="field" id="ln" placeholder="Mehta"></div>
+          <div class="fgroup"><label class="label" for="em">Email</label><input class="field" id="em" type="email" placeholder="you@example.com"></div>
+          <div class="fgroup"><label class="label" for="tel">Phone</label><input class="field" id="tel" type="tel" placeholder="04XX XXX XXX"></div>
+          <div class="fgroup full"><label class="label" for="sub">What's it about?</label>
+            <select class="field" id="sub">
+              <option>A booking I've already made</option>
+              <option>A quote for something unusual</option>
+              <option>Commercial or bulk enquiry</option>
+              <option>Something went wrong</option>
+              <option>Something else</option>
+            </select></div>
+          <div class="fgroup full"><label class="label" for="msg">Message</label>
+            <textarea class="field" id="msg" placeholder="Tell us what you need…"></textarea></div>
+          <div class="fgroup full">
+            <button class="btn btn-gold">Send message</button>
+            <p class="hint" style="margin-top:12px">We reply within one business day. Urgent? Call instead.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- details -->
+      <div>
+        <div class="summary">
+          <h3 class="h3" style="margin-bottom:20px">Straight to us</h3>
+          <ul class="lines">
+            <li><span class="n">Phone</span><span class="v">03 XXXX XXXX</span></li>
+            <li><span class="n">Email</span><span class="v">hello@brilliancecare.com.au</span></li>
+            <li><span class="n">Hours</span><span class="v">7am – 7pm, 7 days</span></li>
+            <li><span class="n">ABN</span><span class="v">XX XXX XXX XXX</span></li>
+          </ul>
+          <div class="notice notice-info" style="margin-top:22px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/></svg>
+            <div>We're a mobile service — there's no shopfront to visit. Everything happens at your door.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICE AREA -->
+  <section class="band b-sky" data-q="Do you come to me?">
+    <div class="container split">
+      <div class="stack">
+        <p class="eyebrow">Service area</p>
+        <h2 class="h2">Melbourne's eastern suburbs</h2>
+        <p class="p muted">More than 30 suburbs and growing. If your postcode isn't covered yet, leave it with us — we open new areas based on where people ask.</p>
+        <div class="pcode" style="max-width:460px">
+          <label class="sr" for="pc">Postcode</label>
+          <input class="field" id="pc" placeholder="Enter your postcode" inputmode="numeric">
+          <button class="btn btn-gold">Check</button>
+        </div>
+        <div class="chips">
+          <span>Box Hill</span><span>Camberwell</span><span>Doncaster</span><span>Ringwood</span>
+          <span>Glen Waverley</span><span>Blackburn</span><span>Balwyn</span><span>Mount Waverley</span>
+          <span>Kew</span><span>Nunawading</span><span>Vermont</span><span>Burwood</span>
+          <span>Surrey Hills</span><span>Mitcham</span><span>Croydon</span>
+        </div>
+      </div>
+      <div><div class="imgph" style="aspect-ratio:4/3"><span><b>Map</b>Melbourne east with the service radius highlighted · 4:3</span></div></div>
+    </div>
+  </section>
+
+  <section class="band b-navy center band-sm">
+    <div class="container stack" style="max-width:720px">
+      <h2 class="h2">Know what you need already?</h2>
+      <p class="lead" style="color:var(--sky-100)">Skip the message and get a price in two minutes.</p>
+      <div><a class="btn btn-gold btn-pill" href="book.html">Get my estimate</a></div>
+    </div>
+  </section>
+
+</main>
+<script src="shell.js"></script>
+</body>
+</html>
