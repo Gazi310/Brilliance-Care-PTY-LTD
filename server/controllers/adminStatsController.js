@@ -3,6 +3,7 @@ import Order from '../models/Order.js';
 import Invoice from '../models/Invoice.js';
 import Product from '../models/Product.js';
 import DeliverySlot from '../models/DeliverySlot.js';
+import { getBookingWindowDays } from './settingsController.js';
 import {
   DELIVERY_WINDOWS,
   dayFromToday,
@@ -11,6 +12,9 @@ import {
   isValidYMD,
   parseYMD,
   normalizeScope,
+  scopeUsesHorizon,
+  horizonEndDate,
+  slotStatus,
 } from '../utils/delivery.js';
 
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -173,6 +177,11 @@ export const getAdminSchedule = asyncHandler(async (req, res) => {
   // The booking-windows panel is per-scope (shop / laundry / cleaning); the
   // visits list below is unaffected (visits come from orders, not slots).
   const scope = normalizeScope(req.query.scope);
+  // Laundry only sells a rolling fortnight (see utils/delivery.js). Admins may
+  // still open days past it — those simply aren't live to customers yet, and
+  // `beyondWindow` is what lets the panel say so instead of lying.
+  const usesHorizon = scopeUsesHorizon(scope);
+  const windowDays = usesHorizon ? await getBookingWindowDays() : days;
 
   const meta = Array.from({ length: days }, (_, i) => {
     const d = new Date(start);
@@ -194,24 +203,40 @@ export const getAdminSchedule = asyncHandler(async (req, res) => {
   const daysOut = meta.map((m) => {
     const slots = DELIVERY_WINDOWS.map((w) => {
       const rec = byKey.get(`${m.date}|${w.key}`);
+      const open = rec ? rec.available : false; // occupied by default
       return {
         window: w.key,
         label: w.label,
         time: w.time,
-        available: rec ? rec.available : false, // occupied by default
+        available: open,
+        status: slotStatus({ date: m.date, open, scope, windowDays }),
         note: rec?.note || '',
       };
     });
     const jobs = orders.flatMap((o) => jobsFromOrder(o, m.date)).sort(byWindow);
+    const availableCount = slots.filter((s) => s.available).length;
     return {
       ...m,
       isToday: m.date === today,
       slots,
-      availableCount: slots.filter((s) => s.available).length,
+      availableCount,
+      status: slotStatus({ date: m.date, open: availableCount > 0, scope, windowDays }),
+      // Strictly "past the end of the window" — the week view can start in the
+      // past, and a day that's already gone isn't waiting to go live.
+      beyondWindow: usesHorizon && m.date > horizonEndDate(windowDays),
       jobs,
       jobCount: jobs.length,
     };
   });
 
-  res.json({ scope, start: dates[0], today, windows: DELIVERY_WINDOWS, days: daysOut });
+  res.json({
+    scope,
+    start: dates[0],
+    today,
+    windows: DELIVERY_WINDOWS,
+    usesBookingWindow: usesHorizon,
+    bookingWindowDays: usesHorizon ? windowDays : null,
+    bookingWindowEnd: usesHorizon ? horizonEndDate(windowDays) : null,
+    days: daysOut,
+  });
 });

@@ -61,3 +61,54 @@ export function dayMeta(date) {
     isWeekend: date.getDay() === 0 || date.getDay() === 6,
   };
 }
+
+/* ------------------------------------------------------------------ */
+/*  THE BOOKING WINDOW (the "horizon")                                  */
+/*                                                                      */
+/*  Laundry only takes bookings a fixed number of days out — the crew    */
+/*  is rostered a fortnight at a time, so a day beyond that isn't a      */
+/*  "no", it's a "not yet". That distinction is what gives the calendar  */
+/*  three states instead of two:                                        */
+/*                                                                      */
+/*    available    inside the window, admin opened at least one slot      */
+/*    booked       inside the window, nothing open (full or closed)       */
+/*    unavailable  outside the window — not taking that day yet           */
+/*                                                                      */
+/*  Only the scopes listed below are gated. Shop and cleaning keep the    */
+/*  original two-state behaviour (open vs not), so switching one of them  */
+/*  over later is a one-line change here and nothing else.                */
+/* ------------------------------------------------------------------ */
+export const HORIZON_SCOPES = ['laundry'];
+export const scopeUsesHorizon = (s) => HORIZON_SCOPES.includes(normalizeScope(s));
+
+export const DEFAULT_BOOKING_WINDOW_DAYS = 14; // two weeks, counting today
+export const MIN_BOOKING_WINDOW_DAYS = 1;
+export const MAX_BOOKING_WINDOW_DAYS = 60;
+
+/** Coerce anything into a usable whole-day booking window. */
+export function clampBookingWindowDays(n) {
+  const v = Math.round(Number(n));
+  if (!Number.isFinite(v)) return DEFAULT_BOOKING_WINDOW_DAYS;
+  return Math.min(MAX_BOOKING_WINDOW_DAYS, Math.max(MIN_BOOKING_WINDOW_DAYS, v));
+}
+
+/**
+ * Last date a customer may book, inclusive. A window of 14 means today plus
+ * the next 13 days — a fortnight of bookable days, counting today as day one.
+ */
+export const horizonEndDate = (windowDays) =>
+  toYMD(dayFromToday(clampBookingWindowDays(windowDays) - 1));
+
+/** Is this 'YYYY-MM-DD' inside the window? (Lexical compare is safe on YMD.) */
+export const isWithinHorizon = (date, windowDays) =>
+  date >= toYMD(dayFromToday(0)) && date <= horizonEndDate(windowDays);
+
+/**
+ * The one place that decides what a day or window looks like to a customer.
+ * `open` is whether an admin opened it; everything else is the horizon rule.
+ */
+export function slotStatus({ date, open, scope, windowDays }) {
+  if (!scopeUsesHorizon(scope)) return open ? 'available' : 'unavailable';
+  if (!isWithinHorizon(date, windowDays)) return 'unavailable';
+  return open ? 'available' : 'booked';
+}

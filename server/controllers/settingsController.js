@@ -1,5 +1,11 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import Settings from '../models/Settings.js';
+import {
+  clampBookingWindowDays,
+  DEFAULT_BOOKING_WINDOW_DAYS,
+  MIN_BOOKING_WINDOW_DAYS,
+  MAX_BOOKING_WINDOW_DAYS,
+} from '../utils/delivery.js';
 
 const DEFAULT_FEE = 9.99;
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -24,6 +30,15 @@ export async function getDepositPercent() {
 }
 
 /**
+ * How far ahead customers may book, in days (today counts as day one).
+ * Read by the delivery controller for the scopes that use a booking window.
+ */
+export async function getBookingWindowDays() {
+  const doc = await getSettingsDoc();
+  return clampBookingWindowDays(doc.bookingWindowDays ?? DEFAULT_BOOKING_WINDOW_DAYS);
+}
+
+/**
  * GST component INCLUDED in a GST-inclusive total (at 10%: total / 11).
  * Returns 0 when GST is switched off in settings.
  */
@@ -40,6 +55,7 @@ const publicShape = (doc) => ({
   gstEnabled: doc.gstEnabled !== false,
   gstRate: doc.gstRate ?? 0.1,
   currency: doc.currency || 'AUD',
+  bookingWindowDays: clampBookingWindowDays(doc.bookingWindowDays ?? DEFAULT_BOOKING_WINDOW_DAYS),
   businessName: doc.businessName || 'Brilliance Care PTY LTD',
   abn: doc.abn || '',
   businessPhone: doc.businessPhone || '',
@@ -87,6 +103,16 @@ export const updateSettings = asyncHandler(async (req, res) => {
   }
   if (req.body.gstEnabled !== undefined) {
     doc.gstEnabled = Boolean(req.body.gstEnabled);
+  }
+  if (req.body.bookingWindowDays !== undefined) {
+    const win = Number(req.body.bookingWindowDays);
+    if (!Number.isInteger(win) || win < MIN_BOOKING_WINDOW_DAYS || win > MAX_BOOKING_WINDOW_DAYS) {
+      res.status(400);
+      throw new Error(
+        `Booking window must be a whole number of days between ${MIN_BOOKING_WINDOW_DAYS} and ${MAX_BOOKING_WINDOW_DAYS}`
+      );
+    }
+    doc.bookingWindowDays = win;
   }
 
   for (const [field, rule] of Object.entries(TEXT_FIELDS)) {

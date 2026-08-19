@@ -130,6 +130,15 @@ export default function AdminSchedule() {
         their own availability, because they're run by different teams. Opening a window here only
         affects the <b>{SCOPES.find((s) => s.key === scope)?.label.toLowerCase()}</b> calendar
         selected above.
+        {data?.usesBookingWindow && (
+          <>
+            {' '}
+            This calendar sells a rolling <b>{data.bookingWindowDays} days</b> (to{' '}
+            {data.bookingWindowEnd}): inside it a day is either open or shows as{' '}
+            <b>booked</b>, and past it customers see <b>not available yet</b>. You can still roster
+            further ahead — those days go live as the window reaches them.
+          </>
+        )}
       </Notice>
 
       {error && (
@@ -182,6 +191,7 @@ export default function AdminSchedule() {
                   key={`${day.date}-${scope}`}
                   day={day}
                   busy={busy}
+                  windowDays={data.bookingWindowDays}
                   onToggleWindow={(window, available, note) =>
                     mutate(() => setDeliverySlot(day.date, window, available, note, scope))
                   }

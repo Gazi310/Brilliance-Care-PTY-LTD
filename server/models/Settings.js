@@ -17,6 +17,11 @@ const settingsSchema = new mongoose.Schema(
     gstRate: { type: Number, default: 0.1, min: 0 }, // AU GST — prices are shown GST-inclusive
     currency: { type: String, default: 'AUD' },
 
+    // How far ahead customers may book, counting today as day one. Applies to
+    // the scopes in HORIZON_SCOPES (laundry, today): a day past this reads as
+    // "unavailable" rather than "booked". See utils/delivery.js.
+    bookingWindowDays: { type: Number, default: 14, min: 1, max: 60 },
+
     // ---- Business identity (shown in Footer / contact / invoices later) ----
     businessName: { type: String, default: 'Brilliance Care PTY LTD' },
     abn: { type: String, default: '' },

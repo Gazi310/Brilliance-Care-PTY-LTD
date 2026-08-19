@@ -23,6 +23,17 @@ import {
 /*  buttons — the client asked for the calendar, and a restyle doesn't  */
 /*  get to overrule that. Colour identity for the four uses lives in    */
 /*  slotAccents.js; see the note there for why hue no longer carries it. */
+/*                                                                      */
+/*  THREE DAY STATES (laundry only — see server/utils/delivery.js):      */
+/*    available    inside the booking window, admin opened a slot         */
+/*    booked       inside the window, nothing open — reads as "full"      */
+/*    unavailable  past the window — we aren't selling that day yet       */
+/*  Shop and cleaning have no booking window, so they only ever produce   */
+/*  available / unavailable: exactly the two-state calendar as before.    */
+/*                                                                       */
+/*  Status is recomputed locally rather than read straight off the day,   */
+/*  because the admin toggles patch `availableCount` optimistically and   */
+/*  the cell has to follow without waiting for a refetch.                 */
 /* ------------------------------------------------------------------ */
 
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -40,6 +51,35 @@ const parseYMD = (s) => {
 };
 
 const recount = (day) => ({ ...day, availableCount: day.slots.filter((s) => s.available).length });
+
+/** Day-level status. `win` is { uses, end } from the payload. */
+const dayStatus = (day, win) => {
+  if (!win.uses) return day.availableCount > 0 ? 'available' : 'unavailable';
+  if (win.end && day.date > win.end) return 'unavailable';
+  return day.availableCount > 0 ? 'available' : 'booked';
+};
+
+/** Same rule at window level, so a single closed slot reads the same way. */
+const windowStatus = (day, slot, win) => {
+  if (!win.uses) return slot.available ? 'available' : 'unavailable';
+  if (win.end && day.date > win.end) return 'unavailable';
+  return slot.available ? 'available' : 'booked';
+};
+
+/* How each state paints. `unavailable` recedes hardest — a customer scanning
+   the grid should see the bookable days first and only then ask why the rest
+   aren't. Booked keeps the red family so "full" and "not yet" never blur. */
+const DAY_TONE = {
+  available: 'text-ink hover:bg-sky-50',
+  booked: 'cursor-not-allowed text-bad/70',
+  unavailable: 'cursor-not-allowed text-line',
+};
+
+const DAY_TITLE = {
+  available: (n) => `${n} slot${n > 1 ? 's' : ''} open`,
+  booked: () => 'Fully booked',
+  unavailable: () => 'Not available yet',
+};
 
 export default function SlotCalendar({
   isAdmin = false,
@@ -93,6 +133,17 @@ export default function SlotCalendar({
     if (!data || !data.days.length) return null;
     return { min: data.days[0].date, max: data.days[data.days.length - 1].date };
   }, [data]);
+
+  // The booking window, as the payload reports it. Scopes without one leave
+  // `uses` false and every rule below collapses back to the old two states.
+  const win = useMemo(
+    () => ({
+      uses: Boolean(data?.usesBookingWindow),
+      end: data?.bookingWindowEnd || null,
+      days: data?.bookingWindowDays || null,
+    }),
+    [data]
+  );
 
   // Month-navigation bounds.
   const bounds = useMemo(() => {
@@ -257,11 +308,16 @@ export default function SlotCalendar({
               const { d, ymd, meta } = cell;
               const inRange = Boolean(meta);
               const openCount = meta?.availableCount || 0;
+              const status = inRange ? dayStatus(meta, win) : 'unavailable';
               const isToday = meta?.isToday;
               const isActive = ymd === activeDate;
               const isPicked = value?.date === ymd;
-              // Customers can only open days that have availability; admins, any in-range day.
-              const clickable = inRange && (isAdmin || openCount > 0);
+              // Customers can only open bookable days. Admins get every day in
+              // range — including ones past the booking window, so a fortnight
+              // can be rostered ahead and go live as the window rolls onto it.
+              const clickable = inRange && (isAdmin || status === 'available');
+              // Admin-only: opened, but customers can't see it yet.
+              const queued = isAdmin && status === 'unavailable' && openCount > 0;
 
               return (
                 <button
@@ -276,16 +332,26 @@ export default function SlotCalendar({
                       ? 'bg-gold-500 text-navy-900 shadow-card'
                       : isActive
                         ? 'bg-navy-900 text-white'
-                        : clickable
+                        : isAdmin
                           ? 'text-ink hover:bg-sky-50'
-                          : 'cursor-not-allowed text-line'
-                  } ${isToday && !(isActive || isPicked) ? `ring-1 ring-inset ${a.ring}` : ''}`}
+                          : DAY_TONE[status]
+                  } ${isToday && !(isActive || isPicked) ? `ring-1 ring-inset ${a.ring}` : ''} ${
+                    queued ? 'border border-dashed border-navy-500/50' : ''
+                  }`}
                   title={
-                    !inRange ? 'Not available' : openCount > 0 ? `${openCount} slot${openCount > 1 ? 's' : ''} open` : isAdmin ? 'Closed — click to manage' : 'Fully booked'
+                    !inRange
+                      ? 'Not available'
+                      : isAdmin
+                        ? `${openCount} of ${meta.slots.length} open${status === 'unavailable' ? ' · past the booking window' : ''} — click to manage`
+                        : DAY_TITLE[status](openCount)
                   }
                 >
                   <span>{d}</span>
-                  {/* availability marker — shape and weight carry the accent */}
+                  {/* Availability marker — shape and weight carry the accent.
+                      Deliberately keyed off `status`, not `openCount`: a day
+                      an admin pre-opened past the booking window is NOT live,
+                      and must not wear the same dot as a bookable one. Admins
+                      still see their own rostering (last branch). */}
                   {inRange && (
                     <span
                       className={`absolute bottom-1 rounded-full ${
@@ -293,11 +359,15 @@ export default function SlotCalendar({
                           ? 'h-1.5 w-1.5 bg-navy-900/45'
                           : isActive
                             ? 'h-1.5 w-1.5 bg-white/70'
-                            : openCount > 0
+                            : status === 'available'
                               ? a.dot
-                              : isAdmin
-                                ? 'h-1.5 w-1.5 bg-line'
-                                : 'h-1.5 w-1.5 bg-transparent'
+                              : status === 'booked'
+                                ? 'h-[3px] w-3 bg-bad/50'
+                                : isAdmin
+                                  ? openCount > 0
+                                    ? a.dot
+                                    : 'h-1.5 w-1.5 bg-line'
+                                  : 'h-1.5 w-1.5 bg-transparent'
                       }`}
                     />
                   )}
@@ -305,6 +375,24 @@ export default function SlotCalendar({
               );
             })}
           </div>
+
+          {/* Legend — three states need naming; two never did. */}
+          {win.uses && (
+            <div className="mt-2.5 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[10px] font-semibold text-muted">
+              <span className="inline-flex items-center gap-1.5">
+                <span className={`inline-block rounded-full ${a.dot}`} />
+                Available
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-block h-[3px] w-3 rounded-full bg-bad/50" />
+                Booked
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-line" />
+                {win.days ? `Beyond ${win.days} days` : 'Not open yet'}
+              </span>
+            </div>
+          )}
 
           {/* Time windows for the selected day */}
           <div className="mt-4 border-t border-line pt-4">
@@ -343,11 +431,21 @@ export default function SlotCalendar({
                   )}
                 </div>
 
+                {/* Admins can roster past the window; say so rather than let
+                    an opened day look live when customers can't see it. */}
+                {isAdmin && win.uses && win.end && activeDay.date > win.end && (
+                  <p className="mb-2.5 rounded-btn bg-warn-bg px-3 py-2 text-[11px] font-semibold leading-snug text-warn">
+                    Past the {win.days}-day booking window — customers can&apos;t book this day yet.
+                    Anything you open here goes live automatically once the window reaches it.
+                  </p>
+                )}
+
                 <div className="space-y-2">
                   {activeDay.slots.map((slot) => {
                     const isSel = value?.date === activeDay.date && value?.window === slot.window;
                     const saving = savingKey === `${activeDay.date}|${slot.window}`;
                     const Icon = WINDOW_ICON[slot.window];
+                    const slotState = windowStatus(activeDay, slot, win);
                     return (
                       <div
                         key={slot.window}
@@ -368,7 +466,13 @@ export default function SlotCalendar({
                             disabled={saving}
                             className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-60 ${slot.available ? 'bg-ok' : 'bg-muted/40'}`}
                             aria-label={`Toggle ${slot.label}`}
-                            title={slot.available ? 'Open — click to close' : 'Closed — click to open'}
+                            title={
+                              slot.available
+                                ? 'Open — click to close'
+                                : slotState === 'booked'
+                                  ? 'Closed — customers see this as "Booked". Click to open'
+                                  : 'Closed — click to open'
+                            }
                           >
                             <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${slot.available ? 'left-[22px]' : 'left-0.5'}`} />
                           </button>
@@ -383,8 +487,14 @@ export default function SlotCalendar({
                           >
                             {isSel ? 'Selected' : 'Choose'}
                           </button>
+                        ) : slotState === 'booked' ? (
+                          <span className="shrink-0 rounded-btn bg-bad-bg px-3.5 py-2 text-xs font-bold text-bad">
+                            Booked
+                          </span>
                         ) : (
-                          <span className="shrink-0 rounded-btn bg-line px-3.5 py-2 text-xs font-bold text-muted">Closed</span>
+                          <span className="shrink-0 rounded-btn bg-line px-3.5 py-2 text-xs font-bold text-muted">
+                            Unavailable
+                          </span>
                         )}
                       </div>
                     );

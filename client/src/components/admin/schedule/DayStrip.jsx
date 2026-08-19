@@ -45,7 +45,10 @@ export default function DayStrip({ days, selected, onSelect }) {
                 className={`block text-xs font-semibold ${active ? 'text-gold-500' : 'text-muted'}`}
               >
                 {d.jobCount > 0 ? `${d.jobCount} job${d.jobCount === 1 ? '' : 's'}` : 'No jobs'}
-                {d.availableCount === 0 && ' · closed'}
+                {/* Mirrors what the customer sees: a closed day inside the booking
+                    window reads "booked", past it there's nothing to book yet. */}
+                {d.availableCount === 0 && (d.status === 'booked' ? ' · booked' : ' · closed')}
+                {d.availableCount > 0 && d.beyondWindow && ' · not live yet'}
               </span>
             </button>
           );
