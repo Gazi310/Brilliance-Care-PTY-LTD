@@ -30,6 +30,22 @@ function dedupeVisits(entries) {
   return [...byKey.values()];
 }
 
+/**
+ * Hand back stock claimed earlier in a checkout that then failed, so an
+ * abandoned attempt doesn't quietly consume inventory. Best effort: if one of
+ * these fails there is nothing useful left to do about it, and throwing here
+ * would mask the original error.
+ */
+async function releaseStock(lines) {
+  for (const li of lines) {
+    try {
+      await Product.updateOne({ _id: li.product }, { $inc: { stock: li.qty } });
+    } catch (err) {
+      console.error(`⚠️  Could not return ${li.qty} × "${li.name}" to stock: ${err.message}`);
+    }
+  }
+}
+
 // POST /api/orders — checkout products and/or laundry services in one order.
 export const createOrder = asyncHandler(async (req, res) => {
   const {
@@ -144,28 +160,51 @@ export const createOrder = asyncHandler(async (req, res) => {
   subtotal = round2(subtotal);
   const total = round2(subtotal + deliveryTotal);
 
-  // --- 5) Commit: decrement product stock, then save the order ---
+  // --- 5) Commit: claim product stock, then save the order ---
+  //
+  // The `stock: { $gte: qty }` guard is the point of this block. Step 1 only
+  // *read* the stock level; between that read and this write another customer
+  // can buy the same unit. Conditioning the decrement on there still being
+  // enough left makes check-and-take a single atomic operation, so the loser
+  // gets a clean 409 instead of stock silently going negative.
+  const claimed = [];
   for (const li of productLines) {
-    await Product.updateOne({ _id: li.product }, { $inc: { stock: -li.qty } });
+    const result = await Product.updateOne(
+      { _id: li.product, available: true, stock: { $gte: li.qty } },
+      { $inc: { stock: -li.qty } }
+    );
+    if (result.modifiedCount !== 1) {
+      await releaseStock(claimed);
+      res.status(409);
+      throw new Error(`"${li.name}" just sold out — please review your cart`);
+    }
+    claimed.push(li);
   }
 
-  const order = await Order.create({
-    user: req.user?._id || null,
-    kind: 'shop',
-    items: productLines,
-    laundryItems: laundryLines,
-    cleaningItems: cleaningLines,
-    deliverySlot: null,
-    laundryPickupSlot: pickup,
-    laundryReturnSlot: dropoff,
-    cleaningSlot: cleaning,
-    visits,
-    deliveryFee: fee,
-    deliveryTotal,
-    subtotal,
-    total,
-    status: 'paid',
-  });
+  let order;
+  try {
+    order = await Order.create({
+      user: req.user?._id || null,
+      kind: 'shop',
+      items: productLines,
+      laundryItems: laundryLines,
+      cleaningItems: cleaningLines,
+      deliverySlot: null,
+      laundryPickupSlot: pickup,
+      laundryReturnSlot: dropoff,
+      cleaningSlot: cleaning,
+      visits,
+      deliveryFee: fee,
+      deliveryTotal,
+      subtotal,
+      total,
+      status: 'paid',
+    });
+  } catch (err) {
+    // The order didn't save, so nobody is getting these items — put them back.
+    await releaseStock(claimed);
+    throw err;
+  }
 
   res.status(201).json(order);
 });

@@ -77,19 +77,43 @@ and refresh — it should still be there.
 
 ## Troubleshooting
 
-- **Log says it fell back to in-memory** — the app boots even if Atlas is unreachable, so a
-  bad string fails silently. Re-check: password correct & URL-encoded, DB user has read/write,
-  Network Access includes your IP (or `0.0.0.0/0`), and the string has no leftover `<...>`.
+- **Log says it fell back to in-memory** — in development the app still boots when Atlas is
+  unreachable, so a bad string looks survivable. Re-check: password correct & URL-encoded, DB
+  user has read/write, Network Access includes your IP (or `0.0.0.0/0`), and the string has no
+  leftover `<...>`. Set `ALLOW_MEMORY_FALLBACK=false` in `server/.env` to make a bad connection
+  a hard failure locally too, which is the quickest way to see the real error.
 - **`querySrv ENOTFOUND` / DNS errors** — the `mongodb+srv` host is mistyped, or the network
   blocks SRV DNS. Copy the string fresh from Atlas → Connect.
 - **Auth failed** — wrong username/password, or special characters not URL-encoded.
+- **Times out on a cluster that works elsewhere** — an idle M0 can take a while to accept its
+  first connection. Raise `DB_SERVER_SELECTION_TIMEOUT_MS` (default 15000).
+
+> With `NODE_ENV=production` there is no fallback: if Atlas is unreachable the server refuses
+> to start. That is deliberate — booting on a throwaway database would mean taking real
+> customer orders and losing them on the next restart.
 
 ## Before you go live (production checklist)
 
-In `server/.env`, also change these from their insecure demo defaults:
+Set `NODE_ENV=production`. The server then **refuses to start** unless the following are set to
+real values, so you cannot accidentally ship the demo credentials:
 
-- `JWT_SECRET` → a long random string.
-- `ADMIN_EMAIL` / `ADMIN_PASSWORD` → your client's real admin login (the current defaults are
-  `admin@gmail.com` / `123`).
+- `JWT_SECRET` → a long random string (32+ chars).
+  Generate one: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`
+- `ADMIN_EMAIL` / `ADMIN_PASSWORD` → the real admin login (demo defaults are `admin@gmail.com` / `123`).
+- `MONGODB_URI` → the Atlas string, with `USE_MEMORY_DB=false`.
+
+Also:
+
 - Tighten Atlas **Network Access** from `0.0.0.0/0` to your hosting provider's IP.
-- Keep `.env` out of git (it already is via `.gitignore`).
+- **Keep `.env` out of git.** `.gitignore` lists it, but that only affects *untracked* files —
+  `server/.env` and `client/.env` were already committed, so run this once, before you put the
+  Atlas password in them:
+
+  ```
+  git rm --cached server/.env client/.env
+  git commit -m "Stop tracking .env files"
+  ```
+
+  (`--cached` leaves the files on disk; it only removes them from git.)
+- Set your real secrets in the host's environment-variable settings (Render, Railway, Fly…)
+  rather than in a committed file.

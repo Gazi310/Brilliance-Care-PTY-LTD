@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { nextSequence, highestNumber } from '../utils/sequence.js';
 
 /**
  * One line of the final bill, carrying the original estimate next to the
@@ -75,13 +76,24 @@ const invoiceSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Human-friendly sequential invoice number.
+/* ---- Indexes for the queries this collection actually serves ---- */
+invoiceSchema.index({ user: 1, createdAt: -1 }); // GET /api/invoices/mine
+invoiceSchema.index({ order: 1 }); // invoice ↔ order lookups
+invoiceSchema.index({ status: 1, paidAt: -1 }); // "paid today" dashboard tile
+
+// Human-friendly sequential invoice number, allocated from the same atomic
+// counter mechanism as Order.orderNumber — see utils/sequence.js.
 invoiceSchema.pre('save', async function assignNumber(next) {
-  if (this.isNew && !this.number) {
-    const count = await this.constructor.estimatedDocumentCount();
-    this.number = `BC-INV-${1001 + count}`;
+  if (!this.isNew || this.number) return next();
+  try {
+    const seq = await nextSequence('invoice', async () =>
+      Math.max(1000, await highestNumber(this.constructor, 'number', 'BC-INV-'))
+    );
+    this.number = `BC-INV-${seq}`;
+    next();
+  } catch (err) {
+    next(err);
   }
-  next();
 });
 
 const Invoice = mongoose.model('Invoice', invoiceSchema);

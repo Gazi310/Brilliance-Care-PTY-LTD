@@ -89,15 +89,28 @@ async function backfillPhotos(Model, seed, label) {
  */
 export async function seedDatabase({ force = false } = {}) {
   // --- Admin user ---
+  // Created rather than upserted because the password has to go through the
+  // model's pre-save hash hook. Two instances booting together can both find
+  // nothing and both insert; the loser gets a duplicate-key error on the
+  // unique email index, which just means the account already exists.
   let admin = await User.findOne({ email: config.admin.email });
   if (!admin) {
-    admin = await User.create({
-      name: config.admin.name,
-      email: config.admin.email,
-      password: config.admin.password,
-      isAdmin: true,
-    });
-    console.log(`👤 Admin account ready → ${config.admin.email} / ${config.admin.password}`);
+    try {
+      admin = await User.create({
+        name: config.admin.name,
+        email: config.admin.email,
+        password: config.admin.password,
+        isAdmin: true,
+      });
+      console.log(
+        config.isProduction
+          ? `👤 Admin account created → ${config.admin.email}`
+          : `👤 Admin account ready → ${config.admin.email} / ${config.admin.password}`
+      );
+    } catch (err) {
+      if (err?.code !== 11000) throw err;
+      admin = await User.findOne({ email: config.admin.email });
+    }
   }
 
   // --- Products ---

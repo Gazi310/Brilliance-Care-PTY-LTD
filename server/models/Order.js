@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { nextSequence, highestNumber } from '../utils/sequence.js';
 
 const orderItemSchema = new mongoose.Schema(
   {
@@ -173,13 +174,33 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+/* ---- Indexes for the queries this collection actually serves -------------
+   Without these every admin dashboard load and every "my orders" fetch is a
+   full collection scan, which an Atlas M0 feels long before the data looks
+   big. Each one mirrors a real query: see orderController (mine),
+   adminOrderController (queue), adminStatsController (today / this week). */
+orderSchema.index({ user: 1, createdAt: -1 }); // GET /api/orders/mine
+orderSchema.index({ kind: 1, status: 1, createdAt: -1 }); // admin order queue
+orderSchema.index({ 'visits.date': 1, status: 1 }); // today's runs + week view
+orderSchema.index({ createdAt: -1 }); // dashboard date-range aggregations
+
 // Human-friendly sequential order number, shared across shop + bookings.
+//
+// Allocated from an atomic counter rather than a document count: two checkouts
+// at the same moment used to read the same count, build the same number and
+// collide on the unique index above, failing one customer's order at the very
+// last step. estimatedDocumentCount() made it worse by being an estimate.
 orderSchema.pre('save', async function assignNumber(next) {
-  if (this.isNew && !this.orderNumber) {
-    const count = await this.constructor.estimatedDocumentCount();
-    this.orderNumber = `BC-${1001 + count}`;
+  if (!this.isNew || this.orderNumber) return next();
+  try {
+    const seq = await nextSequence('order', async () =>
+      Math.max(1000, await highestNumber(this.constructor, 'orderNumber', 'BC-'))
+    );
+    this.orderNumber = `BC-${seq}`;
+    next();
+  } catch (err) {
+    next(err);
   }
-  next();
 });
 
 const Order = mongoose.model('Order', orderSchema);

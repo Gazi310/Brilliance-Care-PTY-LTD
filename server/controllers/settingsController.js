@@ -10,11 +10,21 @@ import {
 const DEFAULT_FEE = 9.99;
 const round2 = (n) => Math.round(n * 100) / 100;
 
-// Get the singleton settings document, creating it with defaults on first use.
+/**
+ * Get the singleton settings document, creating it with defaults on first use.
+ *
+ * Done as an upsert rather than find-then-create: on a cold database the very
+ * first two requests can both find nothing and both try to insert, and the
+ * second would fail on the unique `key` index. `$setOnInsert` means the
+ * defaults are only applied when the document is genuinely new, so this never
+ * overwrites a fee the admin has since changed.
+ */
 export async function getSettingsDoc() {
-  let doc = await Settings.findOne({ key: 'global' });
-  if (!doc) doc = await Settings.create({ key: 'global', deliveryFee: DEFAULT_FEE });
-  return doc;
+  return Settings.findOneAndUpdate(
+    { key: 'global' },
+    { $setOnInsert: { key: 'global', deliveryFee: DEFAULT_FEE } },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  );
 }
 
 // Convenience helper used by the order controller.
