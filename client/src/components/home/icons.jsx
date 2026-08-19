@@ -62,3 +62,13 @@ export const CheckIcon = (p) => (
     <path d="M4 12l5 5L20 6" />
   </svg>
 );
+
+/* Turnaround and duration meta on the service cards — replaces the ⏱
+   both /laundry and /cleaning were using. Lives in the shared set
+   because both service lines need it. */
+export const ClockIcon = (p) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M12 7.2V12l3.2 2" />
+  </svg>
+);

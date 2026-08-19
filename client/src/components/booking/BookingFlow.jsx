@@ -4,6 +4,15 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useBooking } from '../../context/BookingContext.jsx';
 import { createBooking } from '../../services/bookingService.js';
 import ToastStack from '../products/ToastStack.jsx';
+import { Button, IconBadge, Notice, Stepper } from '../ui';
+import {
+  AlertIcon,
+  ArrowRightIcon,
+  BasketIcon,
+  BubblesIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from './icons.jsx';
 import StepBuildLaundry from './StepBuildLaundry.jsx';
 import StepBuildCleaning from './StepBuildCleaning.jsx';
 import StepSchedule, { returnAfterPickup } from './StepSchedule.jsx';
@@ -16,6 +25,9 @@ const STEP_LABEL = {
   3: 'Where & how',
   4: 'Confirm & deposit',
 };
+
+/** Short labels for the <Stepper> — the long ones above caption it below. */
+const STEP_NAMES = ['Build', 'Schedule', 'Details', 'Review'];
 
 /**
  * The guided 4-step booking flow (blueprint §4.5): Build → Schedule →
@@ -146,68 +158,57 @@ export default function BookingFlow({ service }) {
 
   /* ================================================================ */
   return (
-    <main className="min-h-screen bg-surface pb-40 lg:pb-24">
+    <main className="min-h-screen bg-sky-50 pb-40 lg:pb-24">
       <div className="mx-auto max-w-2xl px-4 py-5 sm:px-6 sm:py-8">
         {/* ---- App bar: back + title ---- */}
-        <div className="mb-3 flex items-center gap-2">
+        <div className="mb-4 flex items-center gap-2">
           {step === 1 ? (
             <Link
               to={backTarget}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition hover:text-navy"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition hover:text-navy-900"
             >
-              <span className="text-base leading-none">‹</span> Back
+              <ChevronLeftIcon width={16} height={16} aria-hidden="true" /> Back
             </Link>
           ) : (
             <button
               type="button"
               onClick={() => goTo(step - 1)}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition hover:text-navy"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition hover:text-navy-900"
             >
-              <span className="text-base leading-none">‹</span> Back
+              <ChevronLeftIcon width={16} height={16} aria-hidden="true" /> Back
             </button>
           )}
-          <h1 className="mx-auto pr-10 text-base font-extrabold text-ink">
+          <h1 className="bc-h4 mx-auto pr-10">
             {service === 'cleaning' ? 'Book a clean' : 'Book a pickup'}
           </h1>
         </div>
 
         {/* ---- Progress ---- */}
-        <div className="flex gap-1.5" role="progressbar" aria-valuemin={1} aria-valuemax={4} aria-valuenow={step}>
-          {[1, 2, 3, 4].map((s) => (
-            <div
-              key={s}
-              className={`h-1.5 flex-1 rounded-full transition-colors ${
-                s <= step ? 'bg-gradient-to-r from-navy to-aqua' : 'bg-line'
-              }`}
-            />
-          ))}
-        </div>
-        <p className="mt-1.5 px-0.5 text-xs font-semibold text-muted">
+        <p className="bc-meta mb-2 px-0.5 text-muted">
           Step {step} of 4 · {STEP_LABEL[step]}
         </p>
+        <Stepper steps={STEP_NAMES} current={step - 1} />
 
         {/* ---- Estimate explainer (step 1 only) ---- */}
         {step === 1 && (
-          <div className="mt-3 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] leading-relaxed text-amber-800">
-            <span aria-hidden="true" className="text-base">💡</span>
-            <p>
-              You'll see an <b className="font-bold text-amber-900">estimated total</b>. Pay a{' '}
-              <b className="font-bold text-amber-900">{depositPercent}% deposit</b> to book — we invoice the
-              balance after your service.
-            </p>
-          </div>
+          <Notice tone="info" className="mb-5">
+            You'll see an <b className="font-bold">estimated total</b>. Pay a{' '}
+            <b className="font-bold">{depositPercent}% deposit</b> to book — we invoice the balance
+            after your service.
+          </Notice>
         )}
 
         {/* ---- Step body ---- */}
-        <div className="mt-4">
+        <div>
           {catalogueError ? (
-            <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
-              ⚠️ {catalogueError} — please refresh to try again.
+            <div className="flex gap-3.5 rounded-card bg-bad-bg px-5 py-[18px] text-[15.5px] leading-[1.55] text-bad">
+              <AlertIcon className="mt-0.5 flex-none" aria-hidden="true" />
+              <p>{catalogueError} — please refresh to try again.</p>
             </div>
           ) : catalogueLoading ? (
             <div className="space-y-3">
-              <div className="bc-skeleton h-40 rounded-2xl" />
-              <div className="bc-skeleton h-24 rounded-2xl" />
+              <div className="bc-skeleton h-40 rounded-card" />
+              <div className="bc-skeleton h-24 rounded-card" />
             </div>
           ) : (
             <>
@@ -234,34 +235,36 @@ export default function BookingFlow({ service }) {
                     <button
                       type="button"
                       onClick={() => setShowOther(true)}
-                      className="flex w-full items-center gap-3 rounded-2xl border border-line bg-white p-4 text-left shadow-soft transition hover:bg-surface/60"
+                      className="flex w-full items-center gap-4 rounded-card border border-line bg-white p-5 text-left shadow-card transition hover:bg-sky-50"
                     >
-                      <span className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-mint/25 text-2xl">
-                        {otherService === 'cleaning' ? '🫧' : '🧺'}
-                      </span>
+                      <IconBadge
+                        size="inline"
+                        tone={otherService === 'cleaning' ? 'navy' : 'sky'}
+                        icon={otherService === 'cleaning' ? BubblesIcon : BasketIcon}
+                      />
                       <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-bold text-ink">
+                        <span className="bc-h4 block">
                           {otherService === 'cleaning' ? 'Add a home clean?' : 'Add laundry too?'}
                         </span>
-                        <span className="block text-xs text-muted">
+                        <span className="block text-[13px] text-muted">
                           {otherService === 'cleaning'
                             ? 'Book a cleaner in the same visit'
                             : 'We can collect a load while we’re there'}
                         </span>
                       </span>
-                      <span className="text-lg text-faint">›</span>
+                      <ChevronRightIcon width={18} height={18} className="flex-none text-navy-500" aria-hidden="true" />
                     </button>
                   ) : (
                     <div className="space-y-2">
                       <div className="flex items-center justify-between px-1">
-                        <p className="text-[11px] font-extrabold uppercase tracking-wide text-faint">
+                        <p className="bc-eyebrow">
                           {otherService === 'cleaning' ? 'Add a home clean' : 'Add laundry'}
                         </p>
                         {!otherActive && (
                           <button
                             type="button"
                             onClick={() => setShowOther(false)}
-                            className="text-[11px] font-semibold text-faint underline-offset-2 hover:underline"
+                            className="text-xs font-semibold text-muted underline-offset-2 hover:underline"
                           >
                             Hide
                           </button>
@@ -330,27 +333,28 @@ export default function BookingFlow({ service }) {
       {/* ---- Sticky estimate + primary CTA (clears the mobile tab bar) ---- */}
       {!catalogueLoading && !catalogueError && (
         <div className="fixed inset-x-0 bottom-20 z-40 px-4 lg:bottom-6">
-          <div className="mx-auto flex max-w-2xl items-center gap-3 rounded-2xl border border-line bg-white/95 p-3 shadow-cta backdrop-blur sm:p-4">
+          <div className="mx-auto flex max-w-2xl items-center gap-3 rounded-card border border-line bg-white/95 p-3 shadow-lift backdrop-blur sm:p-4">
             <div className="min-w-0">
-              <span className="block text-[11px] font-extrabold uppercase tracking-wide text-faint">Estimated</span>
-              <span className="block text-xl font-extrabold tabular-nums text-ink sm:text-2xl">
+              <span className="bc-eyebrow block">Estimated</span>
+              <span className="block font-display text-xl font-bold tabular-nums text-navy-900 sm:text-2xl">
                 ${estimatedTotal.toFixed(2)}
               </span>
               {estimatedTotal > 0 && (
-                <span className="block text-[11px] text-muted">
+                <span className="block text-xs text-muted">
                   ~${depositAmount.toFixed(2)} deposit now
                 </span>
               )}
             </div>
-            <button
-              type="button"
+            <Button
+              variant="gold"
+              size="sm"
               onClick={handleContinue}
               disabled={!canContinue}
-              className="ml-auto inline-flex flex-none items-center gap-2 rounded-xl bg-gradient-to-r from-navy to-aqua px-5 py-3 text-sm font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:px-6"
+              className="ml-auto flex-none"
             >
               {submitting ? 'Creating booking…' : ctaLabel}
-              {!submitting && <span className="text-base leading-none">→</span>}
-            </button>
+              {!submitting && <ArrowRightIcon width={16} height={16} aria-hidden="true" />}
+            </Button>
           </div>
         </div>
       )}

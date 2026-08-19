@@ -42,6 +42,47 @@ async function seedDeliverySlots(force = false) {
   }
 }
 
+/** A stored `image` that points at a real file rather than an emoji. */
+const isPhotoPath = (img) =>
+  typeof img === 'string' &&
+  (/^https?:\/\//.test(img) || img.startsWith('data:') || img.startsWith('/'));
+
+/**
+ * Backfills the seed photos onto catalogue rows that were inserted before the
+ * seed had any (they shipped with emoji placeholders). Matched by name, since
+ * the seed carries no stable id.
+ *
+ * Deliberately conservative: a row is only touched when its current image is
+ * still an emoji/blank, so a photo an admin uploaded or pasted from the panel is
+ * never clobbered on the next server restart. Once every row holds a photo this
+ * is one read per boot and no writes.
+ *
+ * Shared by all three catalogues (shop / laundry / cleaning) — every model stores
+ * `image` the same way, so the only difference is which collection to walk.
+ * Seed entries still holding an emoji are skipped, so a catalogue can be photo'd
+ * one item at a time.
+ */
+async function backfillPhotos(Model, seed, label) {
+  const withPhotos = seed.filter((s) => isPhotoPath(s.image));
+  if (!withPhotos.length) return;
+
+  const rows = await Model.find({ name: { $in: withPhotos.map((s) => s.name) } })
+    .select('name image')
+    .lean();
+
+  const ops = [];
+  for (const row of rows) {
+    if (isPhotoPath(row.image)) continue; // admin-set or already backfilled
+    const seeded = withPhotos.find((s) => s.name === row.name);
+    if (seeded) ops.push({ updateOne: { filter: { _id: row._id }, update: { $set: { image: seeded.image } } } });
+  }
+
+  if (ops.length) {
+    await Model.bulkWrite(ops);
+    console.log(`🖼️  Backfilled photos onto ${ops.length} ${label} services`);
+  }
+}
+
 /**
  * Ensures the admin account and product catalog exist.
  * Runs automatically on startup. Pass { force: true } to wipe and reseed products.
@@ -65,6 +106,8 @@ export async function seedDatabase({ force = false } = {}) {
   if (force || count === 0) {
     await Product.insertMany(productSeed);
     console.log(`📦 Seeded ${productSeed.length} products`);
+  } else {
+    await backfillPhotos(Product, productSeed, 'shop');
   }
 
   // --- Laundry services ---
@@ -73,6 +116,8 @@ export async function seedDatabase({ force = false } = {}) {
   if (force || laundryCount === 0) {
     await LaundryService.insertMany(laundrySeed);
     console.log(`🧺 Seeded ${laundrySeed.length} laundry services`);
+  } else {
+    await backfillPhotos(LaundryService, laundrySeed, 'laundry');
   }
 
   // --- Cleaning services ---
@@ -81,6 +126,8 @@ export async function seedDatabase({ force = false } = {}) {
   if (force || cleaningCount === 0) {
     await CleaningService.insertMany(cleaningSeed);
     console.log(`🫧 Seeded ${cleaningSeed.length} cleaning services`);
+  } else {
+    await backfillPhotos(CleaningService, cleaningSeed, 'cleaning');
   }
 
   // --- Store settings (delivery fee) ---

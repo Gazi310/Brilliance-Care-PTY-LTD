@@ -66,6 +66,49 @@ export const InfoIcon = (p) => (
   </svg>
 );
 
+export const ChevronLeftIcon = (p) => (
+  <svg {...base} strokeWidth={2.2} {...p}>
+    <path d="M15 5.5L8.5 12l6.5 6.5" />
+  </svg>
+);
+
+export const ChevronRightIcon = (p) => (
+  <svg {...base} strokeWidth={2.2} {...p}>
+    <path d="M9 5.5L15.5 12 9 18.5" />
+  </svg>
+);
+
+/* --- Delivery / pickup time windows, used by SlotCalendar. --------- */
+/*  These replace the 🌅 🌤️ 🌙 emoji: at 16px the emoji were the only   */
+/*  full-colour objects on an otherwise navy-and-gold surface.         */
+
+/** Morning — sun rising over a horizon line. */
+export const SunriseIcon = (p) => (
+  <svg {...base} {...p}>
+    <path d="M12 4v3" />
+    <path d="M5.8 9.8l2 2M18.2 9.8l-2 2" />
+    <path d="M8 17a4 4 0 0 1 8 0" />
+    <path d="M3 17h2.5M18.5 17H21" />
+    <path d="M3 21h18" />
+  </svg>
+);
+
+/** Afternoon — sun at full height. */
+export const SunIcon = (p) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2.8v2.1M12 19.1v2.1M2.8 12h2.1M19.1 12h2.1" />
+    <path d="M5.5 5.5l1.5 1.5M17 17l1.5 1.5M18.5 5.5L17 7M7 17l-1.5 1.5" />
+  </svg>
+);
+
+/** Evening — crescent moon. */
+export const MoonIcon = (p) => (
+  <svg {...base} {...p}>
+    <path d="M20.2 14.8A8.4 8.4 0 0 1 9.2 3.8a8.6 8.6 0 1 0 11 11z" />
+  </svg>
+);
+
 /** Filled star for product ratings. Gold as a *fill* — never as text. */
 export const StarIcon = (p) => (
   <svg viewBox="0 0 24 24" fill="currentColor" width={18} height={18} {...p}>

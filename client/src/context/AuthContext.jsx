@@ -34,8 +34,9 @@ export function AuthProvider({ children }) {
     return u;
   };
 
-  const register = async (name, email, password) => {
-    const u = await registerSvc(name, email, password);
+  // Takes { name, email, password, phone } — see authService.register.
+  const register = async (fields) => {
+    const u = await registerSvc(fields);
     setUser(u);
     return u;
   };

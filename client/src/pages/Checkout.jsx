@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { getOrder, payDeposit } from '../services/bookingService.js';
 import DepositPaymentForm from '../components/booking/DepositPaymentForm.jsx';
+import { AlertIcon, ChevronLeftIcon } from '../components/booking/icons.jsx';
+import { Card, Notice, Tag } from '../components/ui';
 
 /**
  * /checkout/:orderId — pay the booking deposit (blueprint §4.7).
@@ -57,46 +59,47 @@ export default function Checkout() {
   };
 
   return (
-    <main className="min-h-screen bg-surface pb-28 lg:pb-16">
+    <main className="min-h-screen bg-sky-50 pb-28 lg:pb-16">
       <div className="mx-auto max-w-lg px-4 py-6 sm:px-6 sm:py-10">
-        <div className="mb-4 flex items-center gap-2">
+        <div className="mb-5 flex items-center gap-2">
           <Link
             to="/account/orders"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition hover:text-navy"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted transition hover:text-navy-900"
           >
-            <span className="text-base leading-none">‹</span> My orders
+            <ChevronLeftIcon width={16} height={16} aria-hidden="true" /> My orders
           </Link>
-          <h1 className="mx-auto pr-16 text-base font-extrabold text-ink">Pay deposit</h1>
+          <h1 className="bc-h4 mx-auto pr-16">Pay deposit</h1>
         </div>
 
         {loading ? (
           <div className="space-y-3">
-            <div className="bc-skeleton h-36 rounded-2xl" />
-            <div className="bc-skeleton h-64 rounded-2xl" />
+            <div className="bc-skeleton h-36 rounded-card" />
+            <div className="bc-skeleton h-64 rounded-card" />
           </div>
         ) : error || !order ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
-            ⚠️ {error || 'Booking not found'} —{' '}
-            <Link to="/book" className="font-bold underline underline-offset-2">start a new booking</Link>
+          <div className="flex gap-3.5 rounded-card bg-bad-bg px-5 py-[18px] text-[15.5px] leading-[1.55] text-bad">
+            <AlertIcon className="mt-0.5 flex-none" aria-hidden="true" />
+            <p>
+              {error || 'Booking not found'} —{' '}
+              <Link to="/book" className="font-bold underline decoration-2 underline-offset-4">start a new booking</Link>
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
             {/* ---- Money summary ---- */}
-            <section className="bc-fade-up rounded-2xl border border-line bg-white p-4 shadow-soft sm:p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-extrabold uppercase tracking-wide text-faint">
+            <Card as="section" className="bc-fade-up">
+              <div className="flex items-center justify-between gap-3">
+                <p className="bc-eyebrow">
                   {order.orderNumber ? `Order ${order.orderNumber}` : 'Your booking'}
                 </p>
-                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-extrabold text-amber-800">
-                  Estimated
-                </span>
+                <Tag tone="gold">Estimated</Tag>
               </div>
-              <div className="mt-3 space-y-1.5 text-sm">
+              <div className="mt-4 space-y-2 text-[15px]">
                 <div className="flex justify-between text-muted">
                   <span>Estimated total</span>
                   <span className="font-semibold tabular-nums">${Number(order.estimatedTotal).toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between rounded-lg bg-aqua/10 px-2 py-1.5 text-base font-extrabold text-navy">
+                <div className="-mx-2 flex justify-between rounded-btn bg-gold-100 px-4 py-3 text-base font-bold text-navy-900">
                   <span>Deposit due now ({order.depositPercent}%)</span>
                   <span className="tabular-nums">${Number(order.depositAmount).toFixed(2)}</span>
                 </div>
@@ -107,18 +110,15 @@ export default function Checkout() {
                   </span>
                 </div>
               </div>
-            </section>
+            </Card>
 
-            {/* ---- Payment (swappable mock → Stripe) ---- */}
+            {/* ---- Payment (swappable mock → real gateway) ---- */}
             <DepositPaymentForm amount={Number(order.depositAmount)} onPay={handlePay} busy={busy} />
 
-            <div className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[13px] leading-relaxed text-emerald-800">
-              <span aria-hidden="true" className="text-base">✅</span>
-              <p>
-                You're only paying the <b className="font-bold">deposit</b> now. We'll send an invoice for the
-                balance after your service — and explain any changes.
-              </p>
-            </div>
+            <Notice tone="ok">
+              You're only paying the <b className="font-bold">deposit</b> now. We'll send an invoice for the
+              balance after your service — and explain any changes.
+            </Notice>
           </div>
         )}
       </div>

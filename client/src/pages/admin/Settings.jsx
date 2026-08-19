@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
+import AdminPage from '../../components/admin/AdminPage.jsx';
 import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
 import PricingSettingsCard from '../../components/admin/settings/PricingSettingsCard.jsx';
 import BusinessSettingsCard from '../../components/admin/settings/BusinessSettingsCard.jsx';
 import { getSettings } from '../../services/settingsService.js';
+import { AlertIcon } from '../../components/admin/icons.jsx';
+import { Button, Notice } from '../../components/ui';
 
 /**
  * /admin/settings (blueprint §5.8) — the global knobs: deposit %, delivery
@@ -31,38 +34,35 @@ export default function AdminSettings() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+    <AdminPage width="narrow">
       <AdminSectionHeader
-        eyebrow="Admin"
-        title="Settings"
+        eyebrow="Settings"
+        title="Business settings"
         subtitle="Global switches for pricing, tax, business identity and your service area."
       />
 
       {loading ? (
-        <div className="space-y-3">
-          <div className="bc-skeleton h-56 rounded-2xl" />
-          <div className="bc-skeleton h-72 rounded-2xl" />
+        <div className="space-y-5">
+          <div className="bc-skeleton h-72 rounded-card" />
+          <div className="bc-skeleton h-96 rounded-card" />
         </div>
       ) : error ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
-          ⚠️ {error}
-          <button
-            onClick={load}
-            className="ml-3 rounded-lg bg-red-100 px-3 py-1 text-xs font-bold text-red-700 hover:bg-red-200"
-          >
+        <Notice tone="warn" icon={<AlertIcon className="mt-0.5 flex-none" />}>
+          <p>{error}</p>
+          <Button variant="ghost" onClick={load} className="mt-2">
             Retry
-          </button>
-        </div>
+          </Button>
+        </Notice>
       ) : settings ? (
-        <div className="space-y-4">
+        <div className="space-y-5">
           <PricingSettingsCard settings={settings} onSaved={setSettings} />
           <BusinessSettingsCard settings={settings} onSaved={setSettings} />
-          <p className="text-[11px] leading-relaxed text-faint">
-            Card-payment keys and email/SMS templates will appear here once the real payment
-            gateway and notification providers are connected (currently mocked).
+          <p className="bc-meta text-muted">
+            Card-payment keys and email/SMS templates will appear here once the real payment gateway
+            and notification providers are connected (currently mocked).
           </p>
         </div>
       ) : null}
-    </div>
+    </AdminPage>
   );
 }

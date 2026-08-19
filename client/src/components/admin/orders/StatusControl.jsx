@@ -5,6 +5,8 @@ import {
   SHOP_SET_STATUSES,
 } from './orderStatusMeta.js';
 import { adminUpdateStatus } from '../../../services/orderService.js';
+import { AlertIcon } from '../icons.jsx';
+import { Panel, Button, Tag, Notice } from '../../ui';
 
 /**
  * Move an order through its lifecycle. `assessed` and booking `paid` are
@@ -18,7 +20,7 @@ export default function StatusControl({ order, onChanged }) {
 
   const isBooking = order.kind === 'booking';
   const options = isBooking ? BOOKING_SET_STATUSES : SHOP_SET_STATUSES;
-  const [pillCls, pillLabel] = statusPill(order.status);
+  const [tone, label] = statusPill(order.status);
   const closed = order.status === 'cancelled' || order.status === 'paid';
 
   const apply = async (status) => {
@@ -40,23 +42,20 @@ export default function StatusControl({ order, onChanged }) {
   };
 
   return (
-    <section className="rounded-2xl border border-line bg-white p-4 shadow-soft sm:p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <p className="text-[11px] font-extrabold uppercase tracking-wide text-faint">Status</p>
-          <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-extrabold ${pillCls}`}>
-            {pillLabel}
-          </span>
-        </div>
-
-        {!closed && (
-          <div className="flex items-center gap-2">
+    <Panel title="Status" action={<Tag tone={tone}>{label}</Tag>} padded>
+      {closed ? (
+        <p className="bc-body text-muted">
+          This order is closed. Nothing further to set here.
+        </p>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-2.5">
             <select
               value={value}
               onChange={(e) => setValue(e.target.value)}
               disabled={busy}
-              className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-bold text-muted shadow-soft focus:border-aqua focus:outline-none"
               aria-label="Move to status"
+              className="h-11 min-w-[200px] flex-1 rounded-btn border border-line bg-white px-4 text-[15px] font-semibold text-navy-900"
             >
               <option value="">Move to…</option>
               {options
@@ -67,37 +66,36 @@ export default function StatusControl({ order, onChanged }) {
                   </option>
                 ))}
             </select>
-            <button
-              type="button"
-              disabled={busy || !value}
-              onClick={() => apply(value)}
-              className="rounded-xl bg-navy px-3.5 py-2 text-sm font-bold text-white shadow-soft transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-            >
+
+            <Button variant="navy" size="sm" disabled={busy || !value} onClick={() => apply(value)}>
               {busy ? 'Saving…' : 'Update'}
-            </button>
-            <button
-              type="button"
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
               disabled={busy}
               onClick={() => apply('cancelled')}
-              className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-bold text-red-600 transition hover:bg-red-100 disabled:opacity-50"
+              className="text-bad shadow-[inset_0_0_0_2px_var(--color-bad)] hover:bg-bad-bg"
             >
-              Cancel
-            </button>
+              Cancel order
+            </Button>
           </div>
-        )}
-      </div>
 
-      {isBooking && !closed && (
-        <p className="mt-2 text-[11px] text-faint">
-          “Assessed” is set when you save actuals below; the order closes as Paid once it’s delivered
-          and the balance is settled.
-        </p>
+          {isBooking && (
+            <p className="mt-3 bc-meta text-muted">
+              “Assessed” is set when you save actuals below; the order closes as Paid once it’s
+              delivered and the balance is settled.
+            </p>
+          )}
+        </>
       )}
+
       {error && (
-        <p className="mt-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
-          ⚠️ {error}
-        </p>
+        <Notice tone="warn" className="mt-4" icon={<AlertIcon className="mt-0.5 flex-none" />}>
+          {error}
+        </Notice>
       )}
-    </section>
+    </Panel>
   );
 }

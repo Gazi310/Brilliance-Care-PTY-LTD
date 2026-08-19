@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
-import { statusPill, money, dateLabel, KIND_ICON } from '../orders/orderStatusMeta.js';
+import { statusPill, money, dateLabel } from '../orders/orderStatusMeta.js';
+import { OrderKindIcon } from '../icons.jsx';
+import { Panel, Tag, IconBadge } from '../../ui';
 
 /** The amount worth showing for a history row: actual beats estimate. */
 const amountOf = (o) =>
@@ -8,53 +10,56 @@ const amountOf = (o) =>
 /** Compact order history — every row jumps into the admin order screen. */
 export default function CustomerOrderHistory({ orders }) {
   return (
-    <section>
-      <h3 className="text-sm font-extrabold text-ink">
-        Order history <span className="text-xs font-bold text-faint">· {orders.length}</span>
-      </h3>
+    <Panel
+      title="Order history"
+      action={<span className="bc-meta text-muted">{orders.length}</span>}
+      padded
+    >
+      {orders.length === 0 ? (
+        <div className="rounded-card border border-dashed border-line px-6 py-10 text-center">
+          <p className="bc-h4">No orders yet</p>
+        </div>
+      ) : (
+        <div className="space-y-2.5">
+          {orders.map((o) => {
+            const [tone, label] = statusPill(o.status);
 
-      <div className="mt-2.5 space-y-2">
-        {orders.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-line bg-white px-5 py-8 text-center">
-            <p className="text-2xl">🧾</p>
-            <p className="mt-2 text-sm font-bold text-ink">No orders yet</p>
-          </div>
-        ) : (
-          orders.map((o) => {
-            const [pillCls, pillLabel] = statusPill(o.status);
             return (
               <Link
                 key={o._id}
                 to={`/admin/orders/${o._id}`}
-                className="flex items-center gap-3 rounded-2xl border border-line bg-white p-3.5 shadow-soft transition hover:-translate-y-0.5"
+                className="flex items-center gap-4 rounded-card border border-line bg-white p-4 transition-colors hover:border-navy-500 hover:bg-sky-50"
               >
-                <span className="text-xl" aria-hidden="true">
-                  {o.kind === 'shop' ? '🛍️' : KIND_ICON[o.service] || '🧺'}
-                </span>
+                <IconBadge
+                  size="inline"
+                  tone="sky"
+                  icon={<OrderKindIcon order={o} />}
+                  className="h-10 w-10 rounded-btn"
+                />
+
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-bold text-ink">
+                  <p className="truncate font-bold text-navy-900">
                     {o.orderNumber}
-                    <span className="ml-2 text-[11px] font-medium text-faint">
+                    <span className="ml-2.5 bc-meta font-medium text-muted">
                       {dateLabel(o.createdAt)}
                     </span>
                   </p>
-                  <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${pillCls}`}>
-                      {pillLabel}
-                    </span>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                    <Tag tone={tone}>{label}</Tag>
                     {o.balanceStatus === 'awaiting' && (
-                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                        {money(o.balanceDue)} due
-                      </span>
+                      <Tag tone="warn">{money(o.balanceDue)} due</Tag>
                     )}
                   </div>
                 </div>
-                <p className="shrink-0 text-sm font-extrabold text-ink">{money(amountOf(o))}</p>
+
+                <p className="shrink-0 font-display text-[17px] font-bold tabular-nums text-navy-900">
+                  {money(amountOf(o))}
+                </p>
               </Link>
             );
-          })
-        )}
-      </div>
-    </section>
+          })}
+        </div>
+      )}
+    </Panel>
   );
 }

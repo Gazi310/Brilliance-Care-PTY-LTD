@@ -3,26 +3,42 @@
  * Mirrors the server's segment definitions in adminOrderController.js.
  */
 
-/* Status → pill colour + friendly label (blueprint §7: amber = awaiting,
-   blue/indigo = moving, emerald = done, red = money due). */
-export const STATUS_PILL = {
-  booked: ['bg-amber-100 text-amber-800', 'Awaiting deposit'],
-  deposit_paid: ['bg-sky-100 text-sky-800', 'Deposit paid'],
-  scheduled: ['bg-sky-100 text-sky-800', 'Scheduled'],
-  picked_up: ['bg-indigo-100 text-indigo-800', 'Picked up'],
-  in_progress: ['bg-indigo-100 text-indigo-800', 'In progress'],
-  assessed: ['bg-violet-100 text-violet-800', 'Assessed'],
-  ready: ['bg-teal-100 text-teal-800', 'Ready'],
-  out_for_delivery: ['bg-teal-100 text-teal-800', 'On the way'],
-  delivered: ['bg-emerald-100 text-emerald-800', 'Delivered'],
-  pending: ['bg-amber-100 text-amber-800', 'Pending'],
-  paid: ['bg-emerald-100 text-emerald-800', 'Paid'],
-  fulfilled: ['bg-emerald-100 text-emerald-800', 'Fulfilled'],
-  cancelled: ['bg-gray-200 text-gray-600', 'Cancelled'],
+/**
+ * Status → [Tag tone, label].
+ *
+ * Same `[tone, label]` shape as the customer side in
+ * account/orderMeta.js, but the tones are chosen differently on
+ * purpose. The customer's list answers "who is waiting on this?";
+ * the admin's answers "does this need me to do something?":
+ *
+ *   warn  a job is sitting in someone's queue — chase the deposit,
+ *         send the invoice, collect the balance
+ *   info  moving normally, no action required
+ *   ok    settled and closed
+ *
+ * v1 gave nine statuses nine different hues (amber/sky/indigo/violet/
+ * teal/emerald). It looked precise and scanned as noise — staff can't
+ * hold a nine-colour legend in their head. The wireframes use four
+ * tones and let the label carry the detail, which is what this does.
+ */
+export const STATUS_META = {
+  booked: ['warn', 'Awaiting deposit'],
+  deposit_paid: ['info', 'Deposit paid'],
+  scheduled: ['info', 'Scheduled'],
+  picked_up: ['info', 'Picked up'],
+  in_progress: ['info', 'In progress'],
+  assessed: ['warn', 'Assessed — invoice due'],
+  ready: ['info', 'Ready'],
+  out_for_delivery: ['info', 'On the way'],
+  delivered: ['ok', 'Delivered'],
+  pending: ['warn', 'Pending'],
+  paid: ['ok', 'Paid'],
+  fulfilled: ['ok', 'Fulfilled'],
+  cancelled: ['neutral', 'Cancelled'],
 };
 
-export const statusPill = (status) =>
-  STATUS_PILL[status] || ['bg-gray-100 text-gray-600', status];
+/** @returns {[string, string]} `[tone, label]` — feed straight into <Tag tone=…>. */
+export const statusPill = (status) => STATUS_META[status] ?? ['info', status];
 
 /* The work-queue lenses across the top of /admin/orders. */
 export const SEGMENTS = [
@@ -43,14 +59,22 @@ export const BOOKING_SET_STATUSES = [
 ];
 export const SHOP_SET_STATUSES = ['pending', 'paid', 'fulfilled'];
 
-export const KIND_ICON = { laundry: '🧺', cleaning: '🫧', combo: '🧺🫧' };
+/** Service → icon *name*. Resolved to an SVG by KIND_ICON in icons.jsx —
+ *  this file stays plain `.js` so it can be imported anywhere without
+ *  tripping Fast Refresh, which means it can't hold JSX itself. */
+export const KIND_ICON_NAME = { laundry: 'basket', cleaning: 'bubbles', combo: 'basket' };
 
 export const money = (n) => `$${Number(n || 0).toFixed(2)}`;
 
 export const dateLabel = (iso) =>
   new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
 
-/** Does this booking still need its final bill? (drives the amber hint) */
+export const timeLabel = (iso) =>
+  new Date(iso).toLocaleString('en-AU', {
+    day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit',
+  });
+
+/** Does this booking still need its final bill? (drives the needs-action hint) */
 export const needsInvoice = (o) =>
   o.kind === 'booking' &&
   !o.invoiceRef &&

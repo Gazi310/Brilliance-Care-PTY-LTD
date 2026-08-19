@@ -1,14 +1,28 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getDeliverySlots,
   setDeliverySlot,
   setDeliveryDay,
 } from '../../services/deliveryService.js';
+import { resolveSlotAccent } from './slotAccents.js';
+import {
+  AlertIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MoonIcon,
+  SunIcon,
+  SunriseIcon,
+} from './icons.jsx';
 
 /* ------------------------------------------------------------------ */
 /*  A real (but tiny) month-grid calendar for picking a delivery /      */
 /*  pickup window. Customers pick an available day, then a time window; */
 /*  admins open/close days and windows. Self-fetches availability.      */
+/*                                                                      */
+/*  Kept as a month grid rather than the wireframe's flat 4-up slot     */
+/*  buttons — the client asked for the calendar, and a restyle doesn't  */
+/*  get to overrule that. Colour identity for the four uses lives in    */
+/*  slotAccents.js; see the note there for why hue no longer carries it. */
 /* ------------------------------------------------------------------ */
 
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
@@ -16,15 +30,7 @@ const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
-const WINDOW_ICON = { morning: '🌅', afternoon: '🌤️', evening: '🌙' };
-
-// Per-use colour accents (full literal class strings so Tailwind keeps them).
-const ACCENTS = {
-  emerald: { fill: 'bg-emerald-500 text-white shadow-emerald-500/30', dot: 'bg-emerald-500', ring: 'ring-emerald-400', pill: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100', pillSel: 'bg-emerald-500 text-white', head: 'from-emerald-500 to-teal-600' },
-  sky: { fill: 'bg-sky-500 text-white shadow-sky-500/30', dot: 'bg-sky-500', ring: 'ring-sky-400', pill: 'bg-sky-50 text-sky-700 hover:bg-sky-100', pillSel: 'bg-sky-500 text-white', head: 'from-sky-500 to-blue-600' },
-  amber: { fill: 'bg-amber-500 text-white shadow-amber-500/30', dot: 'bg-amber-500', ring: 'ring-amber-400', pill: 'bg-amber-50 text-amber-700 hover:bg-amber-100', pillSel: 'bg-amber-500 text-white', head: 'from-amber-500 to-orange-600' },
-  violet: { fill: 'bg-violet-600 text-white shadow-violet-500/30', dot: 'bg-violet-500', ring: 'ring-violet-400', pill: 'bg-violet-50 text-violet-700 hover:bg-violet-100', pillSel: 'bg-violet-600 text-white', head: 'from-violet-600 to-fuchsia-600' },
-};
+const WINDOW_ICON = { morning: SunriseIcon, afternoon: SunIcon, evening: MoonIcon };
 
 const pad = (n) => String(n).padStart(2, '0');
 const toYMD = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -41,10 +47,10 @@ export default function SlotCalendar({
   onChange,
   notify,
   daysAhead = 45,
-  accent = 'emerald',
+  accent = 'cleaning',
   scope = 'shop',
 }) {
-  const a = ACCENTS[accent] || ACCENTS.emerald;
+  const a = resolveSlotAccent(accent);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -192,47 +198,53 @@ export default function SlotCalendar({
   return (
     <div className="w-full select-none">
       {/* Month header */}
-      <div className="mb-2 flex items-center justify-between px-1">
+      <div className="mb-2.5 flex items-center justify-between px-1">
         <button
           type="button"
           onClick={() => step(-1)}
           disabled={!canPrev}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 disabled:opacity-30"
+          className="grid h-8 w-8 place-items-center rounded-btn text-navy-500 transition hover:bg-sky-50 disabled:opacity-30 disabled:hover:bg-transparent"
           aria-label="Previous month"
         >
-          ‹
+          <ChevronLeftIcon width={16} height={16} aria-hidden="true" />
         </button>
-        <p className="text-sm font-bold text-gray-800">
+        <p className="font-display text-[15px] font-bold text-navy-900">
           {MONTHS[view.m]} {view.y}
         </p>
         <button
           type="button"
           onClick={() => step(1)}
           disabled={!canNext}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-500 transition hover:bg-gray-100 disabled:opacity-30"
+          className="grid h-8 w-8 place-items-center rounded-btn text-navy-500 transition hover:bg-sky-50 disabled:opacity-30 disabled:hover:bg-transparent"
           aria-label="Next month"
         >
-          ›
+          <ChevronRightIcon width={16} height={16} aria-hidden="true" />
         </button>
       </div>
 
-      {loading && <div className="bc-skeleton h-56 rounded-xl" />}
+      {loading && <div className="bc-skeleton h-56 rounded-card" />}
 
       {!loading && error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">
-          ⚠️ {error}
-          <button onClick={load} className="ml-2 rounded-md bg-red-100 px-2 py-0.5 text-xs font-bold hover:bg-red-200">
-            Retry
-          </button>
+        <div className="flex items-start gap-3 rounded-card bg-bad-bg px-4 py-3 text-sm text-bad">
+          <AlertIcon width={18} height={18} className="mt-0.5 flex-none" aria-hidden="true" />
+          <p className="min-w-0">
+            {error}
+            <button
+              onClick={load}
+              className="ml-2 rounded-btn bg-white px-2.5 py-1 text-xs font-bold text-bad transition hover:bg-white/70"
+            >
+              Retry
+            </button>
+          </p>
         </div>
       )}
 
       {!loading && !error && data && (
         <>
           {/* Weekday row */}
-          <div className="mb-1 grid grid-cols-7 gap-1">
+          <div className="mb-1.5 grid grid-cols-7 gap-1">
             {WEEKDAYS.map((w) => (
-              <div key={w} className="text-center text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+              <div key={w} className="text-center text-[10px] font-bold uppercase tracking-[0.08em] text-muted">
                 {w}
               </div>
             ))}
@@ -257,29 +269,35 @@ export default function SlotCalendar({
                   type="button"
                   disabled={!clickable}
                   onClick={() => setActiveDate(ymd)}
-                  className={`relative flex aspect-square flex-col items-center justify-center rounded-lg text-sm font-semibold transition ${
-                    isActive || isPicked
-                      ? a.fill + ' shadow-md'
-                      : clickable
-                        ? 'text-gray-700 hover:bg-gray-100'
-                        : 'cursor-not-allowed text-gray-300'
-                  } ${isToday && !(isActive || isPicked) ? `ring-1 ${a.ring}` : ''}`}
+                  className={`relative flex aspect-square flex-col items-center justify-center rounded-btn text-sm font-semibold transition ${
+                    // Gold = the committed choice. Navy = the day you're
+                    // looking at. Same meaning as Stepper's current/done.
+                    isPicked
+                      ? 'bg-gold-500 text-navy-900 shadow-card'
+                      : isActive
+                        ? 'bg-navy-900 text-white'
+                        : clickable
+                          ? 'text-ink hover:bg-sky-50'
+                          : 'cursor-not-allowed text-line'
+                  } ${isToday && !(isActive || isPicked) ? `ring-1 ring-inset ${a.ring}` : ''}`}
                   title={
                     !inRange ? 'Not available' : openCount > 0 ? `${openCount} slot${openCount > 1 ? 's' : ''} open` : isAdmin ? 'Closed — click to manage' : 'Fully booked'
                   }
                 >
                   <span>{d}</span>
-                  {/* availability dot */}
+                  {/* availability marker — shape and weight carry the accent */}
                   {inRange && (
                     <span
-                      className={`absolute bottom-1 h-1 w-1 rounded-full ${
-                        isActive || isPicked
-                          ? 'bg-white/80'
-                          : openCount > 0
-                            ? a.dot
-                            : isAdmin
-                              ? 'bg-gray-300'
-                              : 'bg-transparent'
+                      className={`absolute bottom-1 rounded-full ${
+                        isPicked
+                          ? 'h-1.5 w-1.5 bg-navy-900/45'
+                          : isActive
+                            ? 'h-1.5 w-1.5 bg-white/70'
+                            : openCount > 0
+                              ? a.dot
+                              : isAdmin
+                                ? 'h-1.5 w-1.5 bg-line'
+                                : 'h-1.5 w-1.5 bg-transparent'
                       }`}
                     />
                   )}
@@ -289,31 +307,35 @@ export default function SlotCalendar({
           </div>
 
           {/* Time windows for the selected day */}
-          <div className="mt-3 border-t border-gray-100 pt-3">
+          <div className="mt-4 border-t border-line pt-4">
             {!activeDay ? (
-              <p className="py-3 text-center text-xs text-gray-400">
+              <p className="py-3 text-center text-[13px] text-muted">
                 {isAdmin ? 'Pick a day to open or close its time windows.' : 'Pick an available day to choose a time.'}
               </p>
             ) : (
               <>
-                <div className="mb-2 flex items-center justify-between">
-                  <p className="text-xs font-bold text-gray-700">
+                <div className="mb-2.5 flex items-center justify-between">
+                  <p className="text-[13px] font-bold text-navy-900">
                     {activeDay.weekday}, {activeDay.month} {activeDay.dayNum}
-                    {activeDay.isToday && <span className="ml-1.5 text-[10px] font-bold text-violet-500">TODAY</span>}
+                    {activeDay.isToday && (
+                      <span className="ml-2 rounded-full bg-gold-100 px-2 py-0.5 text-[10px] font-extrabold tracking-[0.08em] text-navy-900">
+                        TODAY
+                      </span>
+                    )}
                   </p>
                   {isAdmin && (
                     <div className="flex gap-1.5">
                       <button
                         onClick={() => toggleWholeDay(activeDay, true)}
                         disabled={savingKey === `day|${activeDay.date}`}
-                        className="rounded-md bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50"
+                        className="rounded-btn bg-ok-bg px-2.5 py-1 text-[11px] font-bold text-ok transition hover:bg-ok-bg/70 disabled:opacity-50"
                       >
                         Open all
                       </button>
                       <button
                         onClick={() => toggleWholeDay(activeDay, false)}
                         disabled={savingKey === `day|${activeDay.date}`}
-                        className="rounded-md bg-gray-100 px-2 py-1 text-[11px] font-semibold text-gray-600 transition hover:bg-gray-200 disabled:opacity-50"
+                        className="rounded-btn bg-line px-2.5 py-1 text-[11px] font-bold text-muted transition hover:bg-line/70 disabled:opacity-50"
                       >
                         Close all
                       </button>
@@ -321,21 +343,22 @@ export default function SlotCalendar({
                   )}
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-2">
                   {activeDay.slots.map((slot) => {
                     const isSel = value?.date === activeDay.date && value?.window === slot.window;
                     const saving = savingKey === `${activeDay.date}|${slot.window}`;
+                    const Icon = WINDOW_ICON[slot.window];
                     return (
                       <div
                         key={slot.window}
-                        className={`flex items-center gap-2.5 rounded-lg border bg-white px-2.5 py-2 ${
-                          isSel ? `${a.ring} ring-1` : 'border-gray-100'
+                        className={`flex items-center gap-3 rounded-btn border px-3 py-2.5 ${
+                          isSel ? 'border-gold-500 bg-gold-100/50' : 'border-line bg-white'
                         }`}
                       >
-                        <span className="text-base">{WINDOW_ICON[slot.window]}</span>
+                        {Icon && <Icon width={18} height={18} className="flex-none text-navy-500" aria-hidden="true" />}
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-semibold text-gray-800">{slot.label}</p>
-                          <p className="text-[10px] text-gray-400">{slot.time}</p>
+                          <p className="text-[13px] font-bold text-navy-900">{slot.label}</p>
+                          <p className="text-[11px] text-muted">{slot.time}</p>
                         </div>
 
                         {isAdmin ? (
@@ -343,7 +366,7 @@ export default function SlotCalendar({
                             type="button"
                             onClick={() => toggleSlot(activeDay, slot)}
                             disabled={saving}
-                            className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-60 ${slot.available ? 'bg-emerald-500' : 'bg-gray-300'}`}
+                            className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-60 ${slot.available ? 'bg-ok' : 'bg-muted/40'}`}
                             aria-label={`Toggle ${slot.label}`}
                             title={slot.available ? 'Open — click to close' : 'Closed — click to open'}
                           >
@@ -352,12 +375,16 @@ export default function SlotCalendar({
                         ) : slot.available ? (
                           <button
                             onClick={() => pick(activeDay, slot)}
-                            className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold transition active:scale-95 ${isSel ? a.pillSel : a.pill}`}
+                            className={`shrink-0 rounded-btn px-3.5 py-2 text-xs font-bold transition active:scale-95 ${
+                              isSel
+                                ? 'bg-gold-500 text-navy-900'
+                                : 'bg-sky-100 text-navy-900 hover:bg-sky-100/70'
+                            }`}
                           >
-                            {isSel ? '✓ Selected' : 'Choose'}
+                            {isSel ? 'Selected' : 'Choose'}
                           </button>
                         ) : (
-                          <span className="shrink-0 rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-bold text-gray-400">Closed</span>
+                          <span className="shrink-0 rounded-btn bg-line px-3.5 py-2 text-xs font-bold text-muted">Closed</span>
                         )}
                       </div>
                     );

@@ -21,6 +21,7 @@ export { default as Container } from './Container.jsx';
 export { default as SectionHead } from './SectionHead.jsx';
 export { default as Button } from './Button.jsx';
 export { default as Card } from './Card.jsx';
+export { default as Panel } from './Panel.jsx';
 export { default as IconBadge } from './IconBadge.jsx';
 export { default as Chip } from './Chip.jsx';
 export { default as Tag } from './Tag.jsx';

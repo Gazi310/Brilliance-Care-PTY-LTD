@@ -29,12 +29,25 @@ function shapeUser(user) {
   };
 }
 
-// POST /api/auth/register
+/**
+ * POST /api/auth/register
+ *
+ * `phone` is optional but asked for at sign-up on purpose: guest bookings
+ * are matched to a customer by phone number (see /admin/customers), so
+ * capturing it here is what lets someone who booked as a guest last month
+ * find that job in their account today.
+ */
 export const register = asyncHandler(async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone } = req.body;
   if (!name || !email || !password) {
     res.status(400);
     throw new Error('Name, email and password are required');
+  }
+
+  const cleanPhone = String(phone ?? '').trim();
+  if (cleanPhone.length > 40) {
+    res.status(400);
+    throw new Error('Phone must be 40 characters or fewer');
   }
 
   const exists = await User.findOne({ email: email.toLowerCase() });
@@ -43,7 +56,7 @@ export const register = asyncHandler(async (req, res) => {
     throw new Error('An account with this email already exists');
   }
 
-  const user = await User.create({ name, email, password });
+  const user = await User.create({ name, email, password, phone: cleanPhone });
   res.status(201).json({ user: shapeUser(user), token: generateToken(user._id) });
 });
 

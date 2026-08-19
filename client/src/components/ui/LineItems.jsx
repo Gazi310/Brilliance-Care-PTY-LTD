@@ -14,11 +14,15 @@
 export default function LineItems({ lines = [], className = '' }) {
   return (
     <ul className={`m-0 list-none p-0 ${className}`}>
-      {lines.map((l) => {
+      {lines.map((l, i) => {
+        // Index in the key because an order can legitimately carry two
+        // lines with the same label (two pickups, two of a product).
+        const key = `${l.label}-${i}`;
+
         if (l.emphasis === 'total') {
           return (
             <li
-              key={l.label}
+              key={key}
               className="mt-2 flex justify-between gap-4 border-t-2 border-navy-900 pt-4 font-display text-[22px] font-bold text-navy-900"
             >
               <span>{l.label}</span>
@@ -30,7 +34,7 @@ export default function LineItems({ lines = [], className = '' }) {
         if (l.emphasis === 'due') {
           return (
             <li
-              key={l.label}
+              key={key}
               className="-mx-5 mt-2.5 flex justify-between gap-4 rounded-btn bg-gold-100 px-5 py-4 font-bold text-navy-900"
             >
               <span>
@@ -46,7 +50,7 @@ export default function LineItems({ lines = [], className = '' }) {
 
         return (
           <li
-            key={l.label}
+            key={key}
             className="flex justify-between gap-4 border-b border-line py-3.5 text-base last:border-b-0"
           >
             <span className="text-muted">

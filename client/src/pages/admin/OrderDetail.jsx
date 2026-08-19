@@ -1,12 +1,28 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { getOrder } from '../../services/bookingService.js';
 import { getInvoice } from '../../services/invoiceService.js';
 import { slotLabel } from '../../components/booking/OrderTimeline.jsx';
-import { statusPill, KIND_ICON, money, dateLabel } from '../../components/admin/orders/orderStatusMeta.js';
+import { statusPill, money, dateLabel } from '../../components/admin/orders/orderStatusMeta.js';
 import StatusControl from '../../components/admin/orders/StatusControl.jsx';
 import AssessPanel from '../../components/admin/orders/AssessPanel.jsx';
 import InvoicePanel from '../../components/admin/orders/InvoicePanel.jsx';
+import AdminPage from '../../components/admin/AdminPage.jsx';
+import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
+import {
+  UserIcon, PhoneIcon, HomeIcon, KeyIcon, ClipboardIcon, MoneyIcon,
+  BasketIcon, BubblesIcon, TruckIcon, BoxIcon, AlertIcon,
+} from '../../components/admin/icons.jsx';
+import { Panel, Tag, Notice, Button, LineItems } from '../../components/ui';
+
+/* Slot label → icon, so the logistics list reads at a glance instead of
+   as four identical lines of text. */
+const SLOT_ICON = {
+  Pickup: BasketIcon,
+  Return: TruckIcon,
+  'Cleaning visit': BubblesIcon,
+  Delivery: BoxIcon,
+};
 
 /**
  * /admin/orders/:id — Assess & Invoice (blueprint §5.3), the key admin screen:
@@ -48,145 +64,158 @@ export default function AdminOrderDetail() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-3xl space-y-3 px-4 py-6 sm:px-6 sm:py-8">
-        <div className="bc-skeleton h-8 w-48 rounded-xl" />
-        <div className="bc-skeleton h-40 rounded-2xl" />
-        <div className="bc-skeleton h-64 rounded-2xl" />
-      </div>
+      <AdminPage>
+        <div className="space-y-4">
+          <div className="bc-skeleton h-9 w-56 rounded-xl" />
+          <div className="bc-skeleton h-40 rounded-card" />
+          <div className="bc-skeleton h-72 rounded-card" />
+        </div>
+      </AdminPage>
     );
   }
 
   if (error || !order) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
-          ⚠️ {error || 'Order not found'}
-          <Link to="/admin/orders" className="ml-3 text-xs font-bold underline">
-            Back to orders
-          </Link>
-        </div>
-      </div>
+      <AdminPage>
+        <Notice tone="warn" icon={<AlertIcon className="mt-0.5 flex-none" />}>
+          <p>{error || 'Order not found.'}</p>
+          <Button variant="ghost" to="/admin/orders" className="mt-2">
+            Back to the work queue
+          </Button>
+        </Notice>
+      </AdminPage>
     );
   }
 
   const isBooking = order.kind === 'booking';
-  const [pillCls, pillLabel] = statusPill(order.status);
-  const icon = isBooking ? KIND_ICON[order.service] || '🧺' : '🛍️';
+  const [tone, label] = statusPill(order.status);
   const invoiceLocked = Boolean(invoice && invoice.status !== 'void');
 
   const slots = [
-    order.laundryPickupSlot && ['🧺 Pickup', order.laundryPickupSlot],
-    order.laundryReturnSlot && ['🚚 Return', order.laundryReturnSlot],
-    order.cleaningSlot && ['🫧 Cleaning visit', order.cleaningSlot],
-    order.deliverySlot && ['📦 Delivery', order.deliverySlot],
+    order.laundryPickupSlot && ['Pickup', order.laundryPickupSlot],
+    order.laundryReturnSlot && ['Return', order.laundryReturnSlot],
+    order.cleaningSlot && ['Cleaning visit', order.cleaningSlot],
+    order.deliverySlot && ['Delivery', order.deliverySlot],
   ].filter(Boolean);
 
-  return (
-    <div className="mx-auto max-w-3xl space-y-4 px-4 py-6 sm:px-6 sm:py-8">
-      {/* ---- Header ---- */}
-      <div>
-        <Link to="/admin/orders" className="text-xs font-bold text-navy hover:underline">
-          ← Orders & bookings
-        </Link>
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <span className="text-xl">{icon}</span>
-          <h1 className="text-xl font-extrabold tracking-tight text-ink sm:text-2xl">
-            {order.orderNumber}
-          </h1>
-          <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-extrabold ${pillCls}`}>
-            {pillLabel}
-          </span>
-          <span className="text-xs text-faint">placed {dateLabel(order.createdAt)}</span>
-        </div>
-      </div>
+  const name = order.contact?.name || order.user?.name;
 
-      {/* ---- Customer & logistics ---- */}
-      <section className="rounded-2xl border border-line bg-white p-4 shadow-soft sm:p-5">
-        <p className="text-[11px] font-extrabold uppercase tracking-wide text-faint">Customer & job</p>
-        <div className="mt-2 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-          {(order.contact?.name || order.user?.name) && (
-            <p className="font-bold text-ink">
-              👤 {order.contact?.name || order.user?.name}
-              {order.contact?.phone && (
-                <a href={`tel:${order.contact.phone}`} className="ml-2 font-semibold text-navy hover:underline">
+  return (
+    <AdminPage>
+      <AdminSectionHeader
+        eyebrow={`Order ${order.orderNumber} · placed ${dateLabel(order.createdAt)}`}
+        title={isBooking ? 'Assess & invoice' : 'Shop order'}
+        subtitle={[name, order.contact?.phone, order.address?.suburb].filter(Boolean).join(' · ')}
+        action={<Tag tone={tone}>{label}</Tag>}
+        crumb={{ to: '/admin/orders', label: 'Work queue', current: order.orderNumber }}
+      />
+
+      <div className="space-y-5">
+        {/* ---- Customer & logistics ---- */}
+        <Panel title="Customer & job" padded>
+          <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
+            {name && (
+              <p className="flex items-center gap-2.5 bc-body">
+                <UserIcon width={17} height={17} className="flex-none text-navy-500" />
+                <span className="font-semibold text-navy-900">{name}</span>
+              </p>
+            )}
+
+            {order.contact?.phone && (
+              <p className="flex items-center gap-2.5 bc-body">
+                <PhoneIcon width={17} height={17} className="flex-none text-navy-500" />
+                <a href={`tel:${order.contact.phone}`} className="font-semibold text-navy-500 hover:underline">
                   {order.contact.phone}
                 </a>
+              </p>
+            )}
+
+            {order.address?.line1 && (
+              <p className="flex items-start gap-2.5 bc-body text-muted sm:col-span-2">
+                <HomeIcon width={17} height={17} className="mt-0.5 flex-none text-navy-500" />
+                {order.address.line1}, {order.address.suburb} {order.address.state}{' '}
+                {order.address.postcode}
+              </p>
+            )}
+
+            {slots.map(([slotLabelText, slot]) => {
+              const Icon = SLOT_ICON[slotLabelText] ?? BoxIcon;
+              return (
+                <p key={slotLabelText} className="flex items-center gap-2.5 bc-body text-muted">
+                  <Icon width={17} height={17} className="flex-none text-navy-500" />
+                  {slotLabelText} ·{' '}
+                  <span className="font-semibold text-navy-900">{slotLabel(slot)}</span>
+                </p>
+              );
+            })}
+          </div>
+
+          {(order.accessNotes || order.specialInstructions) && (
+            <div className="mt-5 space-y-2.5 border-t border-line pt-5">
+              {order.accessNotes && (
+                <p className="flex items-start gap-2.5 rounded-btn bg-sky-50 px-4 py-3 bc-meta text-muted">
+                  <KeyIcon width={16} height={16} className="mt-px flex-none text-navy-500" />
+                  <span>
+                    <b className="font-bold text-navy-900">Access:</b> {order.accessNotes}
+                  </span>
+                </p>
               )}
-            </p>
-          )}
-          {order.address?.line1 && (
-            <p className="text-muted">
-              🏠 {order.address.line1}, {order.address.suburb} {order.address.state}{' '}
-              {order.address.postcode}
-            </p>
-          )}
-          {slots.map(([label, slot]) => (
-            <p key={label} className="text-muted">
-              {label} · <span className="font-semibold text-ink">{slotLabel(slot)}</span>
-            </p>
-          ))}
-        </div>
-        {(order.accessNotes || order.specialInstructions) && (
-          <div className="mt-3 space-y-1.5">
-            {order.accessNotes && (
-              <p className="rounded-xl bg-surface px-3 py-2 text-xs font-semibold text-muted">
-                🔑 Access: {order.accessNotes}
-              </p>
-            )}
-            {order.specialInstructions && (
-              <p className="rounded-xl bg-surface px-3 py-2 text-xs font-semibold text-muted">
-                📋 Instructions: {order.specialInstructions}
-              </p>
-            )}
-          </div>
-        )}
-        {isBooking && (
-          <p className="mt-3 rounded-xl bg-surface px-3 py-2 text-xs font-semibold text-muted">
-            💰 Estimate {money(order.estimatedTotal)} · deposit ({order.depositPercent}%){' '}
-            {money(order.depositAmount)} — {order.depositStatus === 'paid' ? 'paid ✓' : 'unpaid'}
-          </p>
-        )}
-      </section>
-
-      {/* ---- Status ---- */}
-      <StatusControl order={order} onChanged={onOrderChanged} />
-
-      {/* ---- Booking: assess → invoice. Shop: just the item list. ---- */}
-      {isBooking ? (
-        <>
-          <AssessPanel
-            key={`${order._id}-${invoiceLocked ? 'locked' : 'open'}`}
-            order={order}
-            locked={invoiceLocked}
-            onSaved={onOrderChanged}
-          />
-          <InvoicePanel order={order} invoice={invoice} onChanged={onOrderChanged} />
-        </>
-      ) : (
-        <section className="rounded-2xl border border-line bg-white p-4 shadow-soft sm:p-5">
-          <p className="text-[11px] font-extrabold uppercase tracking-wide text-faint">Items</p>
-          <div className="mt-2 space-y-1.5 text-sm">
-            {order.items.map((l, i) => (
-              <div key={i} className="flex justify-between gap-3">
-                <span className="min-w-0 truncate text-muted">
-                  {l.name} ×{l.qty}
-                </span>
-                <span className="font-semibold tabular-nums text-ink">{money(l.price * l.qty)}</span>
-              </div>
-            ))}
-            {order.deliveryTotal > 0 && (
-              <div className="flex justify-between text-xs text-muted">
-                <span>Delivery</span>
-                <span className="tabular-nums">{money(order.deliveryTotal)}</span>
-              </div>
-            )}
-            <div className="flex justify-between border-t border-line pt-2 font-bold text-ink">
-              <span>Total</span>
-              <span className="tabular-nums">{money(order.total)}</span>
+              {order.specialInstructions && (
+                <p className="flex items-start gap-2.5 rounded-btn bg-sky-50 px-4 py-3 bc-meta text-muted">
+                  <ClipboardIcon width={16} height={16} className="mt-px flex-none text-navy-500" />
+                  <span>
+                    <b className="font-bold text-navy-900">Instructions:</b>{' '}
+                    {order.specialInstructions}
+                  </span>
+                </p>
+              )}
             </div>
-          </div>
-        </section>
-      )}
-    </div>
+          )}
+
+          {isBooking && (
+            <p className="mt-5 flex flex-wrap items-center gap-2.5 border-t border-line pt-5 bc-meta text-muted">
+              <MoneyIcon width={16} height={16} className="flex-none text-navy-500" />
+              Estimate <b className="font-bold text-navy-900">{money(order.estimatedTotal)}</b> ·
+              deposit ({order.depositPercent}%){' '}
+              <b className="font-bold text-navy-900">{money(order.depositAmount)}</b>
+              <Tag tone={order.depositStatus === 'paid' ? 'ok' : 'warn'}>
+                {order.depositStatus === 'paid' ? 'Deposit paid' : 'Deposit unpaid'}
+              </Tag>
+            </p>
+          )}
+        </Panel>
+
+        {/* ---- Status ---- */}
+        <StatusControl order={order} onChanged={onOrderChanged} />
+
+        {/* ---- Booking: assess → invoice. Shop: just the item list. ---- */}
+        {isBooking ? (
+          <>
+            <AssessPanel
+              key={`${order._id}-${invoiceLocked ? 'locked' : 'open'}`}
+              order={order}
+              locked={invoiceLocked}
+              onSaved={onOrderChanged}
+            />
+            <InvoicePanel order={order} invoice={invoice} onChanged={onOrderChanged} />
+          </>
+        ) : (
+          <Panel title="Items" padded>
+            <LineItems
+              lines={[
+                ...order.items.map((l) => ({
+                  label: `${l.name} × ${l.qty}`,
+                  value: money(l.price * l.qty),
+                })),
+                ...(order.deliveryTotal > 0
+                  ? [{ label: 'Delivery', value: money(order.deliveryTotal) }]
+                  : []),
+                { label: 'Total', value: money(order.total), emphasis: 'total' },
+              ]}
+            />
+          </Panel>
+        )}
+      </div>
+    </AdminPage>
   );
 }

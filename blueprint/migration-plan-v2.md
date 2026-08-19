@@ -233,8 +233,46 @@ says "Coming soon".
 
 ---
 
-## Phase 4 · Service pages — RESTYLE
+## Phase 4 · Service pages — RESTYLE ✅ DONE
+
 **Structure stays. This is now a quick phase — mostly the recipe above.**
+
+> **Shipped.** 7 files changed, 2 created. Zero v1 palette classes, zero
+> gradients, zero emerald/teal and zero hardcoded decorative emoji left on
+> `/laundry` or `/cleaning`. Lint on Phase 4 surfaces is one error, and it's
+> in a dead file (below).
+>
+> **`<PageHero>` was taken, `<PlanCard>` was not.** Both pages opened with
+> their own gradient card-hero; swapping those for the shared navy PageHero
+> was *cheaper* than restyling them and it's what makes the two pages sit
+> next to the Phase 3 pages without looking bolted on. PlanCard was skipped
+> as planned — cleaning renders N services from the database, not three
+> fixed tiers, so a tier treatment would have been a restructure.
+>
+> **`LaundryServiceCard.jsx` was the find.** It lives in `laundry/` but also
+> renders inside booking step 1 (`booking/StepBuildLaundry`), so Phase 6
+> never touched it and it was still the only v1-palette surface in the
+> revenue path. Restyled here; props and behaviour unchanged.
+>
+> **Three deviations from a pure restyle, all deliberate:**
+> 1. `/cleaning`'s search row and card grid moved into
+>    `cleaning/CleaningToolbar` + `cleaning/CleaningGrid`, mirroring
+>    `products/ShopToolbar` + `ProductGrid`. The page was 143 lines of inline
+>    JSX; the two catalogues now behave identically and the page is thin.
+> 2. The deposit explanation was a grey caption beside the heading on both
+>    pages. It's now a `<Notice>` above the list — same words, and it's the
+>    thing customers most often misread.
+> 3. `LaundryOverview`'s entrance animation dropped its `mounted` state flag
+>    for `bc-fade-up` + a per-card delay. Removes a `set-state-in-effect`
+>    lint error and honours `prefers-reduced-motion`, which the old
+>    transition didn't.
+>
+> **Deferred to Phase 9:** `laundry/LaundryCatalogue.jsx` (156 lines) has no
+> importers — the Phase 1 booking flow replaced it. Left in place rather
+> than restyled; it holds the one remaining lint error on these surfaces.
+> `pages/LaundryBook.jsx` was **kept**: the `/laundry/book` → `/book/laundry`
+> redirect is 10 lines of insurance against external links, and the plan's
+> "once nothing links to it" test was about internal links.
 
 - `pages/LaundryServices.jsx` (55 lines) + `laundry/LaundryOverview.jsx`,
   `LaundryCatalogue.jsx`, `LaundryServiceCard.jsx`, `LaundryServiceInfo.jsx`
@@ -308,8 +346,30 @@ Lead with the explanation `<Notice>`, not the table.
 
 ---
 
-## Phase 8 · Admin — RESTYLE
+## Phase 8 · Admin — RESTYLE ✅ DONE
+
 **Internal-facing, so it goes last — but it's the biggest surface area.**
+
+> **Shipped.** 30 files changed, 6 created. Zero v1 palette classes, zero
+> `shadow-soft`, zero gradients and zero decorative emoji left anywhere under
+> `components/admin/`, `pages/admin/` or the three catalogue managers. Lint is
+> back at its pre-phase baseline (10 pre-existing `set-state-in-effect` errors
+> in the admin data-loading effects — a whole-app pattern, not Phase 8's to fix).
+>
+> **New shared pieces:** `ui/Panel` (the `.panel` surface every admin screen
+> repeats), `admin/AdminPage` (one container width instead of thirteen),
+> `admin/icons.jsx`, and `admin/catalogue/` — a shared row shell, thumbnail and
+> add-form now used by all three catalogue managers, which previously carried
+> three copies of the same UI on three different palettes.
+>
+> **Two deviations from a pure restyle, both deliberate:**
+> 1. `AssessPanel`'s line editor went from stacked cards to the wireframe's
+>    est-vs-actual table. The maths, payload and locking rules are untouched.
+> 2. The unused slide-over drawer branch was deleted from all three catalogue
+>    managers (~150 lines of dead UI on a fourth palette). Nothing has rendered
+>    them without `inline` since Phase 0.
+>
+> **Left for Phase 9:** `products/AdminLoginModal.jsx` is now unreferenced.
 
 Wireframes: the six `admin-*.html` files
 
@@ -335,6 +395,10 @@ mostly forms — good `<DataTable>` and `<Card>` candidates, low creative risk.
 
 - Delete v1 tokens from `@theme`: `navy`, `navy-d`, `aqua`, `aqua-d`, `mint`, `teal`,
   `teal-d`, `surface`. Anything still referencing them now breaks visibly — that's the point.
+- **Dead files carried in from earlier phases** — delete, don't restyle:
+  `laundry/LaundryCatalogue.jsx` (Phase 4: no importers since the Phase 1 booking
+  flow replaced it; holds one `set-state-in-effect` lint error) and
+  `products/AdminLoginModal.jsx` (Phase 8: unreferenced).
 - `grep -r "aqua\|mint\|teal\|bg-surface" client/src` must return nothing.
 - Contrast audit: no gold text on white anywhere.
 - Check every image placeholder is either a real photo or an intentional placeholder.

@@ -1,7 +1,15 @@
+import Tag from '../ui/Tag.jsx';
+
 /**
- * One line of the customer invoice — shows the actual amount billed and
- * exactly how it moved from the estimate ("est 8 kg → 10.4 kg", "added"),
- * per blueprint §4.11. Trust is the product.
+ * One row of the estimate-vs-actual table.
+ *
+ * The sub-line under the label is the whole reason this page exists:
+ * "est 2 loads → 1.6 loads" is what turns a changed number from a
+ * surprise into an explanation. A row that didn't move says so
+ * explicitly rather than staying silent, because silence on an invoice
+ * reads as something being hidden.
+ *
+ * Renders a <tr>; the surrounding table lives in InvoiceLines.
  */
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
 const qtyLabel = (qty, unit) => `${qty}${unit ? ` ${unit}` : ''}`;
@@ -11,38 +19,47 @@ export default function InvoiceLineItem({ line }) {
   const qtyChanged = !added && Number(line.actualQty) !== Number(line.estQty);
   const priceChanged = !added && Number(line.actualUnitPrice) !== Number(line.estUnitPrice);
   const changed = qtyChanged || priceChanged;
+  const cheaper = Number(line.actualAmount) < Number(line.estAmount);
 
   return (
-    <div className="flex items-start justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
-      <div className="min-w-0">
-        <p className="text-sm font-bold text-ink">
-          {line.label}
-          {added && (
-            <span className="ml-2 rounded-full bg-amber-100 px-1.5 py-0.5 align-middle text-[9px] font-extrabold uppercase text-amber-800">
-              added
-            </span>
-          )}
-        </p>
+    <tr>
+      <td className="border-b border-line px-5 py-4 align-top text-[15px] lg:px-[22px]">
+        <strong className="font-semibold text-navy-900">{line.label}</strong>
+        {added && (
+          <Tag tone="warn" className="ml-2.5 align-middle">
+            Added
+          </Tag>
+        )}
+
         {added ? (
-          <p className="text-[11px] text-muted">
+          <small className="mt-[3px] block text-[13px] font-medium leading-[1.4] text-muted">
             {qtyLabel(line.actualQty, line.unit)} × {money(line.actualUnitPrice)}
-          </p>
-        ) : changed ? (
-          <p className="text-[11px] font-semibold text-amber-700">
-            est {qtyLabel(line.estQty, line.unit)} → {qtyLabel(line.actualQty, line.unit)}
-            {priceChanged && ` · ${money(line.estUnitPrice)} → ${money(line.actualUnitPrice)}`}
-          </p>
+            {line.note ? ` — ${line.note}` : ''}
+          </small>
         ) : (
-          <p className="text-[11px] text-muted">as estimated</p>
+          <small className="mt-[3px] block text-[13px] font-medium leading-[1.4] text-muted">
+            {changed
+              ? `Estimated ${qtyLabel(line.estQty, line.unit)} · came in at ${qtyLabel(
+                  line.actualQty,
+                  line.unit
+                )}${priceChanged ? ` · ${money(line.estUnitPrice)} → ${money(line.actualUnitPrice)}` : ''}`
+              : 'Exactly as estimated'}
+            {line.note ? ` — ${line.note}` : ''}
+          </small>
         )}
-        {line.note && <p className="mt-0.5 text-[11px] italic text-faint">{line.note}</p>}
-      </div>
-      <div className="flex-none text-right">
-        <p className="text-sm font-extrabold tabular-nums text-ink">{money(line.actualAmount)}</p>
-        {changed && (
-          <p className="text-[11px] tabular-nums text-faint line-through">{money(line.estAmount)}</p>
-        )}
-      </div>
-    </div>
+      </td>
+
+      <td className="whitespace-nowrap border-b border-line px-5 py-4 align-top text-[15px] text-muted lg:px-[22px]">
+        {money(line.estAmount)}
+      </td>
+
+      <td
+        className={`whitespace-nowrap border-b border-line px-5 py-4 text-right align-top font-display font-bold tabular-nums lg:px-[22px] ${
+          cheaper ? 'text-ok' : 'text-navy-900'
+        }`}
+      >
+        {money(line.actualAmount)}
+      </td>
+    </tr>
   );
 }

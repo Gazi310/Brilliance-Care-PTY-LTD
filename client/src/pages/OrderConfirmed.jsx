@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { getOrder } from '../services/bookingService.js';
 import OrderTimeline, { buildBookingSteps } from '../components/booking/OrderTimeline.jsx';
+import { AlertIcon } from '../components/booking/icons.jsx';
+import { Button, Card } from '../components/ui';
 
 /**
  * /order/:id/confirmed — the post-deposit success screen (blueprint §4.8):
@@ -36,57 +38,54 @@ export default function OrderConfirmed() {
   }, [id]);
 
   return (
-    <main className="min-h-screen bg-surface pb-28 lg:pb-16">
+    <main className="min-h-screen bg-sky-50 pb-28 lg:pb-16">
       <div className="mx-auto max-w-lg px-4 py-8 text-center sm:px-6 sm:py-12">
         {loading ? (
           <div className="space-y-3">
             <div className="bc-skeleton mx-auto h-20 w-20 rounded-full" />
             <div className="bc-skeleton mx-auto h-6 w-48 rounded" />
-            <div className="bc-skeleton h-64 rounded-2xl" />
+            <div className="bc-skeleton h-64 rounded-card" />
           </div>
         ) : error || !order ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-left text-sm font-medium text-red-700">
-            ⚠️ {error || 'Order not found'} —{' '}
-            <Link to="/account/orders" className="font-bold underline underline-offset-2">see your orders</Link>
+          <div className="flex gap-3.5 rounded-card bg-bad-bg px-5 py-[18px] text-left text-[15.5px] leading-[1.55] text-bad">
+            <AlertIcon className="mt-0.5 flex-none" aria-hidden="true" />
+            <p>
+              {error || 'Order not found'} —{' '}
+              <Link to="/account/orders" className="font-bold underline decoration-2 underline-offset-4">see your orders</Link>
+            </p>
           </div>
         ) : (
           <>
             {/* ---- Success ring ---- */}
-            <div className="bc-pop mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal shadow-cta">
-              <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+            <div className="bc-pop mx-auto grid h-20 w-20 place-items-center rounded-full bg-ok-bg text-ok shadow-card">
+              <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5 12l5 5L20 6" />
               </svg>
             </div>
 
-            <h1 className="mt-5 text-2xl font-extrabold text-ink">You're booked!</h1>
-            <p className="mt-1 text-sm text-muted">
-              Order <b className="font-bold text-ink">{order.orderNumber || `#${order._id.slice(-6)}`}</b>
+            <h1 className="bc-h2 mt-6">You're booked!</h1>
+            <p className="mt-2 text-[15px] text-muted">
+              Order <b className="font-bold text-navy-900">{order.orderNumber || `#${order._id.slice(-6)}`}</b>
               {order.depositStatus === 'paid' && (
                 <> · deposit ${Number(order.depositAmount).toFixed(2)} paid</>
               )}
             </p>
 
             {/* ---- What happens next ---- */}
-            <section className="bc-fade-up mt-6 rounded-2xl border border-line bg-white p-5 text-left shadow-soft">
-              <p className="text-[11px] font-extrabold uppercase tracking-wide text-faint">What happens next</p>
-              <div className="mt-4">
+            <Card as="section" className="bc-fade-up mt-8 text-left">
+              <p className="bc-eyebrow">What happens next</p>
+              <div className="mt-5">
                 <OrderTimeline steps={buildBookingSteps(order)} />
               </div>
-            </section>
+            </Card>
 
-            <div className="mt-6 space-y-2.5">
-              <Link
-                to="/account/orders"
-                className="block w-full rounded-xl bg-gradient-to-r from-navy to-aqua py-3.5 text-sm font-bold text-white shadow-md transition hover:shadow-lg active:scale-[.99]"
-              >
+            <div className="mt-8 space-y-3">
+              <Button variant="gold" to="/account/orders" block>
                 Track your order
-              </Link>
-              <Link
-                to="/"
-                className="block w-full rounded-xl border border-line bg-white py-3.5 text-sm font-bold text-navy transition hover:bg-surface"
-              >
+              </Button>
+              <Button variant="outline" to="/" block>
                 Back to home
-              </Link>
+              </Button>
             </div>
           </>
         )}

@@ -1,3 +1,5 @@
+import { Notice } from '../ui';
+import { BasketIcon, BubblesIcon, SparkleIcon } from './icons.jsx';
 import SlotField from './SlotField.jsx';
 
 const WINDOW_ORDER = ['morning', 'afternoon', 'evening'];
@@ -34,38 +36,38 @@ export default function StepSchedule({
       {hasLaundry && (
         <>
           <SlotField
-            icon="🧺"
+            icon={BasketIcon}
             title="Laundry pickup"
             hint="When should we collect?"
-            accent="sky"
+            accent="pickup"
             scope="laundry"
             value={pickupSlot}
             onChange={setPickupSlot}
             defaultOpen={!pickupSlot}
           />
           <SlotField
-            icon="✨"
+            icon={SparkleIcon}
             title="Laundry return"
             hint="When should we bring it back?"
-            accent="amber"
+            accent="return"
             scope="laundry"
             value={returnSlot}
             onChange={setReturnSlot}
           />
           {returnTooEarly && (
-            <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-              ⚠️ The return window must be after the pickup — most loads take about 48h.
-            </p>
+            <Notice tone="warn">
+              The return window must be after the pickup — most loads take about 48h.
+            </Notice>
           )}
         </>
       )}
 
       {hasCleaning && (
         <SlotField
-          icon="🫧"
+          icon={BubblesIcon}
           title="Cleaning appointment"
           hint="When should we come to clean?"
-          accent="emerald"
+          accent="cleaning"
           scope="cleaning"
           value={cleaningSlot}
           onChange={setCleaningSlot}
@@ -74,8 +76,8 @@ export default function StepSchedule({
       )}
 
       {hasLaundry && hasCleaning && (
-        <p className="px-1 text-[11px] leading-relaxed text-faint">
-          Tip: pick the <span className="font-semibold text-muted">same day &amp; window</span> for the
+        <p className="px-1 text-[13px] leading-relaxed text-muted">
+          Tip: pick the <span className="font-semibold text-navy-900">same day &amp; window</span> for the
           cleaning and a laundry visit and our team makes a single trip.
         </p>
       )}

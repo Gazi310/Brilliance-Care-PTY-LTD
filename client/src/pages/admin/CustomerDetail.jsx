@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import AdminPage from '../../components/admin/AdminPage.jsx';
+import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
 import CustomerProfileCard from '../../components/admin/customers/CustomerProfileCard.jsx';
 import CustomerNotes from '../../components/admin/customers/CustomerNotes.jsx';
 import CustomerOrderHistory from '../../components/admin/customers/CustomerOrderHistory.jsx';
 import { adminGetCustomer, adminSetCustomerNote } from '../../services/adminService.js';
+import { AlertIcon } from '../../components/admin/icons.jsx';
+import { Button, Notice } from '../../components/ui';
 
 /** /admin/customers/:id — one customer's profile, notes and order history. */
 export default function AdminCustomerDetail() {
@@ -35,36 +39,40 @@ export default function AdminCustomerDetail() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
-      <Link
-        to="/admin/customers"
-        className="mb-4 inline-flex items-center gap-1 text-xs font-bold text-navy hover:underline"
-      >
-        ← All customers
-      </Link>
+    <AdminPage>
+      <AdminSectionHeader
+        eyebrow="Customers"
+        title={data?.customer.name ?? 'Customer'}
+        crumb={{
+          to: '/admin/customers',
+          label: 'All customers',
+          current: data?.customer.name ?? '…',
+        }}
+      />
 
       {loading ? (
-        <div className="space-y-3">
-          <div className="bc-skeleton h-48 rounded-2xl" />
-          <div className="bc-skeleton h-32 rounded-2xl" />
+        <div className="space-y-5">
+          <div className="bc-skeleton h-56 rounded-card" />
+          <div className="bc-skeleton h-40 rounded-card" />
         </div>
       ) : error ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
-          ⚠️ {error}
-          <button
-            onClick={load}
-            className="ml-3 rounded-lg bg-red-100 px-3 py-1 text-xs font-bold text-red-700 hover:bg-red-200"
-          >
+        <Notice tone="warn" icon={<AlertIcon className="mt-0.5 flex-none" />}>
+          <p>{error}</p>
+          <Button variant="ghost" onClick={load} className="mt-2">
             Retry
-          </button>
-        </div>
+          </Button>
+        </Notice>
       ) : data ? (
-        <div className="space-y-4">
-          <CustomerProfileCard customer={data.customer} />
-          <CustomerNotes key={data.customer.id} customer={data.customer} onSave={saveNote} />
-          <CustomerOrderHistory orders={data.orders} />
+        <div className="grid gap-5 lg:grid-cols-5">
+          <div className="space-y-5 lg:col-span-3">
+            <CustomerProfileCard customer={data.customer} />
+            <CustomerOrderHistory orders={data.orders} />
+          </div>
+          <div className="lg:col-span-2">
+            <CustomerNotes key={data.customer.id} customer={data.customer} onSave={saveNote} />
+          </div>
         </div>
       ) : null}
-    </div>
+    </AdminPage>
   );
 }

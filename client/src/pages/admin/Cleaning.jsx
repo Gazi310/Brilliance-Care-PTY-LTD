@@ -7,7 +7,10 @@ import {
 } from '../../services/cleaningService.js';
 import CleaningAdminPanel from '../../components/cleaning/CleaningAdminPanel.jsx';
 import DeliverySlotMenu from '../../components/products/DeliverySlotMenu.jsx';
+import AdminPage from '../../components/admin/AdminPage.jsx';
 import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
+import { Panel, Button, Notice } from '../../components/ui';
+import { AlertIcon, BubblesIcon } from '../../components/admin/icons.jsx';
 import ToastStack from '../../components/products/ToastStack.jsx';
 
 /**
@@ -50,7 +53,7 @@ export default function AdminCleaning() {
     try {
       await updateCleaningService(id, fields);
       await load();
-      notify('Service updated ✅', 'success');
+      notify('Service updated', 'success');
     } catch (err) {
       notify(err.message, 'error');
     } finally {
@@ -70,7 +73,7 @@ export default function AdminCleaning() {
     try {
       await createCleaningService(fields);
       await load();
-      notify('Service added 🎉', 'success');
+      notify('Service added', 'success');
     } catch (err) {
       notify(err.message, 'error');
       throw err;
@@ -78,7 +81,7 @@ export default function AdminCleaning() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-8">
+    <AdminPage width="narrow">
       <AdminSectionHeader
         eyebrow="Manage"
         title="Cleaning services"
@@ -86,40 +89,36 @@ export default function AdminCleaning() {
       />
 
       {/* Appointment availability (admin) — cleaning's own calendar */}
-      <div className="mb-5 rounded-2xl border border-line bg-white p-4 shadow-soft">
-        <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-faint">
-          Appointment availability
-        </p>
+      <Panel title="Appointment availability" padded className="mb-5">
         <DeliverySlotMenu
           isAdmin
           scope="cleaning"
-          icon="🫧"
+          icon={<BubblesIcon />}
           label="Appointment availability"
-          accent="emerald"
+          accent="cleaning"
           selected={null}
           onSelect={() => {}}
           notify={notify}
         />
-      </div>
+      </Panel>
 
       {error && (
-        <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
-          ⚠️ {error}
-          <button onClick={load} className="ml-3 rounded-lg bg-red-100 px-3 py-1 text-xs font-bold text-red-700 hover:bg-red-200">
+        <Notice tone="warn" className="mb-5" icon={<AlertIcon className="mt-0.5 flex-none" />}>
+          <p>{error}</p>
+          <Button variant="ghost" onClick={load} className="mt-2">
             Retry
-          </button>
-        </div>
+          </Button>
+        </Notice>
       )}
 
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bc-skeleton h-24 rounded-2xl" />
+            <div key={i} className="bc-skeleton h-28 rounded-card" />
           ))}
         </div>
       ) : (
         <CleaningAdminPanel
-          inline
           services={services}
           onSave={handleSave}
           onDelete={handleDelete}
@@ -130,6 +129,6 @@ export default function AdminCleaning() {
       )}
 
       <ToastStack toasts={toasts} onDismiss={dismiss} />
-    </div>
+    </AdminPage>
   );
 }

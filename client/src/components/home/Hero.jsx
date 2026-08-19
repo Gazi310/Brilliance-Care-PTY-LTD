@@ -3,6 +3,7 @@ import Container from '../ui/Container.jsx';
 import ImagePlaceholder from '../ui/ImagePlaceholder.jsx';
 import PostcodeCheck from './PostcodeCheck.jsx';
 import { CheckIcon } from './icons';
+import heroPhoto from '../../assets/laundry-handover-doorstep.webp';
 
 /**
  * Section 1 — the hero. "What is this?"
@@ -54,9 +55,13 @@ export default function Hero() {
         </div>
 
         <div className="min-w-0 flex-1">
+          {/* `priority` because this is the LCP element on the site's most
+              visited page — it must not be lazy-loaded. */}
           <ImagePlaceholder
+            src={heroPhoto}
+            priority
             ratio="7/6"
-            subject="Team member handing back folded laundry at a front door"
+            alt="A Brilliance Care team member handing a bag of freshly folded laundry back to a customer at their front door"
           />
         </div>
       </Container>

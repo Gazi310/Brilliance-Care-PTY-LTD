@@ -29,8 +29,7 @@ import AdminCustomers from '../pages/admin/Customers';
 import AdminCustomerDetail from '../pages/admin/CustomerDetail';
 import AdminMessages from '../pages/admin/Messages';
 import AdminSettings from '../pages/admin/Settings';
-import Login from '../pages/Login';
-import Register from '../pages/Register';
+import Auth from '../pages/Auth';
 import NotFound from '../pages/NotFound';
 import PrivateRoute from './PrivateRoute';
 
@@ -119,9 +118,9 @@ export default function AppRoutes() {
         <Route path="settings" element={<AdminSettings />} />
       </Route>
 
-      {/* Auth */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      {/* Auth — one screen, the route picks which tab opens */}
+      <Route path="/login" element={<Auth mode="login" />} />
+      <Route path="/register" element={<Auth mode="register" />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

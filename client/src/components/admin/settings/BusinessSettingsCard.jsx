@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { updateSettings } from '../../../services/settingsService.js';
+import { AlertIcon } from '../icons.jsx';
+import { Panel, Button, Field, Notice } from '../../ui';
 
 const FIELDS = [
-  { key: 'businessName', label: 'Business name', placeholder: 'Brilliance Care PTY LTD' },
+  { key: 'businessName', label: 'Trading name', placeholder: 'Brilliance Care PTY LTD', full: true },
   { key: 'abn', label: 'ABN', placeholder: '00 000 000 000' },
   { key: 'businessPhone', label: 'Phone', placeholder: '+61 4xx xxx xxx', type: 'tel' },
   {
@@ -10,6 +12,7 @@ const FIELDS = [
     label: 'Email',
     placeholder: 'hello@brilliancecare.com.au',
     type: 'email',
+    full: true,
   },
   { key: 'businessAddress', label: 'Based in', placeholder: 'Suburb, State, Postcode' },
   { key: 'businessHours', label: 'Opening hours', placeholder: 'Mon – Sat · 8:00 – 18:00' },
@@ -49,53 +52,55 @@ export default function BusinessSettingsCard({ settings, onSaved }) {
   };
 
   return (
-    <form onSubmit={save} className="rounded-2xl border border-line bg-white p-5 shadow-soft">
-      <h2 className="text-sm font-extrabold text-ink">Business details</h2>
-      <p className="mt-0.5 text-[11px] text-faint">
-        Shown in the site footer and used by the homepage postcode checker.
-      </p>
+    <Panel as="h2" title="Business details">
+      <form onSubmit={save} className="px-6 py-6">
+        <p className="bc-meta text-muted">
+          These feed the site footer, invoices, and the closing call-to-action on every marketing
+          page.
+        </p>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        {FIELDS.map((f) => (
-          <label key={f.key} className="block">
-            <span className="text-xs font-bold text-muted">{f.label}</span>
-            <input
+        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          {FIELDS.map((f) => (
+            <Field
+              key={f.key}
+              id={`set-${f.key}`}
+              size="sm"
               type={f.type || 'text'}
+              label={f.label}
+              placeholder={f.placeholder}
               value={form[f.key]}
               onChange={set(f.key)}
-              placeholder={f.placeholder}
-              className="mt-1 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink placeholder:text-faint focus:border-aqua focus:outline-none focus:ring-2 focus:ring-aqua/30"
+              wrapperClassName={f.full ? 'sm:col-span-2' : ''}
             />
-          </label>
-        ))}
-      </div>
+          ))}
 
-      <label className="mt-3 block">
-        <span className="text-xs font-bold text-muted">Service-area postcodes</span>
-        <textarea
-          value={form.servicePostcodes}
-          onChange={set('servicePostcodes')}
-          rows={2}
-          placeholder="e.g. 2150, 2151, 2152 — leave empty to accept any Australian postcode"
-          className="mt-1 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink placeholder:text-faint focus:border-aqua focus:outline-none focus:ring-2 focus:ring-aqua/30"
-        />
-        <span className="mt-1 block text-[11px] text-faint">
-          Separate with commas or spaces. The homepage checker says &ldquo;yes&rdquo; only to
-          these postcodes when the list isn&rsquo;t empty.
-        </span>
-      </label>
+          <Field
+            id="set-postcodes"
+            as="textarea"
+            size="sm"
+            rows={2}
+            label="Service-area postcodes"
+            placeholder="e.g. 3128, 3124, 3108 — leave empty to accept any Australian postcode"
+            hint="Separate with commas or spaces. Drives the postcode checker in the hero, the service-area section and the footer. Leave it empty and every postcode is accepted."
+            value={form.servicePostcodes}
+            onChange={set('servicePostcodes')}
+            wrapperClassName="sm:col-span-2"
+          />
+        </div>
 
-      <div className="mt-4 flex items-center gap-2">
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-xl bg-navy px-4 py-2 text-xs font-bold text-white shadow-soft transition hover:-translate-y-0.5 disabled:opacity-50"
-        >
-          {saving ? 'Saving…' : 'Save details'}
-        </button>
-        {saved && <span className="text-xs font-bold text-emerald-600">Saved ✓</span>}
-        {error && <span className="text-xs font-medium text-red-600">⚠️ {error}</span>}
-      </div>
-    </form>
+        <div className="mt-6 flex items-center gap-3">
+          <Button variant="navy" size="sm" type="submit" disabled={saving}>
+            {saving ? 'Saving…' : 'Save details'}
+          </Button>
+          {saved && <span className="bc-meta font-bold text-ok">Saved ✓</span>}
+        </div>
+
+        {error && (
+          <Notice tone="warn" className="mt-4" icon={<AlertIcon className="mt-0.5 flex-none" />}>
+            {error}
+          </Notice>
+        )}
+      </form>
+    </Panel>
   );
 }

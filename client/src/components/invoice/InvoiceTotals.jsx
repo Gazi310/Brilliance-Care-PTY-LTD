@@ -1,39 +1,38 @@
+import LineItems from '../ui/LineItems.jsx';
+
 /**
- * The money block of an invoice: actual total (GST-inclusive), the deposit
- * already paid, and the remaining balance — blueprint §4.11.
+ * The money block of an invoice — blueprint §4.11.
+ *
+ * Order matters more than styling here: estimate, then actual, then the
+ * deposit coming *off*, then what's left. That sequence is the argument
+ * the deposit model has to win, and reading it top to bottom is the
+ * whole explanation.
  */
 const money = (n) => `$${Number(n || 0).toFixed(2)}`;
 
-export default function InvoiceTotals({ invoice }) {
+export default function InvoiceTotals({ invoice, className = '' }) {
   const credit = invoice.balanceDue < 0;
 
   return (
-    <div className="space-y-1.5 rounded-2xl border border-line bg-white p-4 shadow-soft sm:p-5">
-      <div className="flex justify-between text-sm text-muted">
-        <span>Estimated total</span>
-        <span className="tabular-nums">{money(invoice.estimatedTotal)}</span>
-      </div>
-      <div className="flex justify-between text-sm text-muted">
-        <span>GST (incl. 10%)</span>
-        <span className="tabular-nums">{money(invoice.gstAmount)}</span>
-      </div>
-      <div className="flex justify-between text-sm font-bold text-ink">
-        <span>Actual total</span>
-        <span className="tabular-nums">{money(invoice.total)}</span>
-      </div>
-      <div className="flex justify-between text-sm text-muted">
-        <span>Less deposit paid</span>
-        <span className="tabular-nums">−{money(invoice.depositApplied)}</span>
-      </div>
-      <div className="flex justify-between border-t border-line pt-2 text-base font-extrabold text-ink">
-        <span>{credit ? 'Credit owed to you' : 'Balance due'}</span>
-        <span className={`tabular-nums ${credit ? 'text-emerald-600' : ''}`}>
-          {money(Math.abs(invoice.balanceDue))}
-        </span>
-      </div>
+    <div className={className}>
+      <LineItems
+        lines={[
+          { label: 'Original estimate', value: money(invoice.estimatedTotal) },
+          { label: 'Assessed total (incl. GST)', value: money(invoice.total) },
+          { label: 'GST included', value: money(invoice.gstAmount) },
+          { label: 'Less deposit paid', value: `− ${money(invoice.depositApplied)}` },
+          {
+            label: credit ? 'Credit owed to you' : 'Balance due',
+            value: money(Math.abs(invoice.balanceDue)),
+            emphasis: 'total',
+          },
+        ]}
+      />
+
       {credit && (
-        <p className="pt-1 text-[11px] text-muted">
-          Your deposit covered more than the final total — we'll refund the difference.
+        <p className="bc-meta mt-3.5 text-muted">
+          Your deposit covered more than the final total — we'll refund the difference to the
+          card you paid with.
         </p>
       )}
     </div>

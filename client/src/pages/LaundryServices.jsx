@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { getLaundryServices } from '../services/laundryService.js';
+import PageHero from '../components/ui/PageHero.jsx';
 import LaundryOverview from '../components/laundry/LaundryOverview.jsx';
 
 /**
  * /laundry — services overview. Describes every laundry service and points the
- * customer to the booking catalogue (/laundry/book) to build an estimate.
- * Thin: load services, compose the overview.
+ * customer to the guided booking flow (/book/laundry) to build an estimate.
+ * Thin: load services, compose the hero and the overview.
  */
 export default function LaundryServices() {
   const [services, setServices] = useState([]);
@@ -46,10 +47,18 @@ export default function LaundryServices() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-surface pb-16">
-      <div className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
-        <LaundryOverview services={services} loading={loading} error={error} onRetry={load} />
-      </div>
+    <main>
+      <PageHero
+        title="Laundry"
+        sub="Wash and fold, ironing, dry cleaning and delicates — collected from your door and returned within 48 hours."
+        crumbs={[
+          { label: 'Home', to: '/' },
+          { label: 'Services', to: '/services' },
+          { label: 'Laundry' },
+        ]}
+      />
+
+      <LaundryOverview services={services} loading={loading} error={error} onRetry={load} />
     </main>
   );
 }

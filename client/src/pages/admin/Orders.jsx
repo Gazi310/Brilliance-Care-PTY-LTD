@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import AdminPage from '../../components/admin/AdminPage.jsx';
 import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
 import AdminOrderRow from '../../components/admin/orders/AdminOrderRow.jsx';
 import { SEGMENTS } from '../../components/admin/orders/orderStatusMeta.js';
 import { adminListOrders, adminUpdateStatus } from '../../services/orderService.js';
+import { SearchIcon } from '../../components/products/icons.jsx';
+import { AlertIcon } from '../../components/admin/icons.jsx';
+import { Chip, Button, Notice } from '../../components/ui';
 
 const SEGMENT_IDS = SEGMENTS.map((s) => s.id);
 
@@ -65,87 +69,79 @@ export default function AdminOrders() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+    <AdminPage>
       <AdminSectionHeader
-        eyebrow="Admin"
-        title="Orders & bookings"
-        subtitle="Your work queue — tap a booking to assess the job and send the final invoice."
+        eyebrow="Orders"
+        title="Work queue"
+        subtitle="Open a booking to assess the job and send the final invoice."
+        action={
+          <>
+            <div className="relative">
+              <input
+                type="search"
+                value={qInput}
+                onChange={(e) => setQInput(e.target.value)}
+                placeholder="Search order, name or phone…"
+                aria-label="Search orders"
+                className="h-11 w-full rounded-btn border border-line bg-white pl-10 pr-4 text-[15px] text-ink placeholder:text-muted sm:w-[260px]"
+              />
+              <SearchIcon
+                width={17}
+                height={17}
+                className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
+              />
+            </div>
+
+            <select
+              value={kind}
+              onChange={(e) => setKind(e.target.value)}
+              aria-label="Filter by order type"
+              className="h-11 rounded-btn border border-line bg-white px-4 text-[15px] font-semibold text-navy-900"
+            >
+              <option value="">All types</option>
+              <option value="booking">Bookings</option>
+              <option value="shop">Shop</option>
+            </select>
+          </>
+        }
       />
 
       {/* ---- Segment lenses ---- */}
-      <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
-        <div className="flex w-max items-center gap-1.5">
+      <div className="-mx-4 mb-6 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+        <div className="flex w-max gap-2">
           {SEGMENTS.map((s) => (
-            <button
+            <Chip
               key={s.id}
-              type="button"
+              active={segment === s.id}
               onClick={() => setSegment(s.id)}
-              className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-sm font-bold transition ${
-                segment === s.id
-                  ? 'bg-navy text-white shadow-soft'
-                  : 'border border-line bg-white text-muted shadow-soft hover:text-navy'
-              }`}
+              className="whitespace-nowrap"
             >
               {s.label}
-            </button>
+            </Chip>
           ))}
         </div>
       </div>
 
-      {/* ---- Search + kind filter ---- */}
-      <div className="mt-3 flex gap-2">
-        <div className="relative flex-1">
-          <input
-            type="search"
-            value={qInput}
-            onChange={(e) => setQInput(e.target.value)}
-            placeholder="Search order #, name or phone…"
-            className="w-full rounded-xl border border-line bg-white py-2.5 pl-9 pr-3 text-sm text-ink shadow-soft placeholder:text-faint focus:border-aqua focus:outline-none focus:ring-2 focus:ring-aqua/30"
-            aria-label="Search orders"
-          />
-          <svg
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint"
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="11" cy="11" r="7" />
-            <path d="M21 21l-4.3-4.3" />
-          </svg>
-        </div>
-        <select
-          value={kind}
-          onChange={(e) => setKind(e.target.value)}
-          className="rounded-xl border border-line bg-white px-3 py-2.5 text-sm font-bold text-muted shadow-soft focus:border-aqua focus:outline-none"
-          aria-label="Filter by order type"
-        >
-          <option value="">All types</option>
-          <option value="booking">Bookings</option>
-          <option value="shop">Shop</option>
-        </select>
-      </div>
-
       {/* ---- List ---- */}
-      <div className="mt-4 space-y-2.5">
+      <div className="space-y-3">
         {loading ? (
-          Array.from({ length: 4 }).map((_, i) => <div key={i} className="bc-skeleton h-[74px] rounded-2xl" />)
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bc-skeleton h-[84px] rounded-card" />
+          ))
         ) : error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
-            ⚠️ {error}
-            <button
-              onClick={load}
-              className="ml-3 rounded-lg bg-red-100 px-3 py-1 text-xs font-bold text-red-700 hover:bg-red-200"
-            >
+          <Notice tone="warn" icon={<AlertIcon className="mt-0.5 flex-none" />}>
+            <p>{error}</p>
+            <Button variant="ghost" onClick={load} className="mt-2">
               Retry
-            </button>
-          </div>
+            </Button>
+          </Notice>
         ) : orders.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-line bg-white px-5 py-10 text-center">
-            <p className="text-3xl">🗂️</p>
-            <p className="mt-2 text-sm font-bold text-ink">Nothing here yet</p>
-            <p className="mt-1 text-xs text-muted">
+          <div className="rounded-card border border-dashed border-line bg-white px-6 py-14 text-center">
+            <p className="bc-h3">Nothing in this view</p>
+            <p className="mx-auto mt-2 max-w-md bc-body text-muted">
               {segment === 'all' && !q
-                ? 'New orders and bookings will appear the moment they land.'
-                : 'No orders match this view — try another segment or clear the search.'}
+                ? 'New orders and bookings appear here the moment they land.'
+                : 'No orders match — try another segment or clear the search.'}
             </p>
           </div>
         ) : (
@@ -154,6 +150,6 @@ export default function AdminOrders() {
           ))
         )}
       </div>
-    </div>
+    </AdminPage>
   );
 }

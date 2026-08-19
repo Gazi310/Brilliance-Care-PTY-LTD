@@ -1,190 +1,169 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import OrderTimeline, { buildBookingSteps, slotLabel } from '../booking/OrderTimeline.jsx';
+import { BasketIcon, BubblesIcon, SparkleIcon, ChevronRightIcon } from '../booking/icons.jsx';
+import { CartIcon, TruckIcon } from '../products/icons.jsx';
+import { Button, IconBadge, LineItems, Tag } from '../ui';
+import { dateLabel, isBooking, money, orderAmount, orderTitle, statusMeta } from './orderMeta.js';
 
-/* Status → pill colour + friendly label. */
-const STATUS_PILL = {
-  // booking lifecycle
-  booked: ['bg-amber-100 text-amber-800', 'Awaiting deposit'],
-  deposit_paid: ['bg-sky-100 text-sky-800', 'Deposit paid'],
-  scheduled: ['bg-sky-100 text-sky-800', 'Scheduled'],
-  picked_up: ['bg-indigo-100 text-indigo-800', 'Picked up'],
-  in_progress: ['bg-indigo-100 text-indigo-800', 'In progress'],
-  assessed: ['bg-violet-100 text-violet-800', 'Assessed'],
-  ready: ['bg-teal-100 text-teal-800', 'Ready'],
-  out_for_delivery: ['bg-teal-100 text-teal-800', 'On the way'],
-  delivered: ['bg-emerald-100 text-emerald-800', 'Delivered'],
-  // shared / shop
-  pending: ['bg-amber-100 text-amber-800', 'Pending'],
-  paid: ['bg-emerald-100 text-emerald-800', 'Paid'],
-  fulfilled: ['bg-emerald-100 text-emerald-800', 'Fulfilled'],
-  cancelled: ['bg-gray-200 text-gray-600', 'Cancelled'],
-};
+const KIND_ICON = { laundry: BasketIcon, cleaning: BubblesIcon, combo: SparkleIcon };
 
-const KIND_ICON = { laundry: '🧺', cleaning: '🫧', combo: '🧺🫧' };
-
-const dateLabel = (iso) =>
-  new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
-
-/** One order/booking in the account list — tap to expand details. */
+/**
+ * One order in the account list.
+ *
+ * Three zones, following `account-orders.html`: a header you can read at a
+ * glance, a body behind a disclosure, and a footer of actions that is
+ * *never* hidden. The actions staying visible is the point — "Pay deposit"
+ * shouldn't require a customer to first work out that the card expands.
+ */
 export default function OrderCard({ order }) {
   const [open, setOpen] = useState(false);
 
-  const isBooking = order.kind === 'booking';
-  const [pillCls, pillLabel] = STATUS_PILL[order.status] || ['bg-gray-100 text-gray-600', order.status];
-  const icon = isBooking ? KIND_ICON[order.service] || '🧺' : '🛍️';
-  const title = isBooking
-    ? order.service === 'combo'
-      ? 'Laundry + cleaning'
-      : order.service === 'cleaning'
-        ? 'Cleaning booking'
-        : 'Laundry pickup'
-    : `Shop order · ${order.items.reduce((n, i) => n + i.qty, 0)} item${order.items.reduce((n, i) => n + i.qty, 0) === 1 ? '' : 's'}`;
+  const booking = isBooking(order);
+  const [tone, label] = statusMeta(order.status);
+  const [amount, amountLabel] = orderAmount(order);
+  const Icon = booking ? KIND_ICON[order.service] || BasketIcon : CartIcon;
 
-  const assessed = isBooking && order.actualTotal !== null && order.actualTotal !== undefined;
-  const amount = isBooking ? (assessed ? order.actualTotal : order.estimatedTotal) : order.total;
-  const needsDeposit = isBooking && order.depositStatus !== 'paid' && order.status === 'booked';
-  const balanceDue = isBooking && order.balanceStatus === 'awaiting';
+  const assessed = booking && order.actualTotal !== null && order.actualTotal !== undefined;
+  const needsDeposit = booking && order.depositStatus !== 'paid' && order.status === 'booked';
+  const balanceDue = booking && order.balanceStatus === 'awaiting';
+  const hasActions = booking && (needsDeposit || order.invoiceRef);
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-line bg-white shadow-soft">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-3 p-4 text-left transition hover:bg-surface/50"
-        aria-expanded={open}
-      >
-        <span className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-surface text-2xl">
-          {icon}
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="text-sm font-bold text-ink">{title}</span>
-            <span className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold ${pillCls}`}>{pillLabel}</span>
-            {needsDeposit && (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-extrabold text-amber-800">
-                Action needed
-              </span>
-            )}
-            {balanceDue && (
-              <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-extrabold text-red-700">
-                Balance due
-              </span>
-            )}
-          </span>
-          <span className="mt-0.5 block text-xs text-muted">
-            {order.orderNumber ? `${order.orderNumber} · ` : ''}
-            {dateLabel(order.createdAt)}
-            {isBooking && (assessed ? ' · final' : ' · estimated')}
-          </span>
-        </span>
-        <span className="flex flex-none flex-col items-end gap-1">
-          <span className="text-sm font-extrabold tabular-nums text-ink">
-            ${Number(amount || 0).toFixed(2)}
-          </span>
-          <svg
-            className={`h-4 w-4 text-faint transition-transform ${open ? 'rotate-180' : ''}`}
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-          >
-            <path d="M6 9l6 6 6-6" />
-          </svg>
-        </span>
-      </button>
+    <article className="mb-[18px] overflow-hidden rounded-card border border-line bg-white shadow-card">
+      {/* ---- Header: number, state, money ---- */}
+      <div className="flex flex-wrap items-center gap-4 border-b border-line px-6 py-[22px] lg:px-7">
+        <IconBadge icon={Icon} size="inline" tone="sky" />
 
-      {open && (
-        <div className="border-t border-line px-4 py-4">
-          {/* ---- Lines ---- */}
-          {isBooking ? (
-            <div className="space-y-1.5 text-sm">
-              {order.lineItems.map((l, i) => (
-                <div key={i} className="flex justify-between gap-3">
-                  <span className="min-w-0 truncate text-muted">
-                    {l.label}
-                    {l.estQty > 1 ? ` ×${l.estQty}` : ''}
-                  </span>
-                  <span className="font-semibold tabular-nums text-ink">${Number(l.estAmount).toFixed(2)}</span>
-                </div>
-              ))}
-              <div className="flex justify-between border-t border-line pt-2 font-bold text-ink">
-                <span>Estimated total</span>
-                <span className="tabular-nums">${Number(order.estimatedTotal).toFixed(2)}</span>
-              </div>
-              {assessed && (
-                <div className="flex justify-between font-bold text-ink">
-                  <span>Actual total</span>
-                  <span className="tabular-nums">${Number(order.actualTotal).toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-xs text-muted">
-                <span>Deposit ({order.depositPercent}%)</span>
-                <span className="tabular-nums">
-                  ${Number(order.depositAmount).toFixed(2)} · {order.depositStatus === 'paid' ? 'paid ✓' : 'unpaid'}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-1.5 text-sm">
-              {order.items.map((l, i) => (
-                <div key={i} className="flex justify-between gap-3">
-                  <span className="min-w-0 truncate text-muted">{l.name} ×{l.qty}</span>
-                  <span className="font-semibold tabular-nums text-ink">${(l.price * l.qty).toFixed(2)}</span>
-                </div>
-              ))}
-              {order.deliveryTotal > 0 && (
-                <div className="flex justify-between text-xs text-muted">
-                  <span>Delivery</span>
-                  <span className="tabular-nums">${Number(order.deliveryTotal).toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex justify-between border-t border-line pt-2 font-bold text-ink">
-                <span>Total</span>
-                <span className="tabular-nums">${Number(order.total).toFixed(2)}</span>
-              </div>
-              {order.deliverySlot && (
-                <p className="pt-1 text-xs text-muted">🚚 Delivery · {slotLabel(order.deliverySlot)}</p>
-              )}
-            </div>
-          )}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            <h3 className="bc-h3">{order.orderNumber || orderTitle(order)}</h3>
+            <Tag tone={tone}>{label}</Tag>
+            {balanceDue && <Tag tone="warn">Balance due</Tag>}
+          </div>
+          <p className="bc-meta mt-1.5 text-muted">
+            {order.orderNumber ? `${orderTitle(order)} · ` : ''}
+            booked {dateLabel(order.createdAt)}
+          </p>
+        </div>
 
-          {/* ---- Booking extras: address + timeline + actions ---- */}
-          {isBooking && (
-            <>
-              {order.address && (
-                <p className="mt-3 rounded-xl bg-surface px-3 py-2 text-xs font-semibold text-muted">
-                  🏠 {order.address.line1}, {order.address.suburb} {order.address.state} {order.address.postcode}
-                </p>
-              )}
-              {order.status !== 'cancelled' && (
-                <div className="mt-4">
-                  <OrderTimeline steps={buildBookingSteps(order)} />
-                </div>
-              )}
-              {needsDeposit && (
-                <Link
-                  to={`/checkout/${order._id}`}
-                  className="mt-3 block w-full rounded-xl bg-gradient-to-r from-navy to-aqua py-3 text-center text-sm font-bold text-white shadow-md transition hover:shadow-lg"
-                >
-                  Pay deposit · ${Number(order.depositAmount).toFixed(2)}
-                </Link>
-              )}
-              {order.invoiceRef && balanceDue && (
-                <Link
-                  to={`/account/invoices/${order.invoiceRef}`}
-                  className="mt-3 block w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal py-3 text-center text-sm font-bold text-white shadow-md transition hover:shadow-lg"
-                >
-                  🧾 Your final invoice is ready — pay balance · ${Number(order.balanceDue || 0).toFixed(2)}
-                </Link>
-              )}
-              {order.invoiceRef && !balanceDue && (
-                <Link
-                  to={`/account/invoices/${order.invoiceRef}`}
-                  className="mt-3 block w-full rounded-xl border border-line bg-white py-2.5 text-center text-xs font-bold text-navy shadow-soft transition hover:bg-surface"
-                >
-                  View invoice
-                </Link>
-              )}
-            </>
+        <div className="text-right">
+          <p className="font-display text-[22px] font-bold leading-[1.2] tabular-nums text-navy-900">
+            {money(amount)}
+          </p>
+          <p className="bc-meta mt-[3px] text-muted">{amountLabel}</p>
+        </div>
+      </div>
+
+      {/* ---- Body: the detail, folded away by default ---- */}
+      <div className="px-6 lg:px-7">
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          className="flex w-full cursor-pointer items-center justify-between gap-3 border-0 bg-transparent py-4 text-left text-sm font-bold text-navy-500 transition-colors hover:text-navy-900"
+        >
+          {open ? 'Hide details' : 'View details'}
+          <ChevronRightIcon
+            width={16}
+            height={16}
+            className={`transition-transform ${open ? '-rotate-90' : 'rotate-90'}`}
+            aria-hidden="true"
+          />
+        </button>
+
+        {open && (
+          <div className="pb-6">
+            {booking ? (
+              <LineItems
+                lines={[
+                  ...order.lineItems.map((l) => ({
+                    label: l.estQty > 1 ? `${l.label} ×${l.estQty}` : l.label,
+                    value: money(l.estAmount),
+                  })),
+                  {
+                    label: assessed ? 'Estimated total' : 'Estimate',
+                    value: money(order.estimatedTotal),
+                  },
+                  ...(assessed
+                    ? [{ label: 'Assessed total', value: money(order.actualTotal) }]
+                    : []),
+                  {
+                    label: `Deposit (${order.depositPercent}%)`,
+                    note: order.depositStatus === 'paid' ? 'paid' : 'not yet paid',
+                    value:
+                      order.depositStatus === 'paid'
+                        ? `− ${money(order.depositAmount)}`
+                        : money(order.depositAmount),
+                  },
+                ]}
+              />
+            ) : (
+              <LineItems
+                lines={[
+                  ...order.items.map((l) => ({
+                    label: `${l.name} ×${l.qty}`,
+                    value: money(l.price * l.qty),
+                  })),
+                  ...(order.deliveryTotal > 0
+                    ? [{ label: 'Delivery', value: money(order.deliveryTotal) }]
+                    : []),
+                  { label: 'Total', value: money(order.total), emphasis: 'total' },
+                ]}
+              />
+            )}
+
+            {!booking && order.deliverySlot && (
+              <p className="bc-meta mt-4 flex items-center gap-2 text-muted">
+                <TruckIcon width={16} height={16} aria-hidden="true" />
+                Delivery · {slotLabel(order.deliverySlot)}
+              </p>
+            )}
+
+            {booking && (
+              <>
+                {order.address && (
+                  <p className="bc-meta mt-4 rounded-btn bg-sky-50 px-4 py-3 text-muted">
+                    {order.address.line1}, {order.address.suburb} {order.address.state}{' '}
+                    {order.address.postcode}
+                  </p>
+                )}
+                {order.status !== 'cancelled' && (
+                  <div className="mt-6">
+                    <OrderTimeline steps={buildBookingSteps(order)} />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ---- Footer: actions, always visible ---- */}
+      {hasActions && (
+        <div className="flex flex-wrap items-center gap-3.5 border-t border-line bg-sky-50 px-6 py-5 lg:px-7">
+          {needsDeposit && (
+            <Button to={`/checkout/${order._id}`} variant="gold" size="sm">
+              Pay deposit · {money(order.depositAmount)}
+            </Button>
           )}
+          {order.invoiceRef && balanceDue && (
+            <Button
+              to={`/account/invoices/${order.invoiceRef}`}
+              variant={needsDeposit ? 'outline' : 'gold'}
+              size="sm"
+            >
+              View invoice &amp; pay balance
+            </Button>
+          )}
+          {order.invoiceRef && !balanceDue && (
+            <Button to={`/account/invoices/${order.invoiceRef}`} variant="outline" size="sm">
+              View invoice
+            </Button>
+          )}
+          <div className="flex-1" />
+          <Button to="/contact" variant="ghost" className="text-sm">
+            Need help?
+          </Button>
         </div>
       )}
     </article>

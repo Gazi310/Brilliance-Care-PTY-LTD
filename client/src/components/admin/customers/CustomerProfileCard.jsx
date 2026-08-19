@@ -1,8 +1,17 @@
 import { money, dateLabel } from '../orders/orderStatusMeta.js';
+import { PhoneIcon, MailIcon } from '../icons.jsx';
+import { Panel, Tag, Button, KpiCard } from '../../ui';
 
 const initial = (name) => (name || '?').trim().charAt(0).toUpperCase() || '?';
 
-/** Identity + headline numbers for one customer (account or guest). */
+/**
+ * Identity + headline numbers for one customer (account or guest).
+ *
+ * Phase 8 restyle: the gradient avatar goes flat navy, the emoji contact
+ * buttons (📞 ✉️) become real icons, and the three stat boxes reuse
+ * <KpiCard> so they match the dashboard rather than being a fourth
+ * variation on "number in a box".
+ */
 export default function CustomerProfileCard({ customer: c }) {
   const STATS = [
     { label: 'Orders', value: c.ordersCount },
@@ -10,33 +19,26 @@ export default function CustomerProfileCard({ customer: c }) {
     {
       label: 'Outstanding',
       value: money(c.outstanding),
-      cls: c.outstanding > 0 ? 'text-amber-600' : 'text-ink',
+      ...(c.outstanding > 0 ? { delta: 'Balance owing', direction: 'down' } : {}),
     },
   ];
 
   return (
-    <section className="rounded-2xl border border-line bg-white p-5 shadow-soft">
+    <Panel padded>
       <div className="flex items-center gap-4">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-navy to-aqua text-xl font-extrabold text-white">
+        <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-navy-900 font-display text-xl font-bold text-white">
           {initial(c.name)}
         </span>
+
         <div className="min-w-0">
-          <h2 className="flex flex-wrap items-center gap-2 text-lg font-extrabold text-ink">
+          <h2 className="flex flex-wrap items-center gap-2.5 font-display text-[22px] font-bold text-navy-900">
             {c.name}
-            <span
-              className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
-                c.type === 'guest' ? 'bg-line text-faint' : 'bg-aqua/15 text-aqua-d'
-              }`}
-            >
+            <Tag tone={c.type === 'guest' ? 'neutral' : 'info'}>
               {c.type === 'guest' ? 'Guest' : 'Account'}
-            </span>
-            {c.isAdmin && (
-              <span className="rounded-full bg-navy/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-navy">
-                Admin
-              </span>
-            )}
+            </Tag>
+            {c.isAdmin && <Tag tone="gold">Admin</Tag>}
           </h2>
-          <p className="mt-1 text-xs text-muted">
+          <p className="mt-1.5 bc-meta text-muted">
             {c.memberSince
               ? `Customer since ${dateLabel(c.memberSince)}`
               : 'Books as a guest — invite them to create an account to track orders'}
@@ -45,39 +47,30 @@ export default function CustomerProfileCard({ customer: c }) {
       </div>
 
       {/* Contact */}
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-wrap gap-2.5">
         {c.phone && (
-          <a
-            href={`tel:${c.phone.replace(/\s+/g, '')}`}
-            className="rounded-xl border border-line bg-white px-3 py-1.5 text-xs font-bold text-navy shadow-soft transition hover:-translate-y-0.5"
-          >
-            📞 {c.phone}
-          </a>
+          <Button variant="outline" size="sm" href={`tel:${c.phone.replace(/\s+/g, '')}`}>
+            <PhoneIcon width={16} height={16} />
+            {c.phone}
+          </Button>
         )}
         {c.email && (
-          <a
-            href={`mailto:${c.email}`}
-            className="rounded-xl border border-line bg-white px-3 py-1.5 text-xs font-bold text-navy shadow-soft transition hover:-translate-y-0.5"
-          >
-            ✉️ {c.email}
-          </a>
+          <Button variant="outline" size="sm" href={`mailto:${c.email}`}>
+            <MailIcon width={16} height={16} />
+            {c.email}
+          </Button>
         )}
         {!c.phone && !c.email && (
-          <p className="text-xs text-faint">No contact details on file yet.</p>
+          <p className="bc-meta text-muted">No contact details on file yet.</p>
         )}
       </div>
 
       {/* Numbers */}
-      <div className="mt-4 grid grid-cols-3 gap-2">
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
         {STATS.map((s) => (
-          <div key={s.label} className="rounded-xl bg-surface px-3 py-2.5 text-center">
-            <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-faint">
-              {s.label}
-            </p>
-            <p className={`mt-0.5 text-base font-extrabold ${s.cls || 'text-ink'}`}>{s.value}</p>
-          </div>
+          <KpiCard key={s.label} {...s} />
         ))}
       </div>
-    </section>
+    </Panel>
   );
 }

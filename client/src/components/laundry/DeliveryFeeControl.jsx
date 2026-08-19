@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getSettings, updateSettings } from '../../services/settingsService.js';
+import { TruckIcon } from '../admin/icons.jsx';
+import { Panel, Button, IconBadge } from '../ui';
 
 /* Small admin widget to view & edit the flat per-visit delivery fee. */
 export default function DeliveryFeeControl({ notify }) {
@@ -31,7 +33,7 @@ export default function DeliveryFeeControl({ notify }) {
       const s = await updateSettings({ deliveryFee: Number(fee) || 0 });
       setSaved(s.deliveryFee);
       setFee(String(s.deliveryFee));
-      notify?.('Delivery fee updated ✅', 'success');
+      notify?.('Delivery fee updated', 'success');
     } catch (err) {
       notify?.(err.message, 'error');
     } finally {
@@ -40,17 +42,21 @@ export default function DeliveryFeeControl({ notify }) {
   };
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-      <div className="flex items-center gap-2">
-        <span className="text-lg">🚚</span>
+    <Panel padded>
+      <div className="flex items-center gap-4">
+        <IconBadge size="inline" tone="sky" icon={TruckIcon} className="h-11 w-11 rounded-btn" />
+
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-gray-800">Delivery fee</p>
-          <p className="text-[11px] text-gray-400">Charged once per home visit. A shared pickup/delivery slot is billed once.</p>
+          <p className="font-bold text-navy-900">Delivery fee</p>
+          <p className="mt-0.5 bc-meta text-muted">
+            Charged once per home visit. A shared pickup/delivery slot is billed once.
+          </p>
         </div>
       </div>
-      <div className="mt-3 flex items-center gap-2">
-        <div className="inline-flex items-center rounded-lg border border-gray-200 px-2">
-          <span className="text-sm text-gray-400">$</span>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <div className="inline-flex h-10 w-32 items-center rounded-btn border border-line bg-white px-3">
+          <span className="text-[15px] text-muted">$</span>
           <input
             type="number"
             step="0.01"
@@ -58,21 +64,24 @@ export default function DeliveryFeeControl({ notify }) {
             value={loading ? '' : fee}
             disabled={loading}
             onChange={(e) => setFee(e.target.value)}
-            className="w-24 py-1.5 text-sm outline-none"
             placeholder={loading ? '…' : '0.00'}
+            aria-label="Delivery fee per visit"
+            className="w-full min-w-0 border-0 bg-transparent text-[15px] text-ink outline-none"
           />
         </div>
-        <span className="text-xs text-gray-400">per visit</span>
-        <button
+
+        <span className="bc-meta text-muted">per visit</span>
+
+        <Button
+          variant="navy"
+          size="sm"
           onClick={save}
           disabled={!dirty || saving}
-          className={`ml-auto rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${
-            dirty ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:shadow-md active:scale-95' : 'cursor-not-allowed bg-gray-200 text-gray-400'
-          }`}
+          className="ml-auto"
         >
           {saving ? 'Saving…' : dirty ? 'Save' : 'Saved'}
-        </button>
+        </Button>
       </div>
-    </div>
+    </Panel>
   );
 }

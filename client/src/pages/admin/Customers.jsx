@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
+import AdminPage from '../../components/admin/AdminPage.jsx';
 import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
 import CustomerRow from '../../components/admin/customers/CustomerRow.jsx';
 import { adminListCustomers } from '../../services/adminService.js';
+import { SearchIcon } from '../../components/products/icons.jsx';
+import { AlertIcon } from '../../components/admin/icons.jsx';
+import { Button, Notice } from '../../components/ui';
 
 /**
  * /admin/customers (blueprint §5.7) — registered accounts plus guests
@@ -40,54 +44,52 @@ export default function AdminCustomers() {
   }, [q]);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+    <AdminPage>
       <AdminSectionHeader
-        eyebrow="Admin"
-        title="Customers"
-        subtitle="Everyone you've served — accounts and guest bookings, with balances at a glance."
+        eyebrow="Customers"
+        title={loading ? 'Customers' : `${customers.length} customer${customers.length === 1 ? '' : 's'}`}
+        subtitle="Accounts and guest bookings, with balances at a glance."
+        action={
+          <div className="relative">
+            <input
+              type="search"
+              value={qInput}
+              onChange={(e) => setQInput(e.target.value)}
+              placeholder="Search name, email or phone…"
+              aria-label="Search customers"
+              className="h-11 w-full rounded-btn border border-line bg-white pl-10 pr-4 text-[15px] text-ink placeholder:text-muted sm:w-[280px]"
+            />
+            <SearchIcon
+              width={17}
+              height={17}
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted"
+            />
+          </div>
+        }
       />
 
-      <div className="relative">
-        <input
-          type="search"
-          value={qInput}
-          onChange={(e) => setQInput(e.target.value)}
-          placeholder="Search name, email or phone…"
-          className="w-full rounded-xl border border-line bg-white py-2.5 pl-9 pr-3 text-sm text-ink shadow-soft placeholder:text-faint focus:border-aqua focus:outline-none focus:ring-2 focus:ring-aqua/30"
-          aria-label="Search customers"
-        />
-        <svg
-          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint"
-          viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-          aria-hidden="true"
-        >
-          <circle cx="11" cy="11" r="7" />
-          <path d="M21 21l-4.3-4.3" />
-        </svg>
-      </div>
+      <Notice tone="info" className="mb-6">
+        <strong>Guests are grouped by phone number.</strong> They show with a{' '}
+        <code className="rounded bg-white/60 px-1.5 py-0.5 font-mono text-[13px]">guest:</code>{' '}
+        prefix and merge into an account if someone later signs up with the same number.
+      </Notice>
 
-      <div className="mt-4 space-y-2.5">
+      <div className="space-y-3">
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="bc-skeleton h-[70px] rounded-2xl" />
+            <div key={i} className="bc-skeleton h-[80px] rounded-card" />
           ))
         ) : error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
-            ⚠️ {error}
-            <button
-              onClick={load}
-              className="ml-3 rounded-lg bg-red-100 px-3 py-1 text-xs font-bold text-red-700 hover:bg-red-200"
-            >
+          <Notice tone="warn" icon={<AlertIcon className="mt-0.5 flex-none" />}>
+            <p>{error}</p>
+            <Button variant="ghost" onClick={load} className="mt-2">
               Retry
-            </button>
-          </div>
+            </Button>
+          </Notice>
         ) : customers.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-line bg-white px-5 py-10 text-center">
-            <p className="text-3xl">👥</p>
-            <p className="mt-2 text-sm font-bold text-ink">
-              {q ? 'No customers match that search' : 'No customers yet'}
-            </p>
-            <p className="mt-1 text-xs text-muted">
+          <div className="rounded-card border border-dashed border-line bg-white px-6 py-14 text-center">
+            <p className="bc-h3">{q ? 'No customers match that search' : 'No customers yet'}</p>
+            <p className="mx-auto mt-2 max-w-md bc-body text-muted">
               {q
                 ? 'Try a different name, email or phone number.'
                 : 'Customers appear here as soon as they register or book.'}
@@ -97,6 +99,6 @@ export default function AdminCustomers() {
           customers.map((c) => <CustomerRow key={c.id} customer={c} />)
         )}
       </div>
-    </div>
+    </AdminPage>
   );
 }

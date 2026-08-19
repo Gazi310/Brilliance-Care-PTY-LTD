@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { AlertIcon } from '../icons.jsx';
+import { Panel, Button, Field, Notice } from '../../ui';
 
 /**
  * Private admin note ("gate code 1234", "prefers Tuesday pickups"…).
@@ -29,41 +31,40 @@ export default function CustomerNotes({ customer, onSave }) {
   };
 
   return (
-    <section className="rounded-2xl border border-line bg-white p-5 shadow-soft">
-      <h3 className="text-sm font-extrabold text-ink">Notes</h3>
-      <p className="mt-0.5 text-[11px] text-faint">
-        Private — only admins see this. Access codes, preferences, anything useful.
-      </p>
-
+    <Panel title="Internal note" padded>
       {customer.canNote ? (
         <>
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+          <Field
+            id="customer-note"
+            as="textarea"
+            size="sm"
             rows={4}
             maxLength={2000}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
             placeholder="e.g. Side gate code 1234 · allergic to strong fragrance · prefers evening returns"
-            className="mt-3 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink placeholder:text-faint focus:border-aqua focus:outline-none focus:ring-2 focus:ring-aqua/30"
+            hint="Staff-only. Never shown to the customer."
           />
-          <div className="mt-2 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={save}
-              disabled={saving || !dirty}
-              className="rounded-xl bg-navy px-4 py-2 text-xs font-bold text-white shadow-soft transition hover:-translate-y-0.5 disabled:opacity-50"
-            >
+
+          <div className="mt-3.5 flex items-center gap-3">
+            <Button variant="navy" size="sm" onClick={save} disabled={saving || !dirty}>
               {saving ? 'Saving…' : 'Save note'}
-            </button>
-            {saved && <span className="text-xs font-bold text-emerald-600">Saved ✓</span>}
-            {error && <span className="text-xs font-medium text-red-600">⚠️ {error}</span>}
+            </Button>
+            {saved && <span className="bc-meta font-bold text-ok">Saved ✓</span>}
           </div>
+
+          {error && (
+            <Notice tone="warn" className="mt-3.5" icon={<AlertIcon className="mt-0.5 flex-none" />}>
+              {error}
+            </Notice>
+          )}
         </>
       ) : (
-        <p className="mt-3 rounded-xl bg-surface px-3 py-2.5 text-xs text-muted">
-          Guest customers can&rsquo;t hold notes — they&rsquo;ll get a profile the day they
-          register with this phone number.
-        </p>
+        <Notice tone="info">
+          Guest customers can&rsquo;t hold notes — they&rsquo;ll get a profile the day they register
+          with this phone number.
+        </Notice>
       )}
-    </section>
+    </Panel>
   );
 }

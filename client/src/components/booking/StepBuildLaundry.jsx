@@ -1,4 +1,6 @@
 import LaundryServiceCard from '../laundry/LaundryServiceCard.jsx';
+import { IconBadge } from '../ui';
+import { BasketIcon } from './icons.jsx';
 
 /**
  * Booking step 1 (laundry) — pick services & quantities.
@@ -8,16 +10,16 @@ import LaundryServiceCard from '../laundry/LaundryServiceCard.jsx';
 export default function StepBuildLaundry({ services, laundryQty, setLaundryQty }) {
   if (!services.length) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-line bg-white py-16 text-center shadow-soft">
-        <span className="text-5xl">🧺</span>
-        <p className="mt-4 text-base font-semibold text-muted">No laundry services yet</p>
-        <p className="text-sm text-faint">Please check back soon.</p>
+      <div className="bc-card-light flex flex-col items-center justify-center rounded-card border border-line bg-white py-16 text-center shadow-card">
+        <IconBadge icon={BasketIcon} tone="sky" />
+        <p className="bc-h4">No laundry services yet</p>
+        <p className="mt-1 text-sm text-muted">Please check back soon.</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-line bg-white px-4 shadow-soft sm:px-5">
+    <div className="bc-card-light rounded-card border border-line bg-white px-4 shadow-card sm:px-5">
       {services.map((s, i) => (
         <LaundryServiceCard
           key={s._id}

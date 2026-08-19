@@ -8,7 +8,10 @@ import {
 } from '../../services/productService.js';
 import AdminPanel from '../../components/products/AdminPanel.jsx';
 import DeliverySlotMenu from '../../components/products/DeliverySlotMenu.jsx';
+import AdminPage from '../../components/admin/AdminPage.jsx';
 import AdminSectionHeader from '../../components/admin/AdminSectionHeader.jsx';
+import { Panel, Button, Notice } from '../../components/ui';
+import { AlertIcon, TruckIcon } from '../../components/admin/icons.jsx';
 import ToastStack from '../../components/products/ToastStack.jsx';
 
 /**
@@ -53,7 +56,7 @@ export default function AdminProducts() {
     try {
       await updateProduct(id, fields);
       await load();
-      notify('Inventory updated ✅', 'success');
+      notify('Inventory updated', 'success');
     } catch (err) {
       notify(err.message, 'error');
     } finally {
@@ -73,7 +76,7 @@ export default function AdminProducts() {
     try {
       await createProduct(fields);
       await load();
-      notify('Product added 🎉', 'success');
+      notify('Product added', 'success');
     } catch (err) {
       notify(err.message, 'error');
       throw err;
@@ -81,7 +84,7 @@ export default function AdminProducts() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-8">
+    <AdminPage width="narrow">
       <AdminSectionHeader
         eyebrow="Manage"
         title="Shop inventory"
@@ -89,31 +92,35 @@ export default function AdminProducts() {
       />
 
       {/* Delivery-slot availability (admin) */}
-      <div className="mb-5 rounded-2xl border border-line bg-white p-4 shadow-soft">
-        <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-faint">
-          Delivery availability
-        </p>
-        <DeliverySlotMenu isAdmin scope="shop" selected={deliverySlot} onSelect={setDeliverySlot} notify={notify} />
-      </div>
+      <Panel title="Delivery availability" padded className="mb-5">
+        <DeliverySlotMenu
+          isAdmin
+          scope="shop"
+          icon={<TruckIcon />}
+          accent="admin"
+          selected={deliverySlot}
+          onSelect={setDeliverySlot}
+          notify={notify}
+        />
+      </Panel>
 
       {error && (
-        <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
-          ⚠️ {error}
-          <button onClick={load} className="ml-3 rounded-lg bg-red-100 px-3 py-1 text-xs font-bold text-red-700 hover:bg-red-200">
+        <Notice tone="warn" className="mb-5" icon={<AlertIcon className="mt-0.5 flex-none" />}>
+          <p>{error}</p>
+          <Button variant="ghost" onClick={load} className="mt-2">
             Retry
-          </button>
-        </div>
+          </Button>
+        </Notice>
       )}
 
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bc-skeleton h-24 rounded-2xl" />
+            <div key={i} className="bc-skeleton h-28 rounded-card" />
           ))}
         </div>
       ) : (
         <AdminPanel
-          inline
           products={products}
           onSave={handleSave}
           onDelete={handleDelete}
@@ -123,6 +130,6 @@ export default function AdminProducts() {
       )}
 
       <ToastStack toasts={toasts} onDismiss={dismiss} />
-    </div>
+    </AdminPage>
   );
 }

@@ -2,6 +2,9 @@ import Band from '../ui/Band.jsx';
 import Container from '../ui/Container.jsx';
 import SectionHead from '../ui/SectionHead.jsx';
 import ServiceCard from './ServiceCard.jsx';
+import laundryPhoto from '../../assets/folded-laundry-stack.webp';
+import cleaningPhoto from '../../assets/cleaner-living-room.webp';
+import shopPhoto from '../../assets/eco-detergent-shelf.webp';
 
 /**
  * Section 5 — "What can I buy?"
@@ -23,7 +26,7 @@ import ServiceCard from './ServiceCard.jsx';
 const SERVICES = [
   {
     to: '/laundry',
-    photo: 'Folded laundry stack, warm light',
+    photo: laundryPhoto,
     name: 'Laundry',
     body: 'Wash, dry, fold and ironing, collected from your door and back within 48 hours. Priced by the load or by the item — whichever suits you.',
     price: 'from $24.99',
@@ -31,7 +34,7 @@ const SERVICES = [
   },
   {
     to: '/cleaning',
-    photo: 'Cleaner at work in a bright living room',
+    photo: cleaningPhoto,
     name: 'Cleaning',
     body: 'Regular home cleans, deep cleans and end-of-lease bond cleans. Priced on the size of your home, not a guess over the phone.',
     price: 'from $89',
@@ -39,7 +42,7 @@ const SERVICES = [
   },
   {
     to: '/products',
-    photo: 'Eco detergent bottles on a shelf',
+    photo: shopPhoto,
     name: 'Shop',
     body: 'Eco detergents, wool dryer balls and laundry essentials, delivered with your next order.',
     price: 'Browse',

@@ -1,26 +1,27 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getInvoice, payInvoiceBalance } from '../services/invoiceService.js';
-import InvoiceLineItem from '../components/invoice/InvoiceLineItem.jsx';
+import PageHero from '../components/ui/PageHero.jsx';
+import Band from '../components/ui/Band.jsx';
+import Container from '../components/ui/Container.jsx';
+import Card from '../components/ui/Card.jsx';
+import Button from '../components/ui/Button.jsx';
+import InvoiceOutcome from '../components/invoice/InvoiceOutcome.jsx';
+import InvoiceParties from '../components/invoice/InvoiceParties.jsx';
+import InvoiceLines from '../components/invoice/InvoiceLines.jsx';
 import InvoiceTotals from '../components/invoice/InvoiceTotals.jsx';
-import CardPaymentForm from '../components/common/CardPaymentForm.jsx';
+import InvoicePayPanel from '../components/invoice/InvoicePayPanel.jsx';
+import { AlertIcon } from '../components/booking/icons.jsx';
 
-const money = (n) => `$${Number(n || 0).toFixed(2)}`;
 const dateLabel = (iso) =>
-  new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
-
-const PAID_LABEL = {
-  card_online: 'paid online by card',
-  cash_on_delivery: 'paid in cash on delivery',
-  card_on_delivery: 'paid by card on delivery',
-  waived: 'waived — nothing to pay',
-  not_required: 'no balance was due',
-};
+  new Date(iso).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
 
 /**
- * /account/invoices/:id — the final bill (blueprint §4.11): estimate vs
- * actual line by line, the deposit already paid, and the remaining balance —
- * payable online right here, or on delivery.
+ * /account/invoices/:id — the final bill (blueprint §4.11).
+ *
+ * Reading order is the design: verdict, then the line-by-line evidence,
+ * then the totals, then the payment. Anyone who only reads the first
+ * block should already know whether the price moved and which way.
  */
 export default function Invoice() {
   const { id } = useParams();
@@ -58,107 +59,91 @@ export default function Invoice() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-surface pb-28 lg:pb-16">
-        <div className="mx-auto max-w-2xl space-y-3 px-4 py-6 sm:px-6 sm:py-10">
-          <div className="bc-skeleton h-8 w-52 rounded-xl" />
-          <div className="bc-skeleton h-56 rounded-2xl" />
-          <div className="bc-skeleton h-40 rounded-2xl" />
-        </div>
+      <main>
+        <PageHero title="Invoice" crumbs={[{ label: 'Home', to: '/' }, { label: 'Invoice' }]} />
+        <Band tone="white">
+          <Container className="space-y-4">
+            <div className="bc-skeleton h-20 rounded-card" />
+            <div className="bc-skeleton h-80 rounded-card" />
+          </Container>
+        </Band>
       </main>
     );
   }
 
   if (error || !invoice) {
     return (
-      <main className="min-h-screen bg-surface pb-28 lg:pb-16">
-        <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
-            ⚠️ {error || 'Invoice not found'}
-            <Link to="/account/orders" className="ml-3 text-xs font-bold underline">
-              My orders
-            </Link>
-          </div>
-        </div>
+      <main>
+        <PageHero
+          title="Invoice"
+          crumbs={[
+            { label: 'Home', to: '/' },
+            { label: 'Account', to: '/account/orders' },
+            { label: 'Invoice' },
+          ]}
+        />
+        <Band tone="white">
+          <Container>
+            <div className="flex gap-3.5 rounded-card bg-bad-bg px-5 py-[18px] text-[15.5px] leading-[1.55] text-bad">
+              <AlertIcon className="mt-0.5 flex-none" aria-hidden="true" />
+              <p>
+                {error || 'Invoice not found'} —{' '}
+                <Link
+                  to="/account/orders"
+                  className="font-bold underline decoration-2 underline-offset-4"
+                >
+                  back to my orders
+                </Link>
+              </p>
+            </div>
+          </Container>
+        </Band>
       </main>
     );
   }
 
-  const paid = invoice.status === 'paid';
   const awaiting = invoice.status === 'sent' && invoice.balanceDue > 0;
 
   return (
-    <main className="min-h-screen bg-surface pb-28 lg:pb-16">
-      <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
-        <Link to="/account/orders" className="text-xs font-bold text-navy hover:underline">
-          ← My orders
-        </Link>
+    <main>
+      <PageHero
+        title={`Invoice ${invoice.number}`}
+        sub={`${invoice.order?.orderNumber ? `Order ${invoice.order.orderNumber} · ` : ''}issued ${dateLabel(
+          invoice.issuedAt
+        )}`}
+        crumbs={[
+          { label: 'Home', to: '/' },
+          { label: 'Account', to: '/account/orders' },
+          { label: 'Orders', to: '/account/orders' },
+          { label: 'Invoice' },
+        ]}
+      />
 
-        {/* ---- Header ---- */}
-        <div className="mt-2 flex flex-wrap items-center gap-2">
-          <h1 className="text-xl font-extrabold tracking-tight text-ink sm:text-2xl">
-            Invoice {invoice.number}
-          </h1>
-          <span
-            className={`rounded-full px-2.5 py-0.5 text-[11px] font-extrabold ${
-              paid ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-700'
-            }`}
-          >
-            {paid ? 'Paid' : 'Awaiting payment'}
-          </span>
-        </div>
-        <p className="mt-1 text-xs text-muted">
-          Issued {dateLabel(invoice.issuedAt)}
-          {invoice.order?.orderNumber && <> · for order <b>{invoice.order.orderNumber}</b></>}
-        </p>
+      <Band tone="white">
+        <Container className="flex flex-col gap-9 lg:flex-row lg:gap-12">
+          <div className="min-w-0 lg:flex-[1.6]">
+            <InvoiceOutcome invoice={invoice} justPaid={justPaid} />
 
-        {/* ---- Paid banner ---- */}
-        {paid && (
-          <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3.5 text-sm font-bold text-emerald-800">
-            {justPaid ? '🎉 Payment received — thank you!' : '✅ This invoice is settled'}
-            {invoice.paymentMethod && ` (${PAID_LABEL[invoice.paymentMethod] || 'paid'})`}
-            {invoice.paidAt && ` · ${dateLabel(invoice.paidAt)}`}
+            <Card className="mt-6">
+              <InvoiceParties order={invoice.order} />
+              <InvoiceLines lines={invoice.lineItems} />
+              <InvoiceTotals invoice={invoice} className="mt-6" />
+            </Card>
+
+            <div className="mt-6">
+              <Button to="/account/orders" variant="ghost" className="text-sm">
+                ← Back to my orders
+              </Button>
+            </div>
           </div>
-        )}
 
-        {/* ---- What changed & why ---- */}
-        <section className="mt-4 rounded-2xl border border-line bg-white p-4 shadow-soft sm:p-5">
-          <p className="text-[11px] font-extrabold uppercase tracking-wide text-faint">
-            Your final bill — estimate vs actual
-          </p>
-          <div className="mt-1 divide-y divide-line">
-            {invoice.lineItems.map((l, i) => (
-              <InvoiceLineItem key={i} line={l} />
-            ))}
-          </div>
-        </section>
-
-        {invoice.note && (
-          <div className="mt-3 rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-[13px] leading-relaxed text-slate-600">
-            📝 <b className="text-slate-700">Note from Brilliance Care:</b> {invoice.note}
-          </div>
-        )}
-
-        {/* ---- Money ---- */}
-        <div className="mt-3">
-          <InvoiceTotals invoice={invoice} />
-        </div>
-
-        {/* ---- Pay the balance ---- */}
-        {awaiting && (
-          <div className="mt-4">
-            <CardPaymentForm
-              amount={invoice.balanceDue}
-              onPay={pay}
-              busy={paying}
-              buttonLabel={`Pay balance · ${money(invoice.balanceDue)}`}
-            />
-            <p className="mt-3 rounded-2xl border border-line bg-white px-4 py-3 text-center text-xs font-semibold text-muted shadow-soft">
-              💵 Prefer to pay on delivery? Our driver can take cash or card — no need to do
-              anything now.
-            </p>
-          </div>
-        )}
-      </div>
+          {awaiting && (
+            <div className="min-w-0 lg:w-[380px] lg:flex-none">
+              <InvoicePayPanel invoice={invoice} onPay={pay} busy={paying} />
+            </div>
+          )}
+        </Container>
+      </Band>
     </main>
   );
 }

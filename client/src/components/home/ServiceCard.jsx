@@ -14,14 +14,19 @@ import { ArrowRight } from './icons';
  * The whole card is the link. The gold disc is decorative — making it
  * a second anchor to the same place gives screen readers a duplicate
  * and gives everyone else a smaller tap target.
+ *
+ * The photo carries `alt=""` for the same reason. The card's accessible
+ * name already comes from the heading, body and price sitting directly
+ * under it; describing the picture as well would make a screen reader
+ * announce "Laundry" twice before reading the pitch.
  */
-export default function ServiceCard({ to, photo, name, body, price, priceNote }) {
+export default function ServiceCard({ to, photo, photoAlt = '', name, body, price, priceNote }) {
   return (
     <Link
       to={to}
       className="group flex h-full flex-col overflow-hidden rounded-card bg-white text-inherit no-underline shadow-card transition-transform duration-200 hover:-translate-y-1"
     >
-      <ImagePlaceholder flush subject={photo} />
+      <ImagePlaceholder flush src={photo} alt={photoAlt} />
 
       <div className="flex flex-1 flex-col gap-3 p-6 lg:p-7">
         <h3 className="bc-h3">{name}</h3>

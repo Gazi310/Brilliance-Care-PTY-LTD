@@ -6,8 +6,16 @@ export async function login(email, password) {
   return data.user;
 }
 
-export async function register(name, email, password) {
-  const data = await api.post('/auth/register', { name, email, password });
+/**
+ * Create an account.
+ *
+ * Takes an object rather than positional arguments because the sign-up
+ * form now collects a phone number too, and `register(a, b, c, d)` at
+ * four fields is the point where the next one gets passed in the wrong
+ * slot. `phone` is optional — the server defaults it to ''.
+ */
+export async function register({ name, email, password, phone = '' }) {
+  const data = await api.post('/auth/register', { name, email, password, phone });
   setToken(data.token);
   return data.user;
 }

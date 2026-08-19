@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { AlertIcon, FlaskIcon, LockIcon } from '../booking/icons.jsx';
+import { Button, Field } from '../ui';
 
 /**
  * The shared "pay with card" block — MOCK provider.
@@ -37,80 +39,75 @@ export default function CardPaymentForm({ amount, onPay, busy, buttonLabel }) {
     }
   };
 
-  const inputCls =
-    'w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-faint focus:border-aqua focus:outline-none focus:ring-2 focus:ring-aqua/30';
-
   return (
-    <form onSubmit={submit} className="rounded-2xl border border-line bg-white p-4 shadow-soft sm:p-5">
-      <div className="flex items-center justify-between">
-        <p className="text-[11px] font-extrabold uppercase tracking-wide text-faint">Pay with card</p>
-        <span className="rounded-full bg-surface px-2.5 py-0.5 text-[11px] font-bold text-muted">🔒 Secure</span>
+    <form
+      onSubmit={submit}
+      className="bc-card-light rounded-card border border-line bg-white p-6 shadow-card lg:p-8"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p className="bc-eyebrow">Pay with card</p>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-100 px-3 py-1.5 text-xs font-bold leading-none text-navy-700">
+          <LockIcon width={13} height={13} aria-hidden="true" />
+          Secure
+        </span>
       </div>
 
-      <div className="mt-3 space-y-3">
-        <div>
-          <label htmlFor="pay-number" className="mb-1.5 block text-xs font-bold text-muted">Card number</label>
-          <input
-            id="pay-number"
+      <div className="mt-4 space-y-4">
+        <Field
+          id="pay-number"
+          label="Card number"
+          type="text"
+          inputMode="numeric"
+          autoComplete="cc-number"
+          placeholder="1234 5678 9012 3456"
+          value={number}
+          onChange={(e) => setNumber(formatNumber(e.target.value))}
+          required
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <Field
+            id="pay-expiry"
+            label="Expiry"
             type="text"
             inputMode="numeric"
-            autoComplete="cc-number"
-            placeholder="1234 5678 9012 3456"
-            value={number}
-            onChange={(e) => setNumber(formatNumber(e.target.value))}
-            className={inputCls}
+            autoComplete="cc-exp"
+            placeholder="MM/YY"
+            value={expiry}
+            onChange={(e) => setExpiry(formatExpiry(e.target.value))}
             required
           />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label htmlFor="pay-expiry" className="mb-1.5 block text-xs font-bold text-muted">Expiry</label>
-            <input
-              id="pay-expiry"
-              type="text"
-              inputMode="numeric"
-              autoComplete="cc-exp"
-              placeholder="MM/YY"
-              value={expiry}
-              onChange={(e) => setExpiry(formatExpiry(e.target.value))}
-              className={inputCls}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="pay-cvc" className="mb-1.5 block text-xs font-bold text-muted">CVC</label>
-            <input
-              id="pay-cvc"
-              type="text"
-              inputMode="numeric"
-              autoComplete="cc-csc"
-              placeholder="•••"
-              maxLength={4}
-              value={cvc}
-              onChange={(e) => setCvc(e.target.value.replace(/\D/g, ''))}
-              className={inputCls}
-              required
-            />
-          </div>
+          <Field
+            id="pay-cvc"
+            label="CVC"
+            type="text"
+            inputMode="numeric"
+            autoComplete="cc-csc"
+            placeholder="•••"
+            maxLength={4}
+            value={cvc}
+            onChange={(e) => setCvc(e.target.value.replace(/\D/g, ''))}
+            required
+          />
         </div>
       </div>
 
       {error && (
-        <p className="mt-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
-          ⚠️ {error}
+        <p className="mt-4 flex items-start gap-2.5 rounded-btn bg-bad-bg px-4 py-3 text-[13px] font-semibold text-bad">
+          <AlertIcon width={16} height={16} className="mt-px flex-none" aria-hidden="true" />
+          {error}
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={busy}
-        className="mt-4 w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal py-3.5 text-sm font-bold text-white shadow-md transition hover:shadow-lg active:scale-[.99] disabled:cursor-not-allowed disabled:opacity-60"
-      >
+      <Button variant="gold" type="submit" block disabled={busy} className="mt-5">
         {busy ? 'Processing…' : buttonLabel || `Pay $${Number(amount || 0).toFixed(2)}`}
-      </button>
+      </Button>
 
-      <p className="mt-3 rounded-xl bg-surface px-3 py-2 text-center text-[11px] font-semibold text-muted">
-        🧪 Test mode — any card details work. Use a number ending in <b>0002</b> to see a decline.
+      <p className="mt-4 flex items-start gap-2.5 rounded-btn bg-sky-50 px-4 py-3 text-xs font-semibold text-muted">
+        <FlaskIcon width={15} height={15} className="mt-px flex-none text-navy-500" aria-hidden="true" />
+        <span>
+          Test mode — any card details work. Use a number ending in <b className="font-bold text-navy-900">0002</b> to
+          see a decline.
+        </span>
       </p>
     </form>
   );

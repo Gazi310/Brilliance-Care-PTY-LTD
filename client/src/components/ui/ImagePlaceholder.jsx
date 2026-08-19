@@ -13,6 +13,17 @@
  * `flush` is for images that sit at the top of a card and run to its
  * edges: square corners, and the dashed frame reduced to a single
  * bottom rule so it doesn't double up with the card's own border.
+ *
+ * LOADING BEHAVIOUR
+ * Real images default to `loading="lazy"` + `decoding="async"`, which is
+ * right for everything below the fold. Set `priority` on the one image
+ * that's visible before any scrolling — usually a hero. That's almost
+ * always the LCP element, and lazy-loading your LCP image delays it by
+ * a full round trip for no benefit. One `priority` per page; marking
+ * everything priority is the same as marking nothing.
+ *
+ * The aspect-ratio box applies to the <img> as well as the placeholder,
+ * so the layout doesn't shift when the photo finishes decoding.
  */
 export default function ImagePlaceholder({
   subject,
@@ -20,6 +31,7 @@ export default function ImagePlaceholder({
   src,
   alt,
   flush = false,
+  priority = false,
   className = '',
   style,
   ...rest
@@ -31,7 +43,13 @@ export default function ImagePlaceholder({
     return (
       <img
         src={src}
+        // A decorative image should be given alt="" explicitly rather than
+        // inheriting the art-direction brief in `subject`, which describes
+        // the shot to a photographer, not the picture to a screen reader.
         alt={alt ?? subject ?? ''}
+        loading={priority ? 'eager' : 'lazy'}
+        decoding={priority ? 'sync' : 'async'}
+        fetchPriority={priority ? 'high' : undefined}
         className={`w-full object-cover ${radius} ${className}`}
         style={box}
         {...rest}

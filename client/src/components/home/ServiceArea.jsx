@@ -3,6 +3,7 @@ import Container from '../ui/Container.jsx';
 import Chip from '../ui/Chip.jsx';
 import ImagePlaceholder from '../ui/ImagePlaceholder.jsx';
 import PostcodeCheck from './PostcodeCheck.jsx';
+import areaMap from '../../assets/service-area-map.webp';
 
 /**
  * Section 8 — "Do you come to me?"
@@ -57,9 +58,14 @@ export default function ServiceArea() {
         </div>
 
         <div className="min-w-0 flex-1">
+          {/* Real alt text rather than alt="" — the map is the only thing
+              on the page that shows the shape of the coverage area. The
+              suburb chips and the postcode field carry the same
+              information in text, but a description costs nothing. */}
           <ImagePlaceholder
+            src={areaMap}
             ratio="4/3"
-            subject="Melbourne east with the service radius highlighted"
+            alt="Map of Melbourne's eastern suburbs with the Brilliance Care pickup and delivery radius highlighted"
           />
         </div>
       </Container>

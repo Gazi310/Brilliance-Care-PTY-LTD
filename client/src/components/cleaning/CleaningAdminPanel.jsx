@@ -1,33 +1,8 @@
 import { useState } from 'react';
 import DeliveryFeeControl from '../laundry/DeliveryFeeControl.jsx';
-
-const isPhoto = (img) =>
-  typeof img === 'string' &&
-  (/^https?:\/\//.test(img) || img.startsWith('data:') || img.startsWith('/') || /\.(png|jpe?g|webp|gif|avif|svg)$/i.test(img));
-
-// Read an image file, downscale it and return a compact JPEG data URL.
-function readImageFile(file, max = 800) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = () => {
-      const img = new Image();
-      img.onerror = reject;
-      img.onload = () => {
-        const scale = Math.min(1, max / Math.max(img.width, img.height));
-        const w = Math.max(1, Math.round(img.width * scale));
-        const h = Math.max(1, Math.round(img.height * scale));
-        const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', 0.82));
-      };
-      img.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
+import CatalogueRow, { RowField, rowInput, rowInputBare, LiveToggle }
+  from '../admin/catalogue/CatalogueRow.jsx';
+import AddCatalogueItem, { addInput } from '../admin/catalogue/AddCatalogueItem.jsx';
 
 const BLANK = {
   name: '', description: '', price: '', unit: 'per visit', duration: '2h', image: '',
@@ -35,10 +10,16 @@ const BLANK = {
 };
 
 /**
- * Cleaning service manager. Renders inline on the /admin/cleaning page
- * (`inline`), or as a slide-over drawer (default) for legacy callers.
+ * Cleaning service manager, rendered inline on /admin/cleaning.
+ *
+ * Phase 8 restyle — same treatment as the laundry manager: shared row
+ * shell from components/admin/catalogue/, dead drawer branch removed,
+ * emerald/gray palette replaced with navy & gold. The pricing-model
+ * block (flat vs home-size, per-bedroom and per-bathroom uplifts) is
+ * cleaning-only and stays inline; it feeds BookingContext's estimate
+ * engine, so none of its field names or payload shape changed.
  */
-export default function CleaningAdminPanel({ open, onClose, services, onSave, onDelete, onCreate, savingId, notify, inline = false }) {
+export default function CleaningAdminPanel({ services, onSave, onDelete, onCreate, savingId, notify }) {
   const [draft, setDraft] = useState({});
   const [showAdd, setShowAdd] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -49,7 +30,11 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
     const d = {};
     for (const s of services)
       d[s._id] = {
-        price: s.price, unit: s.unit || '', duration: s.duration || '', available: s.available, image: s.image || '',
+        price: s.price,
+        unit: s.unit || '',
+        duration: s.duration || '',
+        available: s.available,
+        image: s.image || '',
         pricingMode: s.pricingMode || 'flat',
         perBedroom: s.perBedroom ?? 0,
         perBathroom: s.perBathroom ?? 0,
@@ -92,24 +77,6 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
     });
   };
 
-  const pickNewImage = async (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-    try {
-      const url = await readImageFile(file);
-      setNewS((s) => ({ ...s, image: url }));
-    } catch { /* ignore */ }
-  };
-  const pickRowImage = async (id, e) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-    try {
-      edit(id, 'image', await readImageFile(file));
-    } catch { /* ignore */ }
-  };
-
   const submitNew = async (e) => {
     e.preventDefault();
     setCreating(true);
@@ -128,201 +95,231 @@ export default function CleaningAdminPanel({ open, onClose, services, onSave, on
       });
       setNewS(BLANK);
       setShowAdd(false);
-    } catch { /* parent toasts */ } finally {
+    } catch {
+      /* parent toasts */
+    } finally {
       setCreating(false);
     }
   };
 
-  // Shared editing UI (used by both inline and drawer modes).
-  const body = (
-    <>
-      {/* Delivery fee */}
-      <div className="mb-4">
-        <DeliveryFeeControl notify={notify} />
-      </div>
+  return (
+    <div className="space-y-5">
+      <DeliveryFeeControl notify={notify} />
 
-      {/* Add service */}
-      <div className="mb-4">
-        <button
-          onClick={() => setShowAdd((v) => !v)}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 py-2.5 text-sm font-semibold text-gray-500 transition hover:border-emerald-300 hover:text-emerald-600"
-        >
-          {showAdd ? '− Close' : '＋ Add cleaning service'}
-        </button>
-        {showAdd && (
-          <form onSubmit={submitNew} className="bc-fade-up mt-3 grid grid-cols-2 gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-            <input required placeholder="Service name (e.g. Deep Cleaning)" value={newS.name} onChange={(e) => setNewS({ ...newS, name: e.target.value })} className="col-span-2 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-            <textarea placeholder="Short description" value={newS.description} onChange={(e) => setNewS({ ...newS, description: e.target.value })} rows={2} className="col-span-2 resize-none rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
+      <AddCatalogueItem
+        label="Add a cleaning service"
+        open={showAdd}
+        onToggle={() => setShowAdd((v) => !v)}
+        onSubmit={submitNew}
+        creating={creating}
+        image={newS.image}
+        onPickImage={(url) => setNewS((s) => ({ ...s, image: url }))}
+        onImageUrl={(v) => setNewS((s) => ({ ...s, image: v }))}
+      >
+        <input
+          required
+          placeholder="Service name (e.g. Deep Cleaning)"
+          value={newS.name}
+          onChange={(e) => setNewS({ ...newS, name: e.target.value })}
+          className={`col-span-2 ${addInput}`}
+        />
+        <textarea
+          rows={2}
+          placeholder="Short description"
+          value={newS.description}
+          onChange={(e) => setNewS({ ...newS, description: e.target.value })}
+          className="col-span-2 min-h-[76px] resize-none rounded-btn border border-line bg-white px-3.5 py-3 text-[15px] text-ink placeholder:text-muted"
+        />
+        <input
+          type="number" step="0.01" min="0" required
+          placeholder="Charge ($)"
+          value={newS.price}
+          onChange={(e) => setNewS({ ...newS, price: e.target.value })}
+          className={addInput}
+        />
+        <input
+          placeholder="Unit (per visit / per room)"
+          value={newS.unit}
+          onChange={(e) => setNewS({ ...newS, unit: e.target.value })}
+          className={addInput}
+        />
+        <input
+          placeholder="Duration (e.g. 2h)"
+          value={newS.duration}
+          onChange={(e) => setNewS({ ...newS, duration: e.target.value })}
+          className={`col-span-2 ${addInput}`}
+        />
 
-            {/* Photo */}
-            <div className="col-span-2">
-              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Service photo</label>
-              <div className="flex items-center gap-3">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-gray-200 bg-gray-50 text-2xl">
-                  {newS.image ? (isPhoto(newS.image) ? <img src={newS.image} alt="" className="h-full w-full object-cover" /> : <span>{newS.image}</span>) : <span className="text-gray-300">🖼️</span>}
-                </div>
-                <div className="flex-1 space-y-2">
-                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100">
-                    ⬆ Upload photo
-                    <input type="file" accept="image/*" className="hidden" onChange={pickNewImage} />
-                  </label>
-                  <input placeholder="or paste image URL / emoji" value={newS.image.startsWith('data:') ? '' : newS.image} onChange={(e) => setNewS({ ...newS, image: e.target.value })} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-                </div>
-              </div>
-            </div>
+        {/* Pricing model */}
+        <div className="col-span-2 grid grid-cols-2 items-end gap-4 rounded-btn bg-sky-50 p-4">
+          <div>
+            <label
+              htmlFor="new-cleaning-pricing"
+              className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.08em] text-muted"
+            >
+              Pricing
+            </label>
+            <select
+              id="new-cleaning-pricing"
+              value={newS.pricingMode}
+              onChange={(e) => setNewS({ ...newS, pricingMode: e.target.value })}
+              className={addInput}
+            >
+              <option value="flat">Flat — price × qty</option>
+              <option value="home">Home size — base + per room</option>
+            </select>
+          </div>
 
-            <input type="number" step="0.01" min="0" required placeholder="Charge ($)" value={newS.price} onChange={(e) => setNewS({ ...newS, price: e.target.value })} className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-            <input placeholder="Unit (per visit / per room)" value={newS.unit} onChange={(e) => setNewS({ ...newS, unit: e.target.value })} className="rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-            <input placeholder="Duration (e.g. 2h)" value={newS.duration} onChange={(e) => setNewS({ ...newS, duration: e.target.value })} className="col-span-2 rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-emerald-400" />
+          <label className="flex items-center gap-2.5 pb-3 text-[15px] font-medium text-navy-900">
+            <input
+              type="checkbox"
+              checked={newS.isAddon}
+              onChange={(e) => setNewS({ ...newS, isAddon: e.target.checked })}
+              className="h-4 w-4 accent-gold-500"
+            />
+            Offer as add-on
+          </label>
 
-            {/* Pricing model */}
-            <div className="col-span-2 grid grid-cols-2 items-end gap-3 rounded-xl bg-gray-50 p-3">
-              <div>
-                <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Pricing</label>
-                <select value={newS.pricingMode} onChange={(e) => setNewS({ ...newS, pricingMode: e.target.value })} className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400">
-                  <option value="flat">Flat — price × qty</option>
-                  <option value="home">Home size — base + per room</option>
-                </select>
-              </div>
-              <label className="flex items-center gap-2 pb-2 text-sm font-medium text-gray-600">
-                <input type="checkbox" checked={newS.isAddon} onChange={(e) => setNewS({ ...newS, isAddon: e.target.checked })} className="h-4 w-4 accent-emerald-500" />
-                Offer as add-on
-              </label>
-              {newS.pricingMode === 'home' && (
-                <>
-                  <input type="number" step="0.01" min="0" placeholder="+$ per extra bedroom" value={newS.perBedroom} onChange={(e) => setNewS({ ...newS, perBedroom: e.target.value })} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-                  <input type="number" step="0.01" min="0" placeholder="+$ per extra bathroom" value={newS.perBathroom} onChange={(e) => setNewS({ ...newS, perBathroom: e.target.value })} className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-400" />
-                  <p className="col-span-2 text-[11px] leading-relaxed text-gray-400">Base charge covers a 1-bed · 1-bath home; extras are added per additional room.</p>
-                </>
-              )}
-            </div>
-            <button type="submit" disabled={creating} className="col-span-2 rounded-lg bg-emerald-600 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60">
-              {creating ? 'Adding…' : 'Add service'}
-            </button>
-          </form>
-        )}
-      </div>
+          {newS.pricingMode === 'home' && (
+            <>
+              <input
+                type="number" step="0.01" min="0"
+                placeholder="+$ per extra bedroom"
+                value={newS.perBedroom}
+                onChange={(e) => setNewS({ ...newS, perBedroom: e.target.value })}
+                className={addInput}
+              />
+              <input
+                type="number" step="0.01" min="0"
+                placeholder="+$ per extra bathroom"
+                value={newS.perBathroom}
+                onChange={(e) => setNewS({ ...newS, perBathroom: e.target.value })}
+                className={addInput}
+              />
+              <p className="col-span-2 bc-meta text-muted">
+                Base charge covers a 1-bed · 1-bath home; extras are added per additional room.
+              </p>
+            </>
+          )}
+        </div>
+      </AddCatalogueItem>
 
-      {/* Service rows */}
       <ul className="space-y-3">
         {services.map((s) => {
           const d = draft[s._id] || {
-            price: s.price, unit: s.unit || '', duration: s.duration || '', available: s.available, image: s.image || '',
-            pricingMode: s.pricingMode || 'flat', perBedroom: s.perBedroom ?? 0, perBathroom: s.perBathroom ?? 0, isAddon: !!s.isAddon,
+            price: s.price, unit: s.unit || '', duration: s.duration || '',
+            available: s.available, image: s.image || '',
+            pricingMode: s.pricingMode || 'flat',
+            perBedroom: s.perBedroom ?? 0, perBathroom: s.perBathroom ?? 0,
+            isAddon: !!s.isAddon,
           };
+
           return (
-            <li key={s._id} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-              <div className="flex items-center gap-3">
-                <label className="group/img relative flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-xl bg-gray-50 text-2xl" title="Change photo">
-                  {isPhoto(d.image) ? <img src={d.image} alt="" className="h-full w-full object-cover" /> : <span>{d.image || '🫧'}</span>}
-                  <span className="absolute inset-0 flex items-center justify-center bg-black/45 text-xs font-semibold text-white opacity-0 transition group-hover/img:opacity-100">✎</span>
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => pickRowImage(s._id, e)} />
-                </label>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-bold text-gray-800">{s.name}</p>
-                  <p className="line-clamp-1 text-xs text-gray-400">{s.description || '—'}</p>
-                </div>
-                <button onClick={() => onDelete(s._id)} title="Delete service" className="rounded-lg p-2 text-gray-300 transition hover:bg-red-50 hover:text-red-500">🗑️</button>
-              </div>
+            <CatalogueRow
+              key={s._id}
+              title={s.name}
+              subtitle={s.description}
+              image={d.image}
+              fallback="🫧"
+              onPickImage={(url) => edit(s._id, 'image', url)}
+              onDelete={() => onDelete(s._id)}
+              onSave={() => save(s)}
+              dirty={isDirty(s)}
+              saving={savingId === s._id}
+              footer={
+                <div className="mt-4 flex flex-wrap items-end gap-4 rounded-btn bg-sky-50 p-4">
+                  <RowField label="Pricing">
+                    <select
+                      value={d.pricingMode}
+                      onChange={(e) => edit(s._id, 'pricingMode', e.target.value)}
+                      aria-label={`Pricing model for ${s.name}`}
+                      className={`w-32 ${rowInput}`}
+                    >
+                      <option value="flat">Flat</option>
+                      <option value="home">Home size</option>
+                    </select>
+                  </RowField>
 
-              <div className="mt-3 flex flex-wrap items-end gap-3">
-                <div>
-                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Charge</label>
-                  <div className="inline-flex items-center rounded-lg border border-gray-200 px-2">
-                    <span className="text-sm text-gray-400">$</span>
-                    <input type="number" step="0.01" min="0" value={d.price} onChange={(e) => edit(s._id, 'price', e.target.value)} className="w-20 py-1.5 text-sm outline-none" />
-                  </div>
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Unit</label>
-                  <input value={d.unit} onChange={(e) => edit(s._id, 'unit', e.target.value)} className="w-28 rounded-lg border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-emerald-400" />
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Duration</label>
-                  <input value={d.duration} onChange={(e) => edit(s._id, 'duration', e.target.value)} className="w-20 rounded-lg border border-gray-200 px-2 py-1.5 text-sm outline-none focus:border-emerald-400" />
-                </div>
-                <div>
-                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Live</label>
-                  <button type="button" onClick={() => edit(s._id, 'available', !d.available)} className={`relative h-7 w-12 rounded-full transition ${d.available ? 'bg-emerald-500' : 'bg-gray-300'}`} aria-label="Toggle availability">
-                    <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${d.available ? 'left-[22px]' : 'left-0.5'}`} />
-                  </button>
-                </div>
-                <button
-                  onClick={() => save(s)}
-                  disabled={!isDirty(s) || savingId === s._id}
-                  className={`ml-auto rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${isDirty(s) ? 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:shadow-md active:scale-95' : 'cursor-not-allowed bg-gray-200 text-gray-400'}`}
-                >
-                  {savingId === s._id ? 'Saving…' : isDirty(s) ? 'Save' : 'Saved'}
-                </button>
-              </div>
+                  {d.pricingMode === 'home' && (
+                    <>
+                      <RowField label="+ per bedroom" prefix="$" width="w-24">
+                        <input
+                          type="number" step="0.01" min="0"
+                          value={d.perBedroom}
+                          onChange={(e) => edit(s._id, 'perBedroom', e.target.value)}
+                          aria-label={`Per-bedroom uplift for ${s.name}`}
+                          className={rowInputBare}
+                        />
+                      </RowField>
 
-              {/* Pricing model (booking flow) */}
-              <div className="mt-3 flex flex-wrap items-end gap-3 rounded-xl bg-gray-50 p-3">
-                <div>
-                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">Pricing</label>
-                  <select value={d.pricingMode} onChange={(e) => edit(s._id, 'pricingMode', e.target.value)} className="rounded-lg border border-gray-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-emerald-400">
-                    <option value="flat">Flat</option>
-                    <option value="home">Home size</option>
-                  </select>
+                      <RowField label="+ per bathroom" prefix="$" width="w-24">
+                        <input
+                          type="number" step="0.01" min="0"
+                          value={d.perBathroom}
+                          onChange={(e) => edit(s._id, 'perBathroom', e.target.value)}
+                          aria-label={`Per-bathroom uplift for ${s.name}`}
+                          className={rowInputBare}
+                        />
+                      </RowField>
+                    </>
+                  )}
+
+                  <label className="flex items-center gap-2.5 pb-2.5 text-[15px] font-medium text-navy-900">
+                    <input
+                      type="checkbox"
+                      checked={!!d.isAddon}
+                      onChange={(e) => edit(s._id, 'isAddon', e.target.checked)}
+                      className="h-4 w-4 accent-gold-500"
+                    />
+                    Add-on
+                  </label>
                 </div>
-                {d.pricingMode === 'home' && (
-                  <>
-                    <div>
-                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">+$/bedroom</label>
-                      <div className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-2">
-                        <span className="text-sm text-gray-400">$</span>
-                        <input type="number" step="0.01" min="0" value={d.perBedroom} onChange={(e) => edit(s._id, 'perBedroom', e.target.value)} className="w-16 py-1.5 text-sm outline-none" />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-gray-400">+$/bathroom</label>
-                      <div className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-2">
-                        <span className="text-sm text-gray-400">$</span>
-                        <input type="number" step="0.01" min="0" value={d.perBathroom} onChange={(e) => edit(s._id, 'perBathroom', e.target.value)} className="w-16 py-1.5 text-sm outline-none" />
-                      </div>
-                    </div>
-                  </>
-                )}
-                <label className="flex items-center gap-2 pb-1.5 text-sm font-medium text-gray-600">
-                  <input type="checkbox" checked={!!d.isAddon} onChange={(e) => edit(s._id, 'isAddon', e.target.checked)} className="h-4 w-4 accent-emerald-500" />
-                  Add-on
-                </label>
-              </div>
-            </li>
+              }
+            >
+              <RowField label="Charge" prefix="$" width="w-28">
+                <input
+                  type="number" step="0.01" min="0"
+                  value={d.price}
+                  onChange={(e) => edit(s._id, 'price', e.target.value)}
+                  aria-label={`Charge for ${s.name}`}
+                  className={rowInputBare}
+                />
+              </RowField>
+
+              <RowField label="Unit">
+                <input
+                  value={d.unit}
+                  onChange={(e) => edit(s._id, 'unit', e.target.value)}
+                  aria-label={`Unit for ${s.name}`}
+                  className={`w-28 ${rowInput}`}
+                />
+              </RowField>
+
+              <RowField label="Duration">
+                <input
+                  value={d.duration}
+                  onChange={(e) => edit(s._id, 'duration', e.target.value)}
+                  aria-label={`Duration for ${s.name}`}
+                  className={`w-24 ${rowInput}`}
+                />
+              </RowField>
+
+              <LiveToggle
+                on={d.available}
+                onToggle={() => edit(s._id, 'available', !d.available)}
+                label={`Toggle availability for ${s.name}`}
+              />
+            </CatalogueRow>
           );
         })}
+
         {services.length === 0 && (
-          <li className="rounded-2xl border border-dashed border-gray-200 bg-white p-8 text-center text-sm text-gray-400">
-            No cleaning services yet — add your first one above.
+          <li className="rounded-card border border-dashed border-line bg-white px-6 py-12 text-center">
+            <p className="bc-h4">No cleaning services yet</p>
+            <p className="mt-2 bc-meta text-muted">Add your first one above.</p>
           </li>
         )}
       </ul>
-    </>
-  );
-
-  // Inline mode: rendered directly inside the /admin/cleaning page.
-  if (inline) return body;
-
-  // Drawer mode: slide-over aside with backdrop.
-  return (
-    <>
-      <div
-        onClick={onClose}
-        className={`fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm transition-opacity duration-300 ${open ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
-      />
-      <aside
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-xl flex-col bg-gray-50 shadow-2xl transition-transform duration-500 ease-out ${open ? 'translate-x-0' : 'translate-x-full'}`}
-      >
-        <header className="flex items-center justify-between bg-gradient-to-r from-emerald-700 to-teal-800 px-6 py-5 text-white">
-          <div>
-            <h2 className="flex items-center gap-2 text-lg font-bold"><span>🫧</span> Cleaning Services</h2>
-            <p className="text-xs text-emerald-100">Add services, upload photos and set the charge.</p>
-          </div>
-          <button onClick={onClose} className="rounded-full p-2 text-white/70 transition hover:bg-white/10 hover:text-white" aria-label="Close">✕</button>
-        </header>
-
-        <div className="flex-1 overflow-y-auto px-5 py-5">{body}</div>
-      </aside>
-    </>
+    </div>
   );
 }

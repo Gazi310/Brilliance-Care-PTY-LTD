@@ -1,9 +1,15 @@
 import { Link } from 'react-router-dom';
 import { money } from '../orders/orderStatusMeta.js';
+import { Panel, Tag } from '../../ui';
 
 /**
  * The "don't let money slip" panel (blueprint §5.1): jobs finished but not
  * invoiced, invoices awaiting payment, and products running low.
+ *
+ * Phase 8 restyle. v1 gave each row its own hue (violet/amber/red) as
+ * decoration; here the tone tracks urgency instead — an item with a
+ * count of zero is `neutral` and visibly stands down, which is what
+ * makes a glance at this panel worth anything on a quiet morning.
  */
 export default function NeedsAction({ needsAction }) {
   const { awaitingInvoice, awaitingPayment, awaitingPaymentTotal, lowStock, lowStockAt } =
@@ -15,7 +21,7 @@ export default function NeedsAction({ needsAction }) {
       count: awaitingInvoice,
       title: 'Awaiting invoice',
       desc: 'Jobs done or underway with no final bill yet',
-      chip: 'bg-violet-100 text-violet-800',
+      tone: 'warn',
     },
     {
       to: '/admin/orders?segment=awaiting_payment',
@@ -25,7 +31,7 @@ export default function NeedsAction({ needsAction }) {
         awaitingPayment > 0
           ? `${money(awaitingPaymentTotal)} in sent invoices not yet paid`
           : 'Every sent invoice is settled',
-      chip: 'bg-amber-100 text-amber-800',
+      tone: 'bad',
     },
     {
       to: '/admin/products',
@@ -35,41 +41,42 @@ export default function NeedsAction({ needsAction }) {
         lowStock.length > 0
           ? lowStock.map((p) => `${p.name} (${p.stock})`).join(' · ')
           : `Nothing at ${lowStockAt} left or fewer`,
-      chip: 'bg-red-100 text-red-700',
+      tone: 'info',
     },
   ];
 
-  const anything = items.some((i) => i.count > 0);
+  const outstanding = items.reduce((s, i) => s + (i.count > 0 ? 1 : 0), 0);
 
   return (
-    <section className="mt-6">
-      <h2 className="text-sm font-extrabold text-ink">
-        Needs action
-        {!anything && <span className="ml-2 text-xs font-bold text-emerald-600">All clear ✓</span>}
-      </h2>
-      <div className="mt-2.5 grid gap-2 sm:grid-cols-3">
+    <Panel
+      as="h2"
+      title="Needs action"
+      action={
+        outstanding > 0 ? (
+          <Tag tone="warn">{outstanding}</Tag>
+        ) : (
+          <Tag tone="ok">All clear</Tag>
+        )
+      }
+      padded
+    >
+      <div className="grid gap-3 sm:grid-cols-3">
         {items.map((it) => (
           <Link
             key={it.title}
             to={it.to}
-            className={`rounded-2xl border border-line bg-white p-4 shadow-soft transition hover:-translate-y-0.5 ${
-              it.count === 0 ? 'opacity-70' : ''
+            className={`rounded-card border border-line p-5 transition-colors hover:border-navy-500 hover:bg-sky-50 ${
+              it.count === 0 ? 'opacity-60' : ''
             }`}
           >
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-extrabold text-ink">{it.title}</p>
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-extrabold ${
-                  it.count > 0 ? it.chip : 'bg-line text-faint'
-                }`}
-              >
-                {it.count}
-              </span>
+            <div className="flex items-center justify-between gap-2.5">
+              <p className="bc-h4">{it.title}</p>
+              <Tag tone={it.count > 0 ? it.tone : 'neutral'}>{it.count}</Tag>
             </div>
-            <p className="mt-1.5 line-clamp-2 text-[11px] leading-relaxed text-muted">{it.desc}</p>
+            <p className="mt-2 line-clamp-2 bc-meta text-muted">{it.desc}</p>
           </Link>
         ))}
       </div>
-    </section>
+    </Panel>
   );
 }

@@ -9,15 +9,24 @@
  *          `render(row)` wins over the raw cell value, which is how
  *          you get Tags, buttons and links into cells without this
  *          component knowing anything about them.
- * onRowClick: optional — makes rows keyboard-focusable too.
+ * onRowClick:   optional — makes rows keyboard-focusable too.
+ * rowClassName: optional `(row) => string`, for tinting a class of row
+ *               (the assess screen shades lines added on site, so they
+ *               read as "not part of the original estimate").
+ * flush:        drop the outer border and radius — for a table sitting
+ *               inside a <Panel>, which already provides both.
  */
 export default function DataTable({
   columns = [],
   rows = [],
   onRowClick,
+  rowClassName,
+  flush = false,
   empty = 'Nothing here yet.',
   className = '',
 }) {
+  const shell = flush ? 'overflow-x-auto' : 'overflow-x-auto rounded-card border border-line bg-white';
+
   if (rows.length === 0) {
     return (
       <div className={`rounded-card border border-line bg-white p-10 text-center ${className}`}>
@@ -27,7 +36,7 @@ export default function DataTable({
   }
 
   return (
-    <div className={`overflow-x-auto rounded-card border border-line bg-white ${className}`}>
+    <div className={`${shell} ${className}`}>
       <table className="w-full border-collapse">
         <thead>
           <tr>
@@ -60,7 +69,9 @@ export default function DataTable({
                   : undefined
               }
               tabIndex={onRowClick ? 0 : undefined}
-              className={onRowClick ? 'cursor-pointer transition-colors hover:bg-sky-50' : ''}
+              className={`${onRowClick ? 'cursor-pointer transition-colors hover:bg-sky-50' : ''} ${
+                rowClassName?.(row) ?? ''
+              }`}
             >
               {columns.map((c) => (
                 <td

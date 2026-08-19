@@ -14,12 +14,19 @@
 const SIZES = {
   default: 'w-[54px] h-[54px] mb-4 lg:w-16 lg:h-16 lg:mb-5 [&>svg]:w-7 [&>svg]:h-7',
   sm: 'w-12 h-12 mb-3.5 [&>svg]:w-[22px] [&>svg]:h-[22px]',
+  // `inline` is `sm` without the bottom margin — for badges sitting in a
+  // flex row next to text (list rows, accordion headers), where the
+  // margin the stacked sizes need would throw the row off-centre.
+  inline: 'w-12 h-12 [&>svg]:w-[22px] [&>svg]:h-[22px]',
 };
 
 const TONES = {
   gold: 'bg-gold-100 text-navy-500',
   navy: 'bg-navy-900 text-gold-500',
   sky: 'bg-sky-100 text-navy-700',
+  // Hairline ring instead of a fill — the fourth distinguishable
+  // treatment when several badges have to be told apart on one screen.
+  outline: 'bg-white text-navy-900 shadow-[inset_0_0_0_2px_var(--color-line)]',
 };
 
 export default function IconBadge({
