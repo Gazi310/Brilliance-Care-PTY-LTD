@@ -1,3 +1,9 @@
 node_modules/
 dist/
+
+# Env files — never commit real credentials.
+# .env and any variant (.env.local, .env.backup-*, .env.production) stay out;
+# .env.example is the tracked template and is deliberately allowed back in.
 .env
+.env.*
+!.env.example
